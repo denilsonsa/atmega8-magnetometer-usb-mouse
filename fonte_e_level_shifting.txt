@@ -1,0 +1,41 @@
+## Fonte
+
+Como fonte, estou usando um Zener 3V3 em série com um resistor de 470Ω,
+conforme descrito no "TIP #2" do arquivo en026368.pdf.
+
+## Level-shifting
+
+Usando a técnica mostrada na página 10 do AN97055.pdf
+Usando um MOSFET 2N7000 (pois foi o único que encontrei).
+
+## Resistores de pull-up
+
+As vias SDA e SCL do I2C precisam ter pull-up. Na verdade, no total serão 4
+pull-ups, dois para o lado de 3V3, e dois para o lado de 5V.
+
+Segundo a página 245 do ATmega8 Datasheet ("Two-wire Serial Interface
+Characteristics"), existem algumas fórmulas para calcular os valores mínimo e
+máximo dos pull-ups.
+
+O mínimo é (Vcc - 0.4V)/3mA
+(5-0.4)/(3*m) = 1533
+(3.3-0.4)/(3*m) = 966
+
+O máximo depende da frequência e da capacitância do barramento. Eu não faço a
+menor ideia de qual a capacitância do barramento, então procurei por
+"capacitance of twisted pair" no Google e cheguei nesta página:
+http://ckp.made-it.com/twistedpair.html
+
+Nela diz que Cat. 5 possui 14pF/ft. Meu barramento possui cerca de 1.5m, o que
+equivale a 4.92 pés. Logo, segundo esses cálculos, a capacitância desse
+barramento seria de 68.88pF.
+
+Fazendo as contas:
+(1000*n) / (68.88*p) = 14518
+(300*n) / (68.88*p) = 4355
+
+Logo, escolhi 3K3 (ou 3300Ω) como resistores de pull-up.
+Mas... Como eu não tinha resistores de 3K3, resolvi usar 2K2.
+
+Depois disso tudo... Olho a página 6 do datasheet do HMC5883L e descubro um
+circuito que usa resistores 2K2.
