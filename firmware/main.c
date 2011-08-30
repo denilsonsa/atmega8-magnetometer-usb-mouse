@@ -68,7 +68,7 @@ uchar	i, j;
 	while(--j){     /* USB Reset by device only required on Watchdog Reset */
 		i = 0;
 		while(--i)
-			__asm__(""); /* delay >10ms for USB reset */
+			__asm__ __volatile__(""); /* delay >10ms for USB reset */
 	}
 
     DDRD &= ~USB_PINS;    /* remove USB reset condition, set the pins as input */

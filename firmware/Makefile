@@ -102,7 +102,7 @@ dump:
 # Dependencies
 $(PROGNAME).s: $(PROGNAME).c usbconfig.h
 $(PROGNAME).o: $(PROGNAME).c usbconfig.h
-$(PROGNAME).elf: $(VUSBDIR)/usbdrv.o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(PROGNAME).o
+$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrv.o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 
 
 # The variables:
