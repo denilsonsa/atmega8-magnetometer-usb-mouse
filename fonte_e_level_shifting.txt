@@ -42,4 +42,6 @@ cabo.
 http://en.wikipedia.org/wiki/Category_5_cable#Characteristics
 
 Depois disso tudo... Olho a página 6 do datasheet do HMC5883L e descubro um
-circuito que usa resistores 2K2.
+circuito que usa resistores 2K2. E a página 17 cita "Pull-up resistance values
+of about 2.2K to 10K ohms are recommended with a nominal VDDIO voltage."
+

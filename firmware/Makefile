@@ -55,6 +55,7 @@ LDFLAGS  = -Wl,-Map=$(PROGNAME).map
 .PHONY: all help clean writeflash writeeeprom writefuse erase dump comments
 
 all: $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
+	./checksize $(PROGNAME).elf
 
 help:
 	@echo 'make all         - Builds the project'
