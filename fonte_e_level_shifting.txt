@@ -37,5 +37,9 @@ Fazendo as contas:
 Logo, escolhi 3K3 (ou 3300Ω) como resistores de pull-up.
 Mas... Como eu não tinha resistores de 3K3, resolvi usar 2K2.
 
+Nota: a Wikipedia cita capacitância de 52pF/m, o que daria 78pF para 1.5m de
+cabo.
+http://en.wikipedia.org/wiki/Category_5_cable#Characteristics
+
 Depois disso tudo... Olho a página 6 do datasheet do HMC5883L e descubro um
 circuito que usa resistores 2K2.
