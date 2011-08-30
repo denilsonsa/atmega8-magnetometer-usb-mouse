@@ -52,7 +52,7 @@ LDFLAGS  = -Wl,-Map=$(PROGNAME).map
 ### Make targets ###
 
 #Basic rules
-.PHONY: all help clean writeflash writeeeprom writefuse erase dump
+.PHONY: all help clean writeflash writeeeprom writefuse erase dump comments
 
 all: $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
 
@@ -65,10 +65,20 @@ help:
 	@echo 'make writefuse   - Writes the fuse bytes of the microcontroller'
 	@echo 'make erase       - Performs a chip erase'
 	@echo 'make dump        - Dumps all memory from the microcontroller'
+	@echo
+	@echo 'make comments    - Prints all TODO/FIXME/XXX comments'
 
 clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
 	rm -f $(VUSBDIR)/{oddebug,usbdrv,usbdrvasm}.{o,s,lst,map}
+
+comments:
+	ack --nomake 'TODO|FIXME|XXX'
+# I could have used grep, but ack is so much easier and prettier!
+# http://betterthangrep.com/
+# http://search.cpan.org/dist/ack/
+#
+# Note: Debian (and Ubuntu?) users have this tool installed as "ack-grep"
 
 writeflash:
 	avrdude $(AVRDUDE_PARAMS) \
