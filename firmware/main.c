@@ -207,6 +207,8 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 #define KEY_9          38
 #define KEY_0          39
 #define KEY_ENTER      40
+#define KEY_ESCAPE     41
+#define KEY_TAB        43
 #define KEY_SPACE      44
 #define KEY_MINUS      45
 #define KEY_EQUAL      46
@@ -254,6 +256,11 @@ static void build_report_from_char(uchar c) {
 			case '\n':
 				reportBuffer[0] = 0;
 				reportBuffer[1] = KEY_ENTER;
+				break;
+
+			case '\t':
+				reportBuffer[0] = 0;
+				reportBuffer[1] = KEY_TAB;
 				break;
 
 			case ' ':
@@ -455,7 +462,7 @@ int	main(void)
 					int_to_hex(useless_counter, number_buffer);
 					number_buffer[4] = '\n';
 					number_buffer[5] = '\0';
-				}else {
+				} else {
 					itoa(useless_counter, number_buffer, 10);
 					append_newline_to_str(number_buffer);
 				}
