@@ -315,7 +315,7 @@ static void build_report_from_char(uchar c) {
 
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, world!0123456789Oh Hi\n";
+static uchar hello_world[] = "Hello, world!\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
@@ -373,6 +373,13 @@ static void int_to_hex(int v, uchar *str) {
 	uchar_to_hex((uchar) v      , str+2);
 }
 
+static void append_newline_to_str(uchar *str) {
+	while(*str != '\0') {
+		str++;
+	}
+	*str     = '\n';
+	*(str+1) = '\0';
+}
 
 uchar usbFunctionSetup(uchar data[8]) {
 	usbRequest_t *rq = (void *)data;
@@ -438,20 +445,20 @@ int	main(void)
 		}
 		if (ON_KEY_DOWN(BUTTON_2)) {
 			useless_counter++;
-			if (!should_send_report) {
-				int_to_hex(useless_counter, number_buffer);
-				number_buffer[4] = '\n';
-				number_buffer[5] = '\0';
-				string_pointer = number_buffer;
-				should_send_report = 1;
-			}
 		}
 		if (ON_KEY_DOWN(BUTTON_3)) {
 			useless_counter--;
+		}
+		if (ON_KEY_DOWN(BUTTON_2) || ON_KEY_DOWN(BUTTON_3)) {
 			if (!should_send_report) {
-				int_to_hex(useless_counter, number_buffer);
-				number_buffer[4] = '\n';
-				number_buffer[5] = '\0';
+				if (key_state & BUTTON_SWITCH) {
+					int_to_hex(useless_counter, number_buffer);
+					number_buffer[4] = '\n';
+					number_buffer[5] = '\0';
+				}else {
+					itoa(useless_counter, number_buffer, 10);
+					append_newline_to_str(number_buffer);
+				}
 				string_pointer = number_buffer;
 				should_send_report = 1;
 			}
