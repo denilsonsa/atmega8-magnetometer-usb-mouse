@@ -233,9 +233,13 @@ static uchar last_char = '\0';
 static void build_report_from_char(uchar c) {
 	last_char = c;
 
-	if (c >= '0' && c <= '9') {
+	if (c >= '1' && c <= '9') {
 		reportBuffer[0] = 0;
-		reportBuffer[1] = KEY_0 + c - '0';
+		reportBuffer[1] = KEY_1 + c - '1';
+	}
+	else if (c == '0') {
+		reportBuffer[0] = 0;
+		reportBuffer[1] = KEY_0;
 	}
 	else if (c >= 'a' && c <= 'z') {
 		reportBuffer[0] = 0;
@@ -311,7 +315,7 @@ static void build_report_from_char(uchar c) {
 
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, world!\n";
+static uchar hello_world[] = "Hello, world!0123456789Oh Hi\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
@@ -347,7 +351,7 @@ static uchar send_next_char() {
 }
 
 
-uchar nibble_to_hex(uchar n) {
+static uchar nibble_to_hex(uchar n) {
 	// I'm supposing n is already in range 0x00..0x0F
 	if (n < 10)
 		return '0' + n;
@@ -355,14 +359,14 @@ uchar nibble_to_hex(uchar n) {
 		return 'A' + n - 10;
 }
 
-void uchar_to_hex(uchar v, uchar *str) {
+static void uchar_to_hex(uchar v, uchar *str) {
 	// XXX: The NULL terminator is NOT added!
 	*str = nibble_to_hex(v >> 4);
 	str++;
 	*str = nibble_to_hex(v & 0x0F);
 }
 
-void int_to_hex(int v, uchar *str) {
+static void int_to_hex(int v, uchar *str) {
 	// I'm supposing int is 16-bit
 	// XXX: The NULL terminator is NOT added!
 	uchar_to_hex((uchar)(v >> 8), str);
