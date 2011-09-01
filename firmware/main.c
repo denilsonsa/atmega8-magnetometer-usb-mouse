@@ -57,7 +57,9 @@ PD7	green debug LED
 
 static void hardwareInit(void)
 {
-uchar	i, j;
+	// TODO: Improve this routine. Look at vusb-20100715/examples/hid-mouse/
+
+	uchar i, j;
 
 	const uchar USB_PINS       = 0x05;  /* 0000 0101 */
 	const uchar DEBUG_PINS     = 0xE0;  /* 1110 0000 */
@@ -97,6 +99,12 @@ uchar	i, j;
 
 static uchar key_state = 0;
 static uchar key_changed = 0;
+
+// Handy macros!
+// These have the same name/meaning of JavaScript events
+#define ON_KEY_DOWN(button_mask) ((key_changed & (button_mask)) &&  (key_state & (button_mask)))
+#define ON_KEY_UP(button_mask)   ((key_changed & (button_mask)) && !(key_state & (button_mask)))
+// TODO: add some debouncing code, if needed.
 
 static void update_key_state() {
 	uchar state;
@@ -339,13 +347,35 @@ static uchar send_next_char() {
 }
 
 
-uchar	usbFunctionSetup(uchar data[8])
-{
-usbRequest_t    *rq = (void *)data;
+uchar nibble_to_hex(uchar n) {
+	// I'm supposing n is already in range 0x00..0x0F
+	if (n < 10)
+		return '0' + n;
+	else
+		return 'A' + n - 10;
+}
+
+void uchar_to_hex(uchar v, uchar *str) {
+	// XXX: The NULL terminator is NOT added!
+	*str = nibble_to_hex(v >> 4);
+	str++;
+	*str = nibble_to_hex(v & 0x0F);
+}
+
+void int_to_hex(int v, uchar *str) {
+	// I'm supposing int is 16-bit
+	// XXX: The NULL terminator is NOT added!
+	uchar_to_hex((uchar)(v >> 8), str);
+	uchar_to_hex((uchar) v      , str+2);
+}
+
+
+uchar usbFunctionSetup(uchar data[8]) {
+	usbRequest_t *rq = (void *)data;
 
     usbMsgPtr = reportBuffer;
-    if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
-        if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
+    if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {    /* class request type */
+        if (rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
             /* we only have one report type, so don't look at wValue */
 
 			// XXX: Ainda não entendi quando isto é chamado...
@@ -357,10 +387,10 @@ usbRequest_t    *rq = (void *)data;
 			// Achei que isto fosse necessário, mas não é
             // usbMsgPtr = reportBuffer;
             return sizeof(reportBuffer);
-        }else if(rq->bRequest == USBRQ_HID_GET_IDLE){
+        } else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
             usbMsgPtr = &idleRate;
             return 1;
-        }else if(rq->bRequest == USBRQ_HID_SET_IDLE){
+        } else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
 			// Set/Get IDLE defines how long the device should keep "quiet" if
 			// the state has not changed.
 			// Recommended default value for keyboard is 500ms, and infinity
@@ -368,7 +398,7 @@ usbRequest_t    *rq = (void *)data;
 			// See pages 52 and 53 from HID1_11.pdf
             idleRate = rq->wValue.bytes[1];
         }
-    }else{
+    } else {
         /* no vendor specific requests implemented */
     }
 	return 0;
@@ -394,15 +424,32 @@ int	main(void)
 		usbPoll();
 		update_key_state();
 
-		if (key_changed & BUTTON_1) {
-			if (key_state & BUTTON_1) {
-				// If the user started pressing the first key
-				LED_TOGGLE(RED_LED);
-				if (!should_send_report) {
-					// And this firmware is not sending anything
-					string_pointer = hello_world;
-					should_send_report = 1;
-				}
+		if (ON_KEY_DOWN(BUTTON_1)) {
+			LED_TOGGLE(RED_LED);
+			if (!should_send_report) {
+				// And this firmware is not sending anything
+				string_pointer = hello_world;
+				should_send_report = 1;
+			}
+		}
+		if (ON_KEY_DOWN(BUTTON_2)) {
+			useless_counter++;
+			if (!should_send_report) {
+				int_to_hex(useless_counter, number_buffer);
+				number_buffer[4] = '\n';
+				number_buffer[5] = '\0';
+				string_pointer = number_buffer;
+				should_send_report = 1;
+			}
+		}
+		if (ON_KEY_DOWN(BUTTON_3)) {
+			useless_counter--;
+			if (!should_send_report) {
+				int_to_hex(useless_counter, number_buffer);
+				number_buffer[4] = '\n';
+				number_buffer[5] = '\0';
+				string_pointer = number_buffer;
+				should_send_report = 1;
 			}
 		}
 
