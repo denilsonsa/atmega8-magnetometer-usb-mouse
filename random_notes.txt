@@ -1,0 +1,4 @@
+http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_intpromote
+"Why does the compiler compile an 8-bit operation that uses bitwise operators into a 16-bit operation in assembly?"
+	However, in my experiment, nothing has changed. I guess GCC was smart
+	enough to use 8-bit operations here.
