@@ -25,19 +25,19 @@
 PB0	(not used)
 PB1	(not used)
 PB2	(not used)
-PB3	(not used)
-PB4	(not used)
-PB5 (not used)
+PB3	(not used - MOSI)
+PB4	(not used - MISO)
+PB5 (not used - SCK)
 
-PC0	(not used)
-PC1	(not used)
-PC2	(not used)
-PC3	Key 3
-PC4	Key 2
-PC5	Key 1
+PC0	Button 1
+PC1	Button 2
+PC2	Button 3
+PC3	Switch button
+PC4	I2C - SDA
+PC5	I2C - SCL
 
 PD0	USB-
-PD1	debug tx
+PD1	(not used - debug tx)
 PD2	USB+ (int0)
 PD3	(not used)
 PD4	(not used)
@@ -45,6 +45,15 @@ PD5	red debug LED
 PD6	yellow debug LED
 PD7	green debug LED
 */
+
+#define LED_TURN_ON(bit)  do { PORTD |=  (1 << (bit)); } while(0)
+#define LED_TURN_OFF(bit) do { PORTD &= ~(1 << (bit)); } while(0)
+#define LED_TOGGLE(bit)   do { PORTD ^=  (1 << (bit)); } while(0)
+
+// Bit positions for each LED (in PORTD)
+#define RED_LED    5
+#define YELLOW_LED 6
+#define GREEN_LED  7
 
 static void hardwareInit(void)
 {
@@ -80,16 +89,24 @@ uchar	i, j;
 /* ------------------------------------------------------------------------- */
 
 
+// Bit masks for each button (in key_state and key_changed vars)
+#define BUTTON_1      (1 << 0)
+#define BUTTON_2      (1 << 1)
+#define BUTTON_3      (1 << 2)
+#define BUTTON_SWITCH (1 << 3)
+
 static uchar key_state = 0;
 static uchar key_changed = 0;
 
 static void update_key_state() {
 	uchar state;
 
-	// buttons are on PC3, PC4, PC5
+	// buttons are on PC0, PC1, PC2, PC3
 	// buttons are ON when connected to GND, and thus read as zero
 	// buttons are OFF when open, and thus the internal pull-up makes them read as one
-	state = (PINC >> 3) ^ 0x07;
+
+	// The low nibble of PINC maps to the 4 buttons
+	state = (~PINC) & 0x0F;
 	key_changed = key_state ^ state;
 	key_state = state;
 }
@@ -205,8 +222,7 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 // Last char sent
 static uchar last_char = '\0';
 
-static void build_report_from_char(uchar c)
-{
+static void build_report_from_char(uchar c) {
 	last_char = c;
 
 	if (c >= '0' && c <= '9') {
@@ -334,7 +350,7 @@ usbRequest_t    *rq = (void *)data;
 
 			// XXX: Ainda não entendi quando isto é chamado...
 			// TODO: Fazer ligar um LED quando isto acontecer.
-			PORTD ^= 0x80;
+			LED_TOGGLE(GREEN_LED);
 			build_report_from_char('\0');
 
             //buildReport(keyPressed());
@@ -378,10 +394,10 @@ int	main(void)
 		usbPoll();
 		update_key_state();
 
-		if (key_changed & 0x01) {
-			if (key_state & 0x01) {
+		if (key_changed & BUTTON_1) {
+			if (key_state & BUTTON_1) {
 				// If the user started pressing the first key
-				PORTD ^= 0x20;
+				LED_TOGGLE(RED_LED);
 				if (!should_send_report) {
 					// And this firmware is not sending anything
 					string_pointer = hello_world;
@@ -398,7 +414,9 @@ int	main(void)
                 }else{
                     idleCounter = idleRate;
                     //keyDidChange = 1;
-					PORTD ^= 0x40;
+					LED_TOGGLE(YELLOW_LED);
+					// This piece of code never runs... because this modified
+					// firmware does not implement "idle"
                 }
             }
         }
