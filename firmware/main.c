@@ -96,25 +96,29 @@ static void hardware_init(void) {  // {{{
 	PORTD = 0xFF ^ (USBMASK | ALL_LEDS);
 	DDRD = 0 | ALL_LEDS;
 
-	// Doing a USB reset
-	// This is done here because the device might have been reset by the
-	// watchdog or some condition other than power-up.
-	//
-	// A reset is done by holding both D+ and D- low (setting the pins as
-	// output with value zero) for longer than 10ms.
-	//
-	// See page 145 of usb_20.pdf
-	// See also http://www.beyondlogic.org/usbnutshell/usb2.shtml
+	// If the reset cause was not a power-on...
+	if (MCUCSR != (1 << PORF)) {
+		// Doing a USB reset
+		// This is done here because the device might have been reset
+		// by the watchdog or some condition other than power-up.
+		//
+		// A reset is done by holding both D+ and D- low (setting the
+		// pins as output with value zero) for longer than 10ms.
+		//
+		// See page 145 of usb_20.pdf
+		// See also http://www.beyondlogic.org/usbnutshell/usb2.shtml
 
-    DDRD |= USBMASK;    // Setting as output
-	PORTD &= ~USBMASK;  // Setting as zero
+		DDRD |= USBMASK;    // Setting as output
+		PORTD &= ~USBMASK;  // Setting as zero
 
-	_delay_ms(15);  // Holding this state for at least 10ms
+		_delay_ms(15);  // Holding this state for at least 10ms
 
-    DDRD &= ~USBMASK;   // Setting as input
-	//PORTD &= ~USBMASK;  // Pull-ups are already disabled
+		DDRD &= ~USBMASK;   // Setting as input
+		//PORTD &= ~USBMASK;  // Pull-ups are already disabled
 
-	// End of USB reset
+		// End of USB reset
+	}
+	MCUCSR = 0;
 		
 
 	// TODO: Do I need this timer?
