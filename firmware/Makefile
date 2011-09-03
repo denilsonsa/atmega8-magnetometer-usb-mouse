@@ -55,6 +55,8 @@ CFLAGS   = -mmcu=$(MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -std=c99 -pipe -Os -Wall
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+# -fms-extensions is required in order to accept anonymous structures and unions
+CFLAGS  += -fms-extensions
 CFLAGS  += -I./ -I$(VUSBDIR)
 CXXFLAGS = $(CFLAGS)
 ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)

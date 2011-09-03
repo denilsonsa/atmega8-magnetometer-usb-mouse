@@ -16,3 +16,15 @@ Converting IAR C code to avr-gcc:
 	http://www.nongnu.org/avr-libc/user-manual/porting.html
 	http://www.avrfreaks.net/wiki/index.php/Documentation:AVR_GCC/IarToAvrgcc
 	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=411346
+
+Unnamed unions and structs:
+	http://stackoverflow.com/questions/1972003/how-to-use-anonymous-structs-unions-in-c
+	http://gcc.gnu.org/onlinedocs/gcc/Unnamed-Fields.html
+	from "man gcc" (version 4.4.5):
+	       -fms-extensions
+           Accept some non-standard constructs used in Microsoft header files.
+
+           Some cases of unnamed fields in structures and unions are only accepted
+           with this option.
+	Anonymous structures and unions are part of C1X standard: http://en.wikipedia.org/wiki/C1X
+
