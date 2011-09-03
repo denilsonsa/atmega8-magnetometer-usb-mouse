@@ -96,6 +96,7 @@ writefuse:
 # Note: lfuse should work as either 0x9F or 0xEF
 # Note: avrdude supports binary (0b prefix), hexadecimal (0x prefix),
 #       octal (0 prefix) and decimal (no prefix)
+# Note: it might be a good idea to enable EESAVE bit (by programming it to zero)
 
 erase:
 	avrdude $(AVRDUDE_PARAMS) \

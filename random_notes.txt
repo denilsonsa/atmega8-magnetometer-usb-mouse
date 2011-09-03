@@ -2,3 +2,12 @@ http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_intpromote
 "Why does the compiler compile an 8-bit operation that uses bitwise operators into a 16-bit operation in assembly?"
 	However, in my experiment, nothing has changed. I guess GCC was smart
 	enough to use 8-bit operations here.
+
+
+How to setup TWI bit rate generator:
+	TWBR = 7
+	TWPS = 0
+	==> 400kHz @ CPU clock of 12MHz
+	AVR315: pages 4 and 5
+	ATmega8 Datasheet: page 171
+

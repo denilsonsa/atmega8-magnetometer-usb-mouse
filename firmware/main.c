@@ -1,101 +1,134 @@
 /* Name: main.c
- * Project: HID-Test
- * Author: Christian Starkjohann
- * Creation Date: 2006-02-02
+ * Project: atmega8-magnetometer-usb-mouse
+ * Author: Denilson Figueiredo de Sa
+ * Creation Date: 2011-08-29
  * Tabsize: 4
- * Copyright: (c) 2006 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v2 (see License.txt) or proprietary (CommercialLicense.txt)
- * This Revision: $Id: main.c 299 2007-03-29 17:07:19Z cs $
+ * License: GNU GPL v2 or GNU GPL v3
+ *
+ * Includes third-party code:
+ * - V-USB from OBJECTIVE DEVELOPMENT Software GmbH
+ *   http://www.obdev.at/products/vusb/index.html
+ * TODO: add AVR315 TWI driver, and USBaspLoader
  */
 
+// V-USB driver from http://www.obdev.at/products/vusb/
+#include "usbdrv.h"
+
+// Headers from AVR-Libc
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
-
-// AVR-Libc stdlib.h
+#include <util/delay.h>
 #include <stdlib.h>
 
-#include "usbdrv.h"
-#include "oddebug.h"
+// I'm not using serial-line debugging
+//#include "oddebug.h"
 
-/* ----------------------- hardware I/O abstraction ------------------------ */
+// TODO: try including usbdrv.c directly, just to see how much space it saves.
 
-/* pin assignments:
-PB0	(not used)
-PB1	(not used)
-PB2	(not used)
-PB3	(not used - MOSI)
-PB4	(not used - MISO)
-PB5 (not used - SCK)
+////////////////////////////////////////////////////////////
+// Hardware description                                  {{{
 
-PC0	Button 1
-PC1	Button 2
-PC2	Button 3
-PC3	Switch button
-PC4	I2C - SDA
-PC5	I2C - SCL
+/* ATmega8 pin assignments:
+ * PB0: (not used)
+ * PB1: (not used)
+ * PB2: (not used)
+ * PB3: (not used - MOSI)
+ * PB4: (not used - MISO)
+ * PB5: (not used - SCK)
+ * PB6: 12MHz crystal
+ * PB7: 12MHz crystal
+ *
+ * PC0: Button 1
+ * PC1: Button 2
+ * PC2: Button 3
+ * PC3: Switch button
+ * PC4: I2C - SDA
+ * PC5: I2C - SCL
+ *
+ * PD0: USB-
+ * PD1: (not used - debug tx)
+ * PD2: USB+ (int0)
+ * PD3: (not used)
+ * PD4: (not used)
+ * PD5: red debug LED
+ * PD6: yellow debug LED
+ * PD7: green debug LED
+ */
 
-PD0	USB-
-PD1	(not used - debug tx)
-PD2	USB+ (int0)
-PD3	(not used)
-PD4	(not used)
-PD5	red debug LED
-PD6	yellow debug LED
-PD7	green debug LED
-*/
+#define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
+#define LED_TURN_OFF(led) do { PORTD &= ~(led); } while(0)
+#define LED_TOGGLE(led)   do { PORTD ^=  (led); } while(0)
 
-#define LED_TURN_ON(bit)  do { PORTD |=  (1 << (bit)); } while(0)
-#define LED_TURN_OFF(bit) do { PORTD &= ~(1 << (bit)); } while(0)
-#define LED_TOGGLE(bit)   do { PORTD ^=  (1 << (bit)); } while(0)
+// Bit masks for each LED (in PORTD)
+#define RED_LED    (1 << 5)
+#define YELLOW_LED (1 << 6)
+#define GREEN_LED  (1 << 7)
+#define ALL_LEDS   (GREEN_LED | YELLOW_LED | RED_LED)
 
-// Bit positions for each LED (in PORTD)
-#define RED_LED    5
-#define YELLOW_LED 6
-#define GREEN_LED  7
-
-static void hardwareInit(void)
-{
-	// TODO: Improve this routine. Look at vusb-20100715/examples/hid-mouse/
-
-	uchar i, j;
-
-	const uchar USB_PINS       = 0x05;  /* 0000 0101 */
-	const uchar DEBUG_PINS     = 0xE0;  /* 1110 0000 */
-	const uchar UART_DEBUG_PIN = 0x02;  /* 0000 0010 */
-
-    PORTB = 0xff;   /* activate all pull-ups */
-    DDRB = 0;       /* all pins input */
-    PORTC = 0xff;   /* activate all pull-ups */
-    DDRC = 0;       /* all pins input */
-
-    //PORTD = 0xfa;   /* 1111 1010 bin: activate pull-ups except on USB lines */
-    //DDRD = 0x07;    /* 0000 0111 bin: all pins input except USB (-> USB reset) */
-	PORTD = 0xFF ^ (USB_PINS | DEBUG_PINS);
-	DDRD = 0 | USB_PINS | UART_DEBUG_PIN | DEBUG_PINS;
-
-	j = 0;
-	while(--j){     /* USB Reset by device only required on Watchdog Reset */
-		i = 0;
-		while(--i)
-			__asm__ __volatile__(""); /* delay >10ms for USB reset */
-	}
-
-    DDRD &= ~USB_PINS;    /* remove USB reset condition, set the pins as input */
-
-    /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-    TCCR0 = 5;      /* timer 0 prescaler: 1024 */
-}
-
-/* ------------------------------------------------------------------------- */
-
-
-// Bit masks for each button (in key_state and key_changed vars)
+// Bit masks for each button (in PORTC)
+// (also used in key_state and key_changed vars)
 #define BUTTON_1      (1 << 0)
 #define BUTTON_2      (1 << 1)
 #define BUTTON_3      (1 << 2)
 #define BUTTON_SWITCH (1 << 3)
+#define ALL_BUTTONS   (BUTTON_1 | BUTTON_2 | BUTTON_3 | BUTTON_SWITCH)
+
+// }}}
+
+
+static void hardware_init(void) {  // {{{
+	// Configuring Watchdog to about 2 seconds
+	// See pages 43 and 44 from ATmega8 datasheet
+	// See also http://www.nongnu.org/avr-libc/user-manual/group__avr__watchdog.html
+	wdt_enable(WDTO_2S);
+
+    PORTB = 0xff;  // activate all pull-ups
+    DDRB = 0;      // all pins input
+    PORTC = 0xff;  // activate all pull-ups
+    DDRC = 0;      // all pins input
+
+	// From usbdrv.h:
+	//#define USBMASK ((1<<USB_CFG_DPLUS_BIT) | (1<<USB_CFG_DMINUS_BIT))
+
+    // activate pull-ups, except on USB lines and LED pins
+	PORTD = 0xFF ^ (USBMASK | ALL_LEDS);
+	DDRD = 0 | ALL_LEDS;
+
+	// Doing a USB reset
+	// This is done here because the device might have been reset by the
+	// watchdog or some condition other than power-up.
+	//
+	// A reset is done by holding both D+ and D- low (setting the pins as
+	// output with value zero) for longer than 10ms.
+	//
+	// See page 145 of usb_20.pdf
+	// See also http://www.beyondlogic.org/usbnutshell/usb2.shtml
+
+    DDRD |= USBMASK;    // Setting as output
+	PORTD &= ~USBMASK;  // Setting as zero
+
+	_delay_ms(15);  // Holding this state for at least 10ms
+
+    DDRD &= ~USBMASK;   // Setting as input
+	//PORTD &= ~USBMASK;  // Pull-ups are already disabled
+
+	// End of USB reset
+		
+
+	// TODO: Do I need this timer?
+    /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
+    TCCR0 = 5;      /* timer 0 prescaler: 1024 */
+
+	// I'm not using serial-line debugging
+	//odDebugInit();
+
+	LED_TOGGLE(YELLOW_LED);
+}  // }}}
+
+/* ------------------------------------------------------------------------- */
+
 
 static uchar key_state = 0;
 static uchar key_changed = 0;
@@ -431,13 +464,12 @@ int	main(void)
 
 	uchar idleCounter = 0;
 
-	wdt_enable(WDTO_2S);
-    hardwareInit();
-	odDebugInit();
+	cli();
+    hardware_init();
 	usbInit();
 	sei();
-    DBG1(0x00, 0, 0);
-	for(;;){	/* main event loop */
+
+	for(;;) {	/* main event loop */
 		wdt_reset();
 		usbPoll();
 		update_key_state();
@@ -463,7 +495,7 @@ int	main(void)
 					number_buffer[4] = '\n';
 					number_buffer[5] = '\0';
 				} else {
-					itoa(useless_counter, number_buffer, 10);
+					itoa(useless_counter, (char*)number_buffer, 10);
 					append_newline_to_str(number_buffer);
 				}
 				string_pointer = number_buffer;
@@ -492,5 +524,3 @@ int	main(void)
 	}
 	return 0;
 }
-
-/* ------------------------------------------------------------------------- */
