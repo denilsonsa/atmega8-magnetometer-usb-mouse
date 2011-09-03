@@ -8,7 +8,9 @@
  * Includes third-party code:
  * - V-USB from OBJECTIVE DEVELOPMENT Software GmbH
  *   http://www.obdev.at/products/vusb/index.html
- * TODO: add AVR315 TWI driver, and USBaspLoader
+ * - USBaspLoader from OBJECTIVE DEVELOPMENT Software GmbH
+ *   http://www.obdev.at/products/vusb/usbasploader.html
+ * TODO: add AVR315 TWI driver
  */
 
 // Headers from AVR-Libc
@@ -47,7 +49,7 @@
  * PC0: Button 1
  * PC1: Button 2
  * PC2: Button 3
- * PC3: Switch button
+ * PC3: Switch button (if held to GND during power-on, starts the bootloader)
  * PC4: I2C - SDA
  * PC5: I2C - SCL
  *
@@ -394,7 +396,7 @@ static void append_newline_to_str(uchar *str) {
 // Main code                                             {{{
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, world!\n";
+static uchar hello_world[] = "Hello, bootloader!\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];

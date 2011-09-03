@@ -20,6 +20,11 @@ PROGRAMMER_MCU = atmega8
 # For USBasp
 AVRDUDE_PARAMS = -p $(PROGRAMMER_MCU) -c usbasp
 
+# -D  = Disable auto erase for flash memory
+#       This is required in order to write main firmware to flash without
+#       erasing the bootloader.
+AVRDUDE_PARAMS += -D
+
 # Microcontroller clock
 F_CPU = 12000000
 
