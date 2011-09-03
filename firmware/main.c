@@ -62,7 +62,7 @@
  * PD5: red debug LED
  * PD6: yellow debug LED
  * PD7: green debug LED
- * 
+ *
  * If you change the ports, remember to update these functions:
  * - hardware_init()
  * - update_key_state()
@@ -447,7 +447,7 @@ static void hardware_init(void) {  // {{{
 		// End of USB reset
 	}
 	MCUCSR = 0;
-		
+
 
 	// TODO: Do I need this timer?
     /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */

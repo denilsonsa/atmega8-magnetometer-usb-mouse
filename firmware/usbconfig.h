@@ -195,7 +195,7 @@
  */
 //#define USB_CFG_VENDOR_NAME     'o', 'b', 'd', 'e', 'v', '.', 'a', 't'
 //#define USB_CFG_VENDOR_NAME_LEN 8
-#define USB_CFG_VENDOR_NAME     'd', 'e', 'n', 'i', 'l', 's', 'o', 'n', 's', 'a', '@', 'g', 'm', 'a', 'i', 'l', '.', 'c', 'o', 'm' 
+#define USB_CFG_VENDOR_NAME     'd', 'e', 'n', 'i', 'l', 's', 'o', 'n', 's', 'a', '@', 'g', 'm', 'a', 'i', 'l', '.', 'c', 'o', 'm'
 #define USB_CFG_VENDOR_NAME_LEN 20
 /* These two values define the vendor name returned by the USB device. The name
  * must be given as a list of characters under single quotes. The characters
@@ -210,7 +210,7 @@
 //#define USB_CFG_DEVICE_NAME     'H', 'I', 'D', 'K', 'e', 'y', 's'
 //#define USB_CFG_DEVICE_NAME_LEN 7
 // TODO: Mudar o nome para algo mais descritivo!
-#define USB_CFG_DEVICE_NAME     'P', 'r', 'o', 'j', 'e', 't', 'o', ' ', 'F', 'i', 'n', 'a', 'l', 
+#define USB_CFG_DEVICE_NAME     'P', 'r', 'o', 'j', 'e', 't', 'o', ' ', 'F', 'i', 'n', 'a', 'l'
 #define USB_CFG_DEVICE_NAME_LEN 13
 /* Same as above for the device name. If you don't want a device name, undefine
  * the macros. See the file USB-IDs-for-free.txt before you assign a name if
