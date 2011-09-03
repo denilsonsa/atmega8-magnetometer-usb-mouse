@@ -397,7 +397,7 @@ static void append_newline_to_str(uchar *str) {
 // Main code                                             {{{
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, bootloader!\n";
+static uchar hello_world[] = "Hello, now with bootloader and AVR315 TWI driver!\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
