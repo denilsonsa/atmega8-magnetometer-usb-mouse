@@ -1,8 +1,11 @@
 ### Project configuration ###
 
 # The main project file (without extension)
+ifdef BUILDING_BOOTLOADER
+PROGNAME = bootloader
+else
 PROGNAME = main
-
+endif
 
 ### Microcontroller and programmer configuration ###
 
@@ -17,6 +20,21 @@ PROGRAMMER_MCU = atmega8
 # For USBasp
 AVRDUDE_PARAMS = -p $(PROGRAMMER_MCU) -c usbasp
 
+# Microcontroller clock
+F_CPU = 12000000
+
+# BOOTLOADER_ADDRESS is 1800 for 8k devices, 3800 for 16k and 7800 for 32k.
+# The datasheet says the start address is at 0xC00, but that is indexed in
+# words. Multiplying that number by 2 we get 0x1800, indexed in bytes.
+BOOTLOADER_ADDRESS = 1800
+
+# ATmega8 has 8K of flash ROM, but 1024 words (2048 bytes) are reserved for the
+# bootloader
+ifdef BUILDING_BOOTLOADER
+CHECKSIZE_CODELIMIT = 2048
+else
+CHECKSIZE_CODELIMIT = 6144
+endif
 
 ### Compiling tools configuration ###
 
@@ -29,20 +47,33 @@ OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 SIZE    = avr-size
 
-VUSBDIR = vusb-20100715/usbdrv
+ifdef BUILDING_BOOTLOADER
+VUSBDIR   = ../vusb-20100715/usbdrv
+CHECKSIZE = ../checksize
+else
+VUSBDIR   = ./vusb-20100715/usbdrv
+CHECKSIZE = ./checksize
+endif
 
-CFLAGS   = -mmcu=$(MCU) -std=c99 -pipe -Os -Wall
+CFLAGS   = -mmcu=$(MCU) -DF_CPU=$(F_CPU)
+CFLAGS  += -std=c99 -pipe -Os -Wall
+#CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CFLAGS  += -I./ -I$(VUSBDIR)
 CXXFLAGS = $(CFLAGS)
 ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
 LDFLAGS  = -Wl,-Map=$(PROGNAME).map
-#LDFLAGS += $(GENTOO_LD_PATH_WORKAROUND)
+#LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections -Wl,--relax
+
+ifdef BUILDING_BOOTLOADER
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDRESS)
+endif
 
 # See:
 # http://bugs.gentoo.org/show_bug.cgi?id=147155
 # http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=336170
 
+#LDFLAGS += $(GENTOO_LD_PATH_WORKAROUND)
 #GENTOO_LD_PATH_WORKAROUND = -L/usr/i686-pc-linux-gnu/avr/lib
 #GENTOO_LD_PATH_WORKAROUND = -L/usr/x86_64-pc-linux-gnu/avr/lib
 
@@ -52,14 +83,17 @@ LDFLAGS  = -Wl,-Map=$(PROGNAME).map
 ### Make targets ###
 
 #Basic rules
-.PHONY: all help clean writeflash writeeeprom writefuse erase dump comments
+.PHONY: all help clean boot writeboot writeflash writeeeprom writefuse erase dump comments
 
 all: $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
-	./checksize $(PROGNAME).elf
+	$(CHECKSIZE) $(PROGNAME).elf $(CHECKSIZE_CODELIMIT)
 
 help:
 	@echo 'make all         - Builds the project'
 	@echo 'make clean       - Deletes all built files'
+	@echo
+	@echo 'make boot        - Builds the bootloader (please run "make clean" before)'
+	@echo 'make writeboot   - Writes the bootloader to flash memory (please run "make clean" after)'
 	@echo
 	@echo 'make writeflash  - Writes the flash memory of the microcontroller'
 	@echo 'make writeeeprom - Writes the EEPROM of the microcontroller'
@@ -71,15 +105,17 @@ help:
 
 clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
+ifndef BUILDING_BOOTLOADER
 	rm -f $(VUSBDIR)/{oddebug,usbdrv,usbdrvasm}.{o,s,lst,map}
+	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 clean
+endif
 
-comments:
-	ack --nomake 'TODO|FIXME|XXX'
-# I could have used grep, but ack is so much easier and prettier!
-# http://betterthangrep.com/
-# http://search.cpan.org/dist/ack/
-#
-# Note: Debian (and Ubuntu?) users have this tool installed as "ack-grep"
+boot:
+	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 all
+
+writeboot:
+	avrdude $(AVRDUDE_PARAMS) \
+		-U flash:w:bootloader/bootloader.hex:i
 
 writeflash:
 	avrdude $(AVRDUDE_PARAMS) \
@@ -91,12 +127,11 @@ writeeeprom:
 
 writefuse:
 	avrdude $(AVRDUDE_PARAMS) \
-		-U hfuse:w:0xC9:m \
+		-U hfuse:w:0xC0:m \
 		-U lfuse:w:0x9F:m
 # Note: lfuse should work as either 0x9F or 0xEF
 # Note: avrdude supports binary (0b prefix), hexadecimal (0x prefix),
 #       octal (0 prefix) and decimal (no prefix)
-# Note: it might be a good idea to enable EESAVE bit (by programming it to zero)
 
 erase:
 	avrdude $(AVRDUDE_PARAMS) \
@@ -110,11 +145,23 @@ dump:
 		-U lock:r:lock.dump:b \
 		-U signature:r:signature.dump:h
 
+comments:
+	ack --nomake 'TODO|FIXME|XXX'
+# I could have used grep, but ack is so much easier and prettier!
+# http://betterthangrep.com/
+# http://search.cpan.org/dist/ack/
+#
+# Note: Debian (and Ubuntu?) users have this tool installed as "ack-grep"
+
 
 # Dependencies
 $(PROGNAME).s: $(PROGNAME).c usbconfig.h
 $(PROGNAME).o: $(PROGNAME).c usbconfig.h
-$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrv.o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
+ifdef BUILDING_BOOTLOADER
+$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
+else
+$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
+endif
 
 
 # The variables:
@@ -132,6 +179,10 @@ $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrv.o $(VUSBDIR)/usbdrvasm.o $(VUSB
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(ASFLAGS) -o $@ $<
 %.o: %.S
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) -o $@ $<
+# "-x assembler-with-cpp" should not be necessary since this is the default
+# file type for the .S (with capital S) extension. However, upper case
+# characters are not always preserved on Windows. Add this flag to ensure
+# WinAVR compatibility.
 %.o: %.h
 %.elf: %.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^
@@ -141,7 +192,7 @@ $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrv.o $(VUSBDIR)/usbdrvasm.o $(VUSB
 # Use -O binary for binary format
 %.hex: %.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
-	#$(OBJCOPY) -j .text -j .data -O ihex $< $@
+#	$(OBJCOPY) -j .text -j .data -O ihex $< $@
 %.eep: %.elf
 	$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 -O ihex $< $@

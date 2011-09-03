@@ -11,14 +11,6 @@
  * TODO: add AVR315 TWI driver, and USBaspLoader
  */
 
-// V-USB driver from http://www.obdev.at/products/vusb/
-#include "usbdrv.h"
-
-// It's also possible to include "usbdrv.c" directly, if we also add
-// this definition at the top of this file:
-// #define USB_PUBLIC static
-// However, this only saved 10 bytes.
-
 // Headers from AVR-Libc
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -26,6 +18,14 @@
 #include <avr/wdt.h>
 #include <util/delay.h>
 #include <stdlib.h>
+
+// V-USB driver from http://www.obdev.at/products/vusb/
+#include "usbdrv.h"
+
+// It's also possible to include "usbdrv.c" directly, if we also add
+// this definition at the top of this file:
+// #define USB_PUBLIC static
+// However, this only saved 10 bytes.
 
 // I'm not using serial-line debugging
 //#include "oddebug.h"

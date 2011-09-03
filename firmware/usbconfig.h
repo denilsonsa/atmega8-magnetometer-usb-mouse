@@ -16,11 +16,6 @@
  and then modified to fit this project.
 */
 
-#define F_CPU   12000000L    /* 12MHz crystal */
-/* This was originally defined at main.c, but it makes
- * sense to define it here.
- */
-
 /* ---------------------------- Hardware Config ---------------------------- */
 
 #define USB_CFG_IOPORTNAME      D

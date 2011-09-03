@@ -42,7 +42,7 @@ these macros are defined, the boot loader usees them.
 /* This is the port where the USB bus is connected. When you configure it to
  * "B", the registers PORTB, PINB and DDRB will be used.
  */
-#define USB_CFG_DMINUS_BIT      4
+#define USB_CFG_DMINUS_BIT      0
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
  */
@@ -52,7 +52,7 @@ these macros are defined, the boot loader usees them.
  * to interrupt pin INT0!
  */
 #define USB_CFG_CLOCK_KHZ       (F_CPU/1000)
-/* Clock rate of the AVR in MHz. Legal values are 12000, 16000 or 16500.
+/* Clock rate of the AVR in kHz. Legal values are 12000, 16000 or 16500.
  * The 16.5 MHz version of the code requires no crystal, it tolerates +/- 1%
  * deviation from the nominal frequency. All other rates require a precision
  * of 2000 ppm and thus a crystal!
@@ -77,7 +77,7 @@ these macros are defined, the boot loader usees them.
 /* ---------------------- feature / code size options ---------------------- */
 /* ------------------------------------------------------------------------- */
 
-#define HAVE_EEPROM_PAGED_ACCESS    1
+#define HAVE_EEPROM_PAGED_ACCESS    0
 /* If HAVE_EEPROM_PAGED_ACCESS is defined to 1, page mode access to EEPROM is
  * compiled in. Whether page mode or byte mode access is used by AVRDUDE
  * depends on the target device. Page mode is only used if the device supports
@@ -132,7 +132,7 @@ these macros are defined, the boot loader usees them.
 
 #ifndef __ASSEMBLER__   /* assembler cannot parse function definitions */
 
-#define JUMPER_BIT  7   /* jumper is connected to this bit in port D, active low */
+#define JUMPER_BIT  3   /* jumper is connected to this bit in port C, active low */
 
 #ifndef MCUCSR          /* compatibility between ATMega8 and ATMega88 */
 #   define MCUCSR   MCUSR
@@ -140,7 +140,7 @@ these macros are defined, the boot loader usees them.
 
 static inline void  bootLoaderInit(void)
 {
-    PORTD |= (1 << JUMPER_BIT);     /* activate pull-up */
+    PORTC |= (1 << JUMPER_BIT);     /* activate pull-up */
     if(!(MCUCSR & (1 << EXTRF)))    /* If this was not an external reset, ignore */
         leaveBootloader();
     MCUCSR = 0;                     /* clear all reset flags for next time */
@@ -148,10 +148,10 @@ static inline void  bootLoaderInit(void)
 
 static inline void  bootLoaderExit(void)
 {
-    PORTD = 0;                      /* undo bootLoaderInit() changes */
+    PORTC = 0;                      /* undo bootLoaderInit() changes */
 }
 
-#define bootLoaderCondition()   ((PIND & (1 << JUMPER_BIT)) == 0)
+#define bootLoaderCondition()   ((PINC & (1 << JUMPER_BIT)) == 0)
 
 #endif /* __ASSEMBLER__ */
 

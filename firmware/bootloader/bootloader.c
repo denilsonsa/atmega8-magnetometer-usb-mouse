@@ -20,7 +20,7 @@
 static void leaveBootloader() __attribute__((__noreturn__));
 
 #include "bootloaderconfig.h"
-#include "usbdrv/usbdrv.c"
+#include "usbdrv.c"
 
 /* ------------------------------------------------------------------------ */
 
