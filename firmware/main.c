@@ -14,6 +14,11 @@
 // V-USB driver from http://www.obdev.at/products/vusb/
 #include "usbdrv.h"
 
+// It's also possible to include "usbdrv.c" directly, if we also add
+// this definition at the top of this file:
+// #define USB_PUBLIC static
+// However, this only saved 10 bytes.
+
 // Headers from AVR-Libc
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -25,7 +30,6 @@
 // I'm not using serial-line debugging
 //#include "oddebug.h"
 
-// TODO: try including usbdrv.c directly, just to see how much space it saves.
 
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
@@ -55,6 +59,10 @@
  * PD5: red debug LED
  * PD6: yellow debug LED
  * PD7: green debug LED
+ * 
+ * If you change the ports, remember to update these functions:
+ * - hardware_init()
+ * - update_key_state()
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
@@ -67,7 +75,7 @@
 #define GREEN_LED  (1 << 7)
 #define ALL_LEDS   (GREEN_LED | YELLOW_LED | RED_LED)
 
-// Bit masks for each button (in PORTC)
+// Bit masks for each button (in PORTC and PINC)
 // (also used in key_state and key_changed vars)
 #define BUTTON_1      (1 << 0)
 #define BUTTON_2      (1 << 1)
@@ -78,61 +86,8 @@
 // }}}
 
 
-static void hardware_init(void) {  // {{{
-	// Configuring Watchdog to about 2 seconds
-	// See pages 43 and 44 from ATmega8 datasheet
-	// See also http://www.nongnu.org/avr-libc/user-manual/group__avr__watchdog.html
-	wdt_enable(WDTO_2S);
-
-    PORTB = 0xff;  // activate all pull-ups
-    DDRB = 0;      // all pins input
-    PORTC = 0xff;  // activate all pull-ups
-    DDRC = 0;      // all pins input
-
-	// From usbdrv.h:
-	//#define USBMASK ((1<<USB_CFG_DPLUS_BIT) | (1<<USB_CFG_DMINUS_BIT))
-
-    // activate pull-ups, except on USB lines and LED pins
-	PORTD = 0xFF ^ (USBMASK | ALL_LEDS);
-	DDRD = 0 | ALL_LEDS;
-
-	// If the reset cause was not a power-on...
-	if (MCUCSR != (1 << PORF)) {
-		// Doing a USB reset
-		// This is done here because the device might have been reset
-		// by the watchdog or some condition other than power-up.
-		//
-		// A reset is done by holding both D+ and D- low (setting the
-		// pins as output with value zero) for longer than 10ms.
-		//
-		// See page 145 of usb_20.pdf
-		// See also http://www.beyondlogic.org/usbnutshell/usb2.shtml
-
-		DDRD |= USBMASK;    // Setting as output
-		PORTD &= ~USBMASK;  // Setting as zero
-
-		_delay_ms(15);  // Holding this state for at least 10ms
-
-		DDRD &= ~USBMASK;   // Setting as input
-		//PORTD &= ~USBMASK;  // Pull-ups are already disabled
-
-		// End of USB reset
-	}
-	MCUCSR = 0;
-		
-
-	// TODO: Do I need this timer?
-    /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-    TCCR0 = 5;      /* timer 0 prescaler: 1024 */
-
-	// I'm not using serial-line debugging
-	//odDebugInit();
-
-	LED_TOGGLE(YELLOW_LED);
-}  // }}}
-
-/* ------------------------------------------------------------------------- */
-
+////////////////////////////////////////////////////////////
+// Button handling code                                  {{{
 
 static uchar key_state = 0;
 static uchar key_changed = 0;
@@ -141,7 +96,7 @@ static uchar key_changed = 0;
 // These have the same name/meaning of JavaScript events
 #define ON_KEY_DOWN(button_mask) ((key_changed & (button_mask)) &&  (key_state & (button_mask)))
 #define ON_KEY_UP(button_mask)   ((key_changed & (button_mask)) && !(key_state & (button_mask)))
-// TODO: add some debouncing code, if needed.
+// TODO: add some debouncing code, if really needed.
 
 static void update_key_state() {
 	uchar state;
@@ -156,12 +111,13 @@ static void update_key_state() {
 	key_state = state;
 }
 
-/* ------------------------------------------------------------------------- */
-/* ----------------------------- USB interface ----------------------------- */
-/* ------------------------------------------------------------------------- */
+// }}}
+
+
+////////////////////////////////////////////////////////////
+// USB HID Report Descriptor                             {{{
 
 static uchar    reportBuffer[2];    /* buffer for HID reports */
-static uchar    idleRate;           /* in 4 ms units */
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
@@ -195,9 +151,16 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
  * for the second INPUT item.
  */
 
-/* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
- * 10 Keyboard/Keypad Page for more codes.
- */
+// }}}
+
+
+////////////////////////////////////////////////////////////
+// Keyboard emulation code                               {{{
+
+// Keyboard usage values  {{{
+// See chapter 10 (Keyboard/Keypad Page) from "USB HID Usage Tables"
+// (page 53 of Hut1_12v2.pdf)
+
 #define MOD_CONTROL_LEFT    (1<<0)
 #define MOD_SHIFT_LEFT      (1<<1)
 #define MOD_ALT_LEFT        (1<<2)
@@ -252,7 +215,6 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 #define KEY_SEMICOLON  51
 #define KEY_COMMA      54
 #define KEY_PERIOD     55
-
 #define KEY_F1         58
 #define KEY_F2         59
 #define KEY_F3         60
@@ -266,10 +228,12 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 #define KEY_F11        68
 #define KEY_F12        69
 
+// }}}
+
 // Last char sent
 static uchar last_char = '\0';
 
-static void build_report_from_char(uchar c) {
+static void build_report_from_char(uchar c) {  // {{{
 	last_char = c;
 
 	if (c >= '1' && c <= '9') {
@@ -355,21 +319,14 @@ static void build_report_from_char(uchar c) {
 				reportBuffer[1] = 0;
 		}
 	}
-}
-
-
-// Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, world!\n";
-
-// 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
-static uchar number_buffer[12];
+}  // }}}
 
 
 // Pointer to RAM... Yeah, for static strings that's a waste of RAM, but it's
 // good enough for now.
 static uchar *string_pointer = NULL;
 
-static uchar send_next_char() {
+static uchar send_next_char() {  // {{{
 	// Builds a Report with the char pointed by 'string_pointer'.
 	//
 	// If a valid char is found, builds the report and returns 1.
@@ -392,8 +349,13 @@ static uchar send_next_char() {
 		string_pointer = NULL;
 		return 0;
 	}
-}
+}  // }}}
 
+// }}}
+
+
+////////////////////////////////////////////////////////////
+// String utilities                                      {{{
 
 static uchar nibble_to_hex(uchar n) {
 	// I'm supposing n is already in range 0x00..0x0F
@@ -425,7 +387,77 @@ static void append_newline_to_str(uchar *str) {
 	*(str+1) = '\0';
 }
 
-uchar usbFunctionSetup(uchar data[8]) {
+// }}}
+
+
+////////////////////////////////////////////////////////////
+// Main code                                             {{{
+
+// Exclamation point is being ignored, though
+static uchar hello_world[] = "Hello, world!\n";
+
+// 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
+static uchar number_buffer[12];
+
+static uchar    idleRate;           /* in 4 ms units */
+
+
+static void hardware_init(void) {  // {{{
+	// Configuring Watchdog to about 2 seconds
+	// See pages 43 and 44 from ATmega8 datasheet
+	// See also http://www.nongnu.org/avr-libc/user-manual/group__avr__watchdog.html
+	wdt_enable(WDTO_2S);
+
+    PORTB = 0xff;  // activate all pull-ups
+    DDRB = 0;      // all pins input
+    PORTC = 0xff;  // activate all pull-ups
+    DDRC = 0;      // all pins input
+
+	// From usbdrv.h:
+	//#define USBMASK ((1<<USB_CFG_DPLUS_BIT) | (1<<USB_CFG_DMINUS_BIT))
+
+    // activate pull-ups, except on USB lines and LED pins
+	PORTD = 0xFF ^ (USBMASK | ALL_LEDS);
+	// LED pins as output, the other pins as input
+	DDRD = 0 | ALL_LEDS;
+
+	// If the reset cause was not a power-on...
+	if (MCUCSR != (1 << PORF)) {
+		// Doing a USB reset
+		// This is done here because the device might have been reset
+		// by the watchdog or some condition other than power-up.
+		//
+		// A reset is done by holding both D+ and D- low (setting the
+		// pins as output with value zero) for longer than 10ms.
+		//
+		// See page 145 of usb_20.pdf
+		// See also http://www.beyondlogic.org/usbnutshell/usb2.shtml
+
+		DDRD |= USBMASK;    // Setting as output
+		PORTD &= ~USBMASK;  // Setting as zero
+
+		_delay_ms(15);  // Holding this state for at least 10ms
+
+		DDRD &= ~USBMASK;   // Setting as input
+		//PORTD &= ~USBMASK;  // Pull-ups are already disabled
+
+		// End of USB reset
+	}
+	MCUCSR = 0;
+		
+
+	// TODO: Do I need this timer?
+    /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
+    TCCR0 = 5;      /* timer 0 prescaler: 1024 */
+
+	// I'm not using serial-line debugging
+	//odDebugInit();
+
+	LED_TOGGLE(YELLOW_LED);
+}  // }}}
+
+
+uchar usbFunctionSetup(uchar data[8]) {  // {{{
 	usbRequest_t *rq = (void *)data;
 
     usbMsgPtr = reportBuffer;
@@ -457,12 +489,10 @@ uchar usbFunctionSetup(uchar data[8]) {
         /* no vendor specific requests implemented */
     }
 	return 0;
-}
+}  // }}}
 
-/* ------------------------------------------------------------------------- */
 
-int	main(void)
-{
+int	main(void) {  // {{{
 	int useless_counter = 0;
 	uchar should_send_report = 1;
 
@@ -527,4 +557,6 @@ int	main(void)
         }
 	}
 	return 0;
-}
+}  // }}}
+
+// }}}
