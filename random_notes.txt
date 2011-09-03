@@ -11,3 +11,8 @@ How to setup TWI bit rate generator:
 	AVR315: pages 4 and 5
 	ATmega8 Datasheet: page 171
 
+
+Converting IAR C code to avr-gcc:
+	http://www.nongnu.org/avr-libc/user-manual/porting.html
+	http://www.avrfreaks.net/wiki/index.php/Documentation:AVR_GCC/IarToAvrgcc
+	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=411346
