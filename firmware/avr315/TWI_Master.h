@@ -42,12 +42,12 @@
 
 union TWI_statusReg                       // Status byte holding flags.
 {
-    unsigned char all;
-    struct
-    {
-        unsigned char lastTransOK:1;
-        unsigned char unusedBits:7;
-    };
+	unsigned char all;
+	struct
+	{
+		unsigned char lastTransOK:1;
+		unsigned char unusedBits:7;
+	};
 };
 
 extern union TWI_statusReg TWI_statusReg;

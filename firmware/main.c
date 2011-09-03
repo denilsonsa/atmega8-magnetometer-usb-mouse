@@ -411,15 +411,15 @@ static void hardware_init(void) {  // {{{
 	// See also http://www.nongnu.org/avr-libc/user-manual/group__avr__watchdog.html
 	wdt_enable(WDTO_2S);
 
-    PORTB = 0xff;  // activate all pull-ups
-    DDRB = 0;      // all pins input
-    PORTC = 0xff;  // activate all pull-ups
-    DDRC = 0;      // all pins input
+	PORTB = 0xff;  // activate all pull-ups
+	DDRB = 0;      // all pins input
+	PORTC = 0xff;  // activate all pull-ups
+	DDRC = 0;      // all pins input
 
 	// From usbdrv.h:
 	//#define USBMASK ((1<<USB_CFG_DPLUS_BIT) | (1<<USB_CFG_DMINUS_BIT))
 
-    // activate pull-ups, except on USB lines and LED pins
+	// activate pull-ups, except on USB lines and LED pins
 	PORTD = 0xFF ^ (USBMASK | ALL_LEDS);
 	// LED pins as output, the other pins as input
 	DDRD = 0 | ALL_LEDS;
@@ -445,8 +445,8 @@ static void hardware_init(void) {  // {{{
 	// End of USB reset
 
 	// TODO: Do I need this timer?
-    /* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-    TCCR0 = 5;      /* timer 0 prescaler: 1024 */
+	/* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
+	TCCR0 = 5;      /* timer 0 prescaler: 1024 */
 
 	// I'm not using serial-line debugging
 	//odDebugInit();
@@ -458,34 +458,34 @@ static void hardware_init(void) {  // {{{
 uchar usbFunctionSetup(uchar data[8]) {  // {{{
 	usbRequest_t *rq = (void *)data;
 
-    usbMsgPtr = reportBuffer;
-    if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {    /* class request type */
-        if (rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
-            /* we only have one report type, so don't look at wValue */
+	usbMsgPtr = reportBuffer;
+	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {    /* class request type */
+		if (rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
+			/* we only have one report type, so don't look at wValue */
 
 			// XXX: Ainda não entendi quando isto é chamado...
 			// TODO: Fazer ligar um LED quando isto acontecer.
 			LED_TOGGLE(GREEN_LED);
 			build_report_from_char('\0');
 
-            //buildReport(keyPressed());
+			//buildReport(keyPressed());
 			// Achei que isto fosse necessário, mas não é
-            // usbMsgPtr = reportBuffer;
-            return sizeof(reportBuffer);
-        } else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
-            usbMsgPtr = &idleRate;
-            return 1;
-        } else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
+			// usbMsgPtr = reportBuffer;
+			return sizeof(reportBuffer);
+		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
+			usbMsgPtr = &idleRate;
+			return 1;
+		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
 			// Set/Get IDLE defines how long the device should keep "quiet" if
 			// the state has not changed.
 			// Recommended default value for keyboard is 500ms, and infinity
 			// for joystick and mice.
 			// See pages 52 and 53 from HID1_11.pdf
-            idleRate = rq->wValue.bytes[1];
-        }
-    } else {
-        /* no vendor specific requests implemented */
-    }
+			idleRate = rq->wValue.bytes[1];
+		}
+	} else {
+		/* no vendor specific requests implemented */
+	}
 	return 0;
 }  // }}}
 
@@ -497,7 +497,7 @@ int	main(void) {  // {{{
 	uchar idleCounter = 0;
 
 	cli();
-    hardware_init();
+	hardware_init();
 	usbInit();
 	sei();
 
@@ -535,24 +535,24 @@ int	main(void) {  // {{{
 			}
 		}
 
-        if(TIFR & (1<<TOV0)){   /* 22 ms timer */
-            TIFR = 1<<TOV0;
-            if(idleRate != 0){
-                if(idleCounter > 4){
-                    idleCounter -= 5;   /* 22 ms in units of 4 ms */
-                }else{
-                    idleCounter = idleRate;
-                    //keyDidChange = 1;
+		if(TIFR & (1<<TOV0)){   /* 22 ms timer */
+			TIFR = 1<<TOV0;
+			if(idleRate != 0){
+				if(idleCounter > 4){
+					idleCounter -= 5;   /* 22 ms in units of 4 ms */
+				}else{
+					idleCounter = idleRate;
+					//keyDidChange = 1;
 					LED_TOGGLE(YELLOW_LED);
 					// This piece of code never runs... because this modified
 					// firmware does not implement "idle"
-                }
-            }
-        }
-        if(should_send_report && usbInterruptIsReady()){
+				}
+			}
+		}
+		if(should_send_report && usbInterruptIsReady()){
 			should_send_report = send_next_char();
-            usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-        }
+			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+		}
 	}
 	return 0;
 }  // }}}

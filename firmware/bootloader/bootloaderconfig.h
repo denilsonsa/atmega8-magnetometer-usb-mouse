@@ -111,19 +111,19 @@ these macros are defined, the boot loader usees them.
 
 static inline void  bootLoaderInit(void)
 {
-    PORTC |= (1 << JUMPER_BIT);     /* activate pull-up */
+	PORTC |= (1 << JUMPER_BIT);     /* activate pull-up */
 
 	// The bootloader will only start on power-on reset and external (pin 1)
 	// reset.
 	// The main firmware will handle the watchdog and brown-out resets.
-    if(!(MCUCSR & (1 << EXTRF)))
-        leaveBootloader();
-    MCUCSR = 0;                     /* clear all reset flags for next time */
+	if(!(MCUCSR & (1 << EXTRF)))
+		leaveBootloader();
+	MCUCSR = 0;                     /* clear all reset flags for next time */
 }
 
 static inline void  bootLoaderExit(void)
 {
-    PORTC = 0;                      /* undo bootLoaderInit() changes */
+	PORTC = 0;                      /* undo bootLoaderInit() changes */
 }
 
 #define bootLoaderCondition()   ((PINC & (1 << JUMPER_BIT)) == 0)
