@@ -38,40 +38,11 @@ these macros are defined, the boot loader usees them.
 
 /* ---------------------------- Hardware Config ---------------------------- */
 
-#define USB_CFG_IOPORTNAME      D
-/* This is the port where the USB bus is connected. When you configure it to
- * "B", the registers PORTB, PINB and DDRB will be used.
- */
-#define USB_CFG_DMINUS_BIT      0
-/* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
- * This may be any bit in the port.
- */
-#define USB_CFG_DPLUS_BIT       2
-/* This is the bit number in USB_CFG_IOPORT where the USB D+ line is connected.
- * This may be any bit in the port. Please note that D+ must also be connected
- * to interrupt pin INT0!
- */
-#define USB_CFG_CLOCK_KHZ       (F_CPU/1000)
-/* Clock rate of the AVR in kHz. Legal values are 12000, 16000 or 16500.
- * The 16.5 MHz version of the code requires no crystal, it tolerates +/- 1%
- * deviation from the nominal frequency. All other rates require a precision
- * of 2000 ppm and thus a crystal!
- * Default if not specified: 12 MHz
+/* This section has been moved to "hardwareconfig.h", as it is now shared
+ * between the main project and the bootloader
  */
 
-/* ----------------------- Optional Hardware Config ------------------------ */
-
-/* #define USB_CFG_PULLUP_IOPORTNAME   D */
-/* If you connect the 1.5k pullup resistor from D- to a port pin instead of
- * V+, you can connect and disconnect the device from firmware by calling
- * the macros usbDeviceConnect() and usbDeviceDisconnect() (see usbdrv.h).
- * This constant defines the port on which the pullup resistor is connected.
- */
-/* #define USB_CFG_PULLUP_BIT          4 */
-/* This constant defines the bit number in USB_CFG_PULLUP_IOPORT (defined
- * above) where the 1.5k pullup resistor is connected. See description
- * above for details.
- */
+#include "../hardwareconfig.h"
 
 /* ------------------------------------------------------------------------- */
 /* ---------------------- feature / code size options ---------------------- */
@@ -122,7 +93,7 @@ these macros are defined, the boot loader usees them.
 
 /* ------------------------------------------------------------------------- */
 
-/* Example configuration: Port D bit 3 is connected to a jumper which ties
+/* Example configuration: Port C bit 3 is connected to a jumper which ties
  * this pin to GND if the boot loader is requested. Initialization allows
  * several clock cycles for the input voltage to stabilize before
  * bootLoaderCondition() samples the value.
