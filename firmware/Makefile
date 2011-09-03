@@ -1,12 +1,3 @@
-### Project configuration ###
-
-# The main project file (without extension)
-ifdef BUILDING_BOOTLOADER
-PROGNAME = bootloader
-else
-PROGNAME = main
-endif
-
 ### Microcontroller and programmer configuration ###
 
 # $(MCU) is passed to GCC
@@ -83,6 +74,14 @@ endif
 #GENTOO_LD_PATH_WORKAROUND = -L/usr/x86_64-pc-linux-gnu/avr/lib
 
 # ln -snf ../../lib/binutils/avr/2.*/ldscripts/ /usr/avr/lib/ldscripts
+
+
+# The main project file (without extension)
+ifdef BUILDING_BOOTLOADER
+PROGNAME = bootloader
+else
+PROGNAME = main
+endif
 
 
 ### Make targets ###

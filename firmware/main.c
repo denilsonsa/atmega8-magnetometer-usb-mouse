@@ -52,6 +52,7 @@
  * PC3: Switch button (if held to GND during power-on, starts the bootloader)
  * PC4: I2C - SDA
  * PC5: I2C - SCL
+ * PC6: Reset pin (with an external 10K pull-up to VCC)
  *
  * PD0: USB-
  * PD1: (not used - debug tx)
