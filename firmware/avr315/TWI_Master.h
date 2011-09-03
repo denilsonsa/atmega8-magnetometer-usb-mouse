@@ -28,8 +28,9 @@
 #define TWI_BUFFER_SIZE     4
 
 // TWI Bit rate Register setting.
-// Se Application note for detailed information on setting this value.
-// For 12MHz, 7 means 400KHz, and 52 means 100KHz
+// See pages 4 and 5 from "AVR315 - Using the TWI module as I2C master"
+// application note.
+// For 12MHz main clock, TWBR=7 means 400KHz, and TWBR=52 means 100KHz
 #define TWI_TWBR            7
 
 // Not used! This driver presumes prescaler = 00

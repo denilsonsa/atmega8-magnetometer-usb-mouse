@@ -23,16 +23,22 @@ project.
    the hardware. Basically, just check if the USB D- and USB D+ are connected
    to the correct pins.
 
-3. Open `Makefile`.
+3. Open `TWI_Master.h`.
+  1. Check if `TWI_TWBR` value is correct. It should be updated if you use a
+     different clock rate.
+  2. Check if `TWI_BUFFER_SIZE` is big enough. Unless you modify the firmware,
+     the value here don't need to be changed.
+
+4. Open `Makefile`.
   1. Set `AVRDUDE_PARAMS` according to your AVR programmer, if you use
      something other than USBasp.
   2. If you use a clock other than 12MHz, update `F_CPU` setting.
   3. If you use a microcontroller other than ATmega8, update `MCU`,
      `PROGRAMMER_MCU`, `BOOTLOADER_ADDRESS` and `CHECKSIZE_CODELIMIT`.
-  4. Also looke at the `writefuse` target. Check if the value of those fuse
+  4. Also look at the `writefuse` target. Check if the value of those fuse
      bits make sense for you (and for your hardware).
 
-4. Run `make writefuse` to write the fuse bits.
+5. Run `make writefuse` to write the fuse bits.
 
 ### Writing the bootloader (optional) ###
 
