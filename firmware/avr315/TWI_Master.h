@@ -23,13 +23,17 @@
 /****************************************************************************
   TWI Status/Control register definitions
 ****************************************************************************/
-#define TWI_BUFFER_SIZE 4   // Set this to the largest message size that will be sent including address byte.
+// TODO: set the TWI_BUFFER_SIZE to an appropriate size
+// Set this to the largest message size that will be sent including address byte.
+#define TWI_BUFFER_SIZE     4
 
-#define TWI_TWBR            0x0C        // TWI Bit rate Register setting.
-                                        // Se Application note for detailed 
-                                        // information on setting this value.
-// Not used defines!
-//#define TWI_TWPS          0x00        // This driver presumes prescaler = 00
+// TWI Bit rate Register setting.
+// Se Application note for detailed information on setting this value.
+// For 12MHz, 7 means 400KHz, and 52 means 100KHz
+#define TWI_TWBR            7
+
+// Not used! This driver presumes prescaler = 00
+//#define TWI_TWPS          0x00
 
 /****************************************************************************
   Global definitions
@@ -62,9 +66,6 @@ unsigned char TWI_Get_Data_From_Transceiver( unsigned char *, unsigned char );
 ****************************************************************************/
 #define TWI_READ_BIT  0       // Bit position for R/W bit in "address byte".
 #define TWI_ADR_BITS  1       // Bit position for LSB of the slave address bits in the init byte.
-
-#define TRUE          1
-#define FALSE         0
 
 /****************************************************************************
   TWI State codes

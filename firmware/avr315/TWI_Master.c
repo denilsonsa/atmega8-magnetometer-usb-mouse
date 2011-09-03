@@ -27,6 +27,9 @@
 #include "inavr.h"
 #include "TWI_Master.h"
 
+#define TRUE          1
+#define FALSE         0
+
 static unsigned char TWI_buf[ TWI_BUFFER_SIZE ];    // Transceiver buffer
 static unsigned char TWI_msgSize;                   // Number of bytes to be transmitted.
 static unsigned char TWI_state = TWI_NO_STATE;      // State byte. Default set to TWI_NO_STATE.
