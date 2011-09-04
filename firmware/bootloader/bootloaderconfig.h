@@ -116,7 +116,7 @@ static inline void  bootLoaderInit(void)
 	// The bootloader will only start on power-on reset and external (pin 1)
 	// reset.
 	// The main firmware will handle the watchdog and brown-out resets.
-	if(!(MCUCSR & (1 << EXTRF)))
+	if(!(MCUCSR & ((1 << EXTRF) | (1 << PORF))))
 		leaveBootloader();
 	MCUCSR = 0;                     /* clear all reset flags for next time */
 }
