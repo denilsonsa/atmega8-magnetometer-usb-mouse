@@ -112,6 +112,7 @@ these macros are defined, the boot loader usees them.
 static inline void  bootLoaderInit(void)
 {
 	PORTC |= (1 << JUMPER_BIT);     /* activate pull-up */
+	//DDRC = 0;
 
 	// The bootloader will only start on power-on reset and external (pin 1)
 	// reset.
@@ -123,7 +124,9 @@ static inline void  bootLoaderInit(void)
 
 static inline void  bootLoaderExit(void)
 {
-	PORTC = 0;                      /* undo bootLoaderInit() changes */
+	// undo bootLoaderInit() changes
+	PORTC = 0;
+	//DDRC = 0;
 }
 
 #define bootLoaderCondition()   ((PINC & (1 << JUMPER_BIT)) == 0)
