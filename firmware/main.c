@@ -436,7 +436,7 @@ static void sensor_set_address_pointer(uchar reg) {
 // Main code                                             {{{
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, testing I2C - 2nd try!\n";
+static uchar hello_world[] = "Hello, testing I2C - 3rd try!\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
@@ -537,6 +537,7 @@ int	main(void) {  // {{{
 
 	cli();
 	hardware_init();
+	TWI_Master_Initialise();
 	usbInit();
 	sei();
 
@@ -566,7 +567,8 @@ int	main(void) {  // {{{
 
 				TWI_Get_Data_From_Transceiver(temporary_badly_named_buffer, 4);
 				LED_TURN_ON(GREEN_LED);
-				temporary_badly_named_buffer[4] = '\0';
+				temporary_badly_named_buffer[4] = '\n';
+				temporary_badly_named_buffer[5] = '\0';
 				string_pointer = temporary_badly_named_buffer + 1;
 				should_send_report = 1;
 			}
