@@ -10,7 +10,8 @@
  *   http://www.obdev.at/products/vusb/index.html
  * - USBaspLoader from OBJECTIVE DEVELOPMENT Software GmbH
  *   http://www.obdev.at/products/vusb/usbasploader.html
- * TODO: add AVR315 TWI driver
+ * - AVR315 TWI Master Implementation from Atmel
+ *   http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
  */
 
 // Headers from AVR-Libc
@@ -31,6 +32,9 @@
 
 // I'm not using serial-line debugging
 //#include "oddebug.h"
+
+// AVR315 Using the TWI module as I2C master
+#include "avr315/TWI_Master.h"
 
 
 ////////////////////////////////////////////////////////////
@@ -392,12 +396,47 @@ static void append_newline_to_str(uchar *str) {
 
 // }}}
 
+////////////////////////////////////////////////////////////
+// Sensor communication over I2C (TWI)                   {{{
+
+#define SENSOR_I2C_READ_ADDRESS  0x3D
+#define SENSOR_I2C_WRITE_ADDRESS 0x3C
+
+// HMC5883L register definitions
+// This sensor has "L883 2105" written on the chip
+// Read/write registers:
+#define SENSOR_REG_CONF_A       0
+#define SENSOR_REG_CONF_B       1
+#define SENSOR_REG_MODE         2
+// Read-only registers:
+#define SENSOR_REG_DATA_START   3
+#define SENSOR_REG_DATA_X_MSB   3
+#define SENSOR_REG_DATA_X_LSB   4
+#define SENSOR_REG_DATA_Z_MSB   5
+#define SENSOR_REG_DATA_Z_LSB   6
+#define SENSOR_REG_DATA_Y_MSB   7
+#define SENSOR_REG_DATA_Y_LSB   8
+#define SENSOR_REG_STATUS       9
+#define SENSOR_REG_ID_A        10
+#define SENSOR_REG_ID_B        11
+#define SENSOR_REG_ID_C        12
+
+uchar temporary_badly_named_buffer[10];
+
+static void sensor_set_address_pointer(uchar reg) {
+	uchar msg[2];
+	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
+	msg[1] = reg;
+	TWI_Start_Transceiver_With_Data(msg, 2);
+}
+
+// }}}
 
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
 // Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, now with bootloader and AVR315 TWI driver!\n";
+static uchar hello_world[] = "Hello, testing I2C - 1st try!\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
@@ -508,9 +547,20 @@ int	main(void) {  // {{{
 
 		if (ON_KEY_DOWN(BUTTON_1)) {
 			LED_TOGGLE(RED_LED);
-			if (!should_send_report) {
-				// And this firmware is not sending anything
-				string_pointer = hello_world;
+			if (key_state & BUTTON_SWITCH) {
+				if (!should_send_report) {
+					// And this firmware is not sending anything
+					string_pointer = hello_world;
+					should_send_report = 1;
+				}
+			} else {
+				sensor_set_address_pointer(SENSOR_REG_ID_A);
+				temporary_badly_named_buffer[0] = SENSOR_I2C_READ_ADDRESS;
+				TWI_Start_Transceiver_With_Data(temporary_badly_named_buffer, 4);
+
+				TWI_Get_Data_From_Transceiver(temporary_badly_named_buffer, 4);
+				temporary_badly_named_buffer[4] = '\0';
+				string_pointer = temporary_badly_named_buffer + 1;
 				should_send_report = 1;
 			}
 		}

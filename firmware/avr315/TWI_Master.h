@@ -23,9 +23,8 @@
 /****************************************************************************
   TWI Status/Control register definitions
 ****************************************************************************/
-// TODO: set the TWI_BUFFER_SIZE to an appropriate size
 // Set this to the largest message size that will be sent including address byte.
-#define TWI_BUFFER_SIZE     4
+#define TWI_BUFFER_SIZE     7
 
 // TWI Bit rate Register setting.
 // See pages 4 and 5 from "AVR315 - Using the TWI module as I2C master"
