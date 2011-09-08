@@ -546,6 +546,12 @@ int	main(void) {  // {{{
 		usbPoll();
 		update_key_state();
 
+		if ( TWI_statusReg.lastTransOK ) {
+			LED_TURN_OFF(RED_LED);
+		} else {
+			LED_TURN_ON(RED_LED);
+		}
+
 		if (ON_KEY_DOWN(BUTTON_1)) {
 			LED_TOGGLE(RED_LED);
 			if (key_state & BUTTON_SWITCH) {
@@ -557,14 +563,15 @@ int	main(void) {  // {{{
 			} else {
 				LED_TURN_OFF(GREEN_LED);
 				LED_TURN_OFF(YELLOW_LED);
-				LED_TURN_OFF(RED_LED);
+				//LED_TURN_OFF(RED_LED);
 
 				sensor_set_address_pointer(SENSOR_REG_ID_A);
 				temporary_badly_named_buffer[0] = SENSOR_I2C_READ_ADDRESS;
-				LED_TURN_ON(RED_LED);
+				//LED_TURN_ON(RED_LED);
 				TWI_Start_Transceiver_With_Data(temporary_badly_named_buffer, 4);
 				LED_TURN_ON(YELLOW_LED);
 
+				// This function returns the status, which is being ignored by now
 				TWI_Get_Data_From_Transceiver(temporary_badly_named_buffer, 4);
 				LED_TURN_ON(GREEN_LED);
 				temporary_badly_named_buffer[4] = '\n';
