@@ -553,7 +553,6 @@ int	main(void) {  // {{{
 		}
 
 		if (ON_KEY_DOWN(BUTTON_1)) {
-			LED_TOGGLE(RED_LED);
 			if (key_state & BUTTON_SWITCH) {
 				if (!should_send_report) {
 					// And this firmware is not sending anything
