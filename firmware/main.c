@@ -329,8 +329,7 @@ static void build_report_from_char(uchar c) {  // {{{
 }  // }}}
 
 
-// Pointer to RAM... Yeah, for static strings that's a waste of RAM, but it's
-// good enough for now.
+// Pointer to RAM for the string being typed.
 static uchar *string_pointer = NULL;
 
 static uchar send_next_char() {  // {{{
@@ -521,7 +520,18 @@ static uchar twi_error_string[] = "TWI_statusReg.lastTransOK was FALSE.\n";
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
 
-static uchar    idleRate;           /* in 4 ms units */
+// As defined in section 7.2.4 Set_Idle Request
+// of Device Class Definition for Human Interface Devices (HID) version 1.11
+// pages 52 and 53 (or 62 and 63) of HID1_11.pdf
+//
+// Set/Get IDLE defines how long the device should keep "quiet" if the state
+// has not changed.
+// Recommended default value for keyboard is 500ms, and infinity for joystick
+// and mice.
+//
+// This value is measured in multiples of 4ms.
+// A value of zero means indefinite/infinity.
+static uchar idleRate;
 
 
 static void hardware_init(void) {  // {{{
@@ -587,19 +597,12 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 			LED_TOGGLE(GREEN_LED);
 			build_report_from_char('\0');
 
-			//buildReport(keyPressed());
-			// Achei que isto fosse necessário, mas não é
-			// usbMsgPtr = reportBuffer;
+			usbMsgPtr = reportBuffer;
 			return sizeof(reportBuffer);
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idleRate;
 			return 1;
 		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
-			// Set/Get IDLE defines how long the device should keep "quiet" if
-			// the state has not changed.
-			// Recommended default value for keyboard is 500ms, and infinity
-			// for joystick and mice.
-			// See pages 52 and 53 from HID1_11.pdf
 			idleRate = rq->wValue.bytes[1];
 		}
 	} else {
