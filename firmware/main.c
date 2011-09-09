@@ -287,6 +287,9 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 // Last char sent
 static uchar last_char = '\0';
 
+// Pointer to RAM for the string being typed.
+static uchar *string_pointer = NULL;
+
 static void build_report_from_char(uchar c) {  // {{{
 	last_char = c;
 
@@ -347,10 +350,6 @@ static void build_report_from_char(uchar c) {  // {{{
 	}
 }  // }}}
 
-
-// Pointer to RAM for the string being typed.
-static uchar *string_pointer = NULL;
-
 static uchar send_next_char() {  // {{{
 	// Builds a Report with the char pointed by 'string_pointer'.
 	//
@@ -374,6 +373,11 @@ static uchar send_next_char() {  // {{{
 		string_pointer = NULL;
 		return 0;
 	}
+}  // }}}
+
+static void init_keyboard_emulation() {  // {{{
+	last_char = '\0';
+	string_pointer = NULL;
 }  // }}}
 
 // }}}
@@ -456,7 +460,7 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 #define SENSOR_I2C_READ_ADDRESS  0x3D
 #define SENSOR_I2C_WRITE_ADDRESS 0x3C
 
-// HMC5883L register definitions
+// HMC5883L register definitions  {{{
 // This sensor has "L883 2105" written on the chip
 // Read/write registers:
 #define SENSOR_REG_CONF_A       0
@@ -475,6 +479,8 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 #define SENSOR_REG_ID_B        11
 #define SENSOR_REG_ID_C        12
 
+// }}}
+
 // 7 should be enough for reading 3x 16-bit numbers.
 // The sensor has 13 registers.
 // 14 should be enough for reading all sensor registers at once (for debugging purposes).
@@ -485,14 +491,14 @@ uchar sensor_message_buffer[14];
 // 39 + 21 = 60... Well, 80 chars of buffer are enough!
 uchar string_to_be_typed_on_screen[80];
 
-static void sensor_set_address_pointer(uchar reg) {
+static void sensor_set_address_pointer(uchar reg) {  // {{{
 	uchar msg[2];
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
 	msg[1] = reg;
 	TWI_Start_Transceiver_With_Data(msg, 2);
-}
+}  // }}}
 
-static void build_I2C_debug_string() {
+static void build_I2C_debug_string() {  // {{{
 	// Builds a hexdump of all registers, followed by X,Y,Z in decimal format
 	// "00 01 02 03 04 05 06 07 08 09 0A 0B 0C\t-1234\t1234\t-1234\n"
 
@@ -524,7 +530,7 @@ static void build_I2C_debug_string() {
 	str++;
 
 	*str = '\0';
-}
+}  // }}}
 
 // }}}
 
@@ -657,6 +663,7 @@ int	main(void) {  // {{{
 	cli();
 	hardware_init();
 	init_key_state();
+	init_keyboard_emulation();
 	TWI_Master_Initialise();
 	usbInit();
 	sei();
