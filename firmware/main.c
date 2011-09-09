@@ -386,12 +386,49 @@ static void int_to_hex(int v, uchar *str) {
 	uchar_to_hex((uchar) v      , str+2);
 }
 
-static void append_newline_to_str(uchar *str) {
-	while(*str != '\0') {
+static uchar* int_to_dec(int v, uchar *str) {
+	// Returns a pointer to the '\0' char
+
+	itoa(v, (char*)str, 10);
+	while (*str != '\0') {
+		str++;
+	}
+	return str;
+}
+
+static uchar* append_newline_to_str(uchar *str) {
+	// Returns a pointer to the '\0' char
+
+	while (*str != '\0') {
 		str++;
 	}
 	*str     = '\n';
 	*(str+1) = '\0';
+
+	return str+1;
+}
+
+static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {
+	// Builds a string of this form:
+	// "DE AD F0 0D"
+	// One space between each byte, ending the string with '\0'
+	//
+	// Returns a pointer to the '\0' char
+
+	// I'm supposing that len > 0
+	uchar_to_hex(*data, str);
+
+	while (--len) {
+		data++;
+		// str[0] and str[1] are the hex digits
+		str[2] = ' ';
+		str += 3;
+		uchar_to_hex(*data, str);
+	}
+
+	str[2] = '\0';
+
+	return str+2;
 }
 
 // }}}
@@ -421,7 +458,15 @@ static void append_newline_to_str(uchar *str) {
 #define SENSOR_REG_ID_B        11
 #define SENSOR_REG_ID_C        12
 
-uchar temporary_badly_named_buffer[10];
+// 7 should be enough for reading 3x 16-bit numbers.
+// The sensor has 13 registers.
+// 14 should be enough for reading all sensor registers at once (for debugging purposes).
+uchar sensor_message_buffer[14];
+// 13x 3 chars = 39
+// Each signed 16-bit integer can take 6 chars ("-65536")
+// 3x (6+1) = 21
+// 39 + 21 = 60... Well, 80 chars of buffer are enough!
+uchar string_to_be_typed_on_screen[80];
 
 static void sensor_set_address_pointer(uchar reg) {
 	uchar msg[2];
@@ -430,13 +475,47 @@ static void sensor_set_address_pointer(uchar reg) {
 	TWI_Start_Transceiver_With_Data(msg, 2);
 }
 
+static void build_I2C_debug_string() {
+	// Builds a hexdump of all registers, followed by X,Y,Z in decimal format
+	// "00 01 02 03 04 05 06 07 08 09 0A 0B 0C\t-1234\t1234\t-1234\n"
+
+	uchar *str;
+	int X, Y, Z;
+
+	// +1 because the I2C address is at zero position
+	const uchar *b = sensor_message_buffer+1;
+
+	str = array_to_hexdump(b, 13, string_to_be_typed_on_screen);
+	*str = '\t';
+	str++;
+
+	X = (b[SENSOR_REG_DATA_X_MSB] << 8) | (b[SENSOR_REG_DATA_X_LSB]);
+	Y = (b[SENSOR_REG_DATA_Y_MSB] << 8) | (b[SENSOR_REG_DATA_Y_LSB]);
+	Z = (b[SENSOR_REG_DATA_Z_MSB] << 8) | (b[SENSOR_REG_DATA_Z_LSB]);
+
+	str = int_to_dec(X, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(Y, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(Z, str);
+	*str = '\n';
+	str++;
+
+	*str = '\0';
+}
+
 // }}}
 
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-// Exclamation point is being ignored, though
-static uchar hello_world[] = "Hello, testing I2C - 3rd try!\n";
+static uchar hello_world[] = "Hello, world. Reading all registers from sensor.\n";
+
+static uchar twi_error_string[] = "TWI_statusReg.lastTransOK was FALSE.\n";
 
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
 static uchar number_buffer[12];
@@ -541,11 +620,12 @@ int	main(void) {  // {{{
 	usbInit();
 	sei();
 
-	for(;;) {	/* main event loop */
+	for (;;) {	// main event loop
 		wdt_reset();
 		usbPoll();
 		update_key_state();
 
+		// Red LED lights up if there is any kind of error in I2C communication
 		if ( TWI_statusReg.lastTransOK ) {
 			LED_TURN_OFF(RED_LED);
 		} else {
@@ -555,28 +635,34 @@ int	main(void) {  // {{{
 		if (ON_KEY_DOWN(BUTTON_1)) {
 			if (key_state & BUTTON_SWITCH) {
 				if (!should_send_report) {
-					// And this firmware is not sending anything
+					// And the firmware is not sending anything
 					string_pointer = hello_world;
 					should_send_report = 1;
 				}
 			} else {
-				LED_TURN_OFF(GREEN_LED);
-				LED_TURN_OFF(YELLOW_LED);
-				//LED_TURN_OFF(RED_LED);
+				if (!should_send_report) {
+					// And the firmware is not sending anything
 
-				sensor_set_address_pointer(SENSOR_REG_ID_A);
-				temporary_badly_named_buffer[0] = SENSOR_I2C_READ_ADDRESS;
-				//LED_TURN_ON(RED_LED);
-				TWI_Start_Transceiver_With_Data(temporary_badly_named_buffer, 4);
-				LED_TURN_ON(YELLOW_LED);
+					LED_TURN_OFF(GREEN_LED);
+					LED_TURN_OFF(YELLOW_LED);
+					//LED_TURN_OFF(RED_LED);
 
-				// This function returns the status, which is being ignored by now
-				TWI_Get_Data_From_Transceiver(temporary_badly_named_buffer, 4);
-				LED_TURN_ON(GREEN_LED);
-				temporary_badly_named_buffer[4] = '\n';
-				temporary_badly_named_buffer[5] = '\0';
-				string_pointer = temporary_badly_named_buffer + 1;
-				should_send_report = 1;
+					sensor_set_address_pointer(0);
+					sensor_message_buffer[0] = SENSOR_I2C_READ_ADDRESS;
+					TWI_Start_Transceiver_With_Data(sensor_message_buffer, 14);
+					LED_TURN_ON(YELLOW_LED);
+
+					// This function returns the lastTransOK status
+					if (TWI_Get_Data_From_Transceiver(sensor_message_buffer, 14)) {
+						LED_TURN_ON(GREEN_LED);
+						build_I2C_debug_string();
+						string_pointer = string_to_be_typed_on_screen;
+						should_send_report = 1;
+					} else {
+						string_pointer = twi_error_string;
+						should_send_report = 1;
+					}
+				}
 			}
 		}
 		if (ON_KEY_DOWN(BUTTON_2)) {
