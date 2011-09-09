@@ -308,69 +308,41 @@ static void build_report_from_char(uchar c) {  // {{{
 	}
 	else {
 		switch (c) {
-			case '\n':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_ENTER;
-				break;
+			case '\n': reportBuffer[1] = KEY_ENTER;     break;
 
-			case '\t':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_TAB;
-				break;
+			case '\t': reportBuffer[1] = KEY_TAB;       break;
 
-			case ' ':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_SPACE;
-				break;
+			case ' ':  reportBuffer[1] = KEY_SPACE;     break;
 
-			case '-':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_MINUS;
-				break;
 			case '_':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
-				reportBuffer[1] = KEY_MINUS;
-				break;
+			case '-':  reportBuffer[1] = KEY_MINUS;     break;
 
-			case '=':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_EQUAL;
-				break;
 			case '+':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
-				reportBuffer[1] = KEY_EQUAL;
-				break;
+			case '=':  reportBuffer[1] = KEY_EQUAL;     break;
 
-			case ';':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_SEMICOLON;
-				break;
 			case ':':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
-				reportBuffer[1] = KEY_SEMICOLON;
-				break;
+			case ';':  reportBuffer[1] = KEY_SEMICOLON; break;
 
-			case ',':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_COMMA;
-				break;
 			case '<':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
-				reportBuffer[1] = KEY_COMMA;
-				break;
+			case ',':  reportBuffer[1] = KEY_COMMA;     break;
 
-			case '.':
-				reportBuffer[0] = 0;
-				reportBuffer[1] = KEY_PERIOD;
-				break;
 			case '>':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
-				reportBuffer[1] = KEY_PERIOD;
-				break;
+			case '.':  reportBuffer[1] = KEY_PERIOD;    break;
 
 			default:
-				reportBuffer[0] = 0;
 				reportBuffer[1] = 0;
+		}
+
+		switch (c) {
+			case '_':
+			case '+':
+			case ':':
+			case '<':
+			case '>':
+				reportBuffer[0] = MOD_SHIFT_LEFT;
+				break;
+			default:
+				reportBuffer[0] = 0;
 		}
 	}
 }  // }}}
