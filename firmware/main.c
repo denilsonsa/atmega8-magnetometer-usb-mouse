@@ -96,27 +96,77 @@
 ////////////////////////////////////////////////////////////
 // Button handling code                                  {{{
 
+// "Public" vars, already filtered for debouncing
 static uchar key_state = 0;
 static uchar key_changed = 0;
+
+// "Private" button debouncing state
+static uchar button_debouncing[4];  // We have 4 buttons/switches
 
 // Handy macros!
 // These have the same name/meaning of JavaScript events
 #define ON_KEY_DOWN(button_mask) ((key_changed & (button_mask)) &&  (key_state & (button_mask)))
 #define ON_KEY_UP(button_mask)   ((key_changed & (button_mask)) && !(key_state & (button_mask)))
-// TODO: add some debouncing code, if really needed.
 
-static void update_key_state() {
-	uchar state;
+static void init_key_state() {  // {{{
+	key_state = 0;
+	key_changed = 0;
+	button_debouncing[0] = 0;
+	button_debouncing[1] = 0;
+	button_debouncing[2] = 0;
+	button_debouncing[3] = 0;
+}  // }}}
 
-	// buttons are on PC0, PC1, PC2, PC3
-	// buttons are ON when connected to GND, and thus read as zero
-	// buttons are OFF when open, and thus the internal pull-up makes them read as one
+static void update_key_state() { // {{{
+	// This function implements debouncing code.
+	// It should be called at every iteration of the main loop.
+	// It reads the TOV0 flag status, but does not clear it.
 
-	// The low nibble of PINC maps to the 4 buttons
-	state = (~PINC) & 0x0F;
-	key_changed = key_state ^ state;
-	key_state = state;
-}
+	uchar filtered_state;
+
+	filtered_state = key_state;
+
+	// Timer is set to 1.365ms
+	if (TIFR & (1<<TOV0)) {
+		uchar raw_state;
+		uchar i;
+
+		// Buttons are on PC0, PC1, PC2, PC3
+		// Buttons are ON when connected to GND, and read as zero
+		// Buttons are OFF when open, internal pull-ups make them read as one
+
+		// The low nibble of PINC maps to the 4 buttons
+		raw_state = (~PINC) & 0x0F;
+		// "raw_state" has the button state, with 1 for pressed and 0 for released.
+		// Still needs debouncing...
+
+		// This debouncing solution is inspired by tiltstick-20080207 firmware.
+		//
+		// Poll the buttons into a shift register for de-bouncing.
+		// A button is considered pressed when the register reaches 0xFF.
+		// A button is considered released when the register reaches 0x00.
+		// Any intermediate value does not change the button state.
+		//
+		// 8 * 1.365ms = ~11ms without interruption
+		for (i=0; i<4; i++) {
+			button_debouncing[i] =
+				(button_debouncing[i]<<1)
+				| ( ((raw_state & (1<<i)))? 1 : 0 );
+
+			if (button_debouncing[i] == 0) {
+				// Releasing this button
+				filtered_state &= ~(1<<i);
+			} else if (button_debouncing[i] == 0xFF) {
+				// Pressing this button
+				filtered_state |=  (1<<i);
+			}
+		}
+	}
+
+	// Storing the final, filtered, updated state
+	key_changed = key_state ^ filtered_state;
+	key_state = filtered_state;
+}  // }}}
 
 // }}}
 
@@ -363,29 +413,29 @@ static uchar send_next_char() {  // {{{
 ////////////////////////////////////////////////////////////
 // String utilities                                      {{{
 
-static uchar nibble_to_hex(uchar n) {
+static uchar nibble_to_hex(uchar n) {  // {{{
 	// I'm supposing n is already in range 0x00..0x0F
 	if (n < 10)
 		return '0' + n;
 	else
 		return 'A' + n - 10;
-}
+}  // }}}
 
-static void uchar_to_hex(uchar v, uchar *str) {
+static void uchar_to_hex(uchar v, uchar *str) {  // {{{
 	// XXX: The NULL terminator is NOT added!
 	*str = nibble_to_hex(v >> 4);
 	str++;
 	*str = nibble_to_hex(v & 0x0F);
-}
+}  // }}}
 
-static void int_to_hex(int v, uchar *str) {
+static void int_to_hex(int v, uchar *str) {  // {{{
 	// I'm supposing int is 16-bit
 	// XXX: The NULL terminator is NOT added!
 	uchar_to_hex((uchar)(v >> 8), str);
 	uchar_to_hex((uchar) v      , str+2);
-}
+}  // }}}
 
-static uchar* int_to_dec(int v, uchar *str) {
+static uchar* int_to_dec(int v, uchar *str) {  // {{{
 	// Returns a pointer to the '\0' char
 
 	itoa(v, (char*)str, 10);
@@ -393,9 +443,9 @@ static uchar* int_to_dec(int v, uchar *str) {
 		str++;
 	}
 	return str;
-}
+}  // }}}
 
-static uchar* append_newline_to_str(uchar *str) {
+static uchar* append_newline_to_str(uchar *str) {  // {{{
 	// Returns a pointer to the '\0' char
 
 	while (*str != '\0') {
@@ -405,9 +455,9 @@ static uchar* append_newline_to_str(uchar *str) {
 	*(str+1) = '\0';
 
 	return str+1;
-}
+}  // }}}
 
-static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {
+static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 	// Builds a string of this form:
 	// "DE AD F0 0D"
 	// One space between each byte, ending the string with '\0'
@@ -428,7 +478,7 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {
 	str[2] = '\0';
 
 	return str+2;
-}
+}  // }}}
 
 // }}}
 
@@ -592,6 +642,10 @@ static void hardware_init(void) {  // {{{
 	// Also thanks to http://frank.circleofcurrent.com/cache/avrtimercalc.htm
 	TCCR0 = 3;
 
+	// I'm using Timer0 as a 1.365ms ticker. Every time it overflows, the TOV0
+	// flag in TIFR is set. The main loop clears this flag near the end of each
+	// iteration.
+
 	// I'm not using serial-line debugging
 	//odDebugInit();
 
@@ -634,6 +688,7 @@ int	main(void) {  // {{{
 
 	cli();
 	hardware_init();
+	init_key_state();
 	TWI_Master_Initialise();
 	usbInit();
 	sei();
@@ -641,6 +696,7 @@ int	main(void) {  // {{{
 	for (;;) {	// main event loop
 		wdt_reset();
 		usbPoll();
+
 		update_key_state();
 
 		// Red LED lights up if there is any kind of error in I2C communication
@@ -719,6 +775,7 @@ int	main(void) {  // {{{
 
 		// Timer is set to 1.365ms
 		if (TIFR & (1<<TOV0)) {
+			// Implementing the idle rate...
 			if (idleRate != 0) {
 				if (idleCounter > 0){
 					idleCounter--;
@@ -741,9 +798,12 @@ int	main(void) {  // {{{
 
 		// Resetting the Timer0
 		if (TIFR & (1<<TOV0)) {
+			// Setting this bit to one will clear it.
+			// Yeah, weird, but that's how it works.
 			TIFR = 1<<TOV0;
 		}
 
+		// Sending USB Interrupt-in report
 		if(should_send_report && usbInterruptIsReady()){
 			should_send_report = send_next_char();
 			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
@@ -753,3 +813,5 @@ int	main(void) {  // {{{
 }  // }}}
 
 // }}}
+
+// vim:tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}
