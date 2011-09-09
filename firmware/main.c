@@ -573,9 +573,24 @@ static void hardware_init(void) {  // {{{
 
 	// End of USB reset
 
-	// TODO: Do I need this timer?
-	/* configure timer 0 for a rate of 12M/(1024 * 256) = 45.78 Hz (~22ms) */
-	TCCR0 = 5;      /* timer 0 prescaler: 1024 */
+
+	// Disabling Timer0 Interrupt
+	// It's disabled by default, anyway, so this shouldn't be needed
+	TIMSK &= ~(TOIE0);
+
+	// Configuring Timer0 (with main clock at 12MHz)
+	// 0 = No clock (timer stopped)
+	// 1 = Prescaler = 1     =>   0.0213333ms
+	// 2 = Prescaler = 8     =>   0.1706666ms
+	// 3 = Prescaler = 64    =>   1.3653333ms
+	// 4 = Prescaler = 256   =>   5.4613333ms
+	// 5 = Prescaler = 1024  =>  21.8453333ms
+	// 6 = External clock source on T0 pin (falling edge)
+	// 7 = External clock source on T0 pin (rising edge)
+	//
+	// See page 72 from ATmega8 datasheet.
+	// Also thanks to http://frank.circleofcurrent.com/cache/avrtimercalc.htm
+	TCCR0 = 3;
 
 	// I'm not using serial-line debugging
 	//odDebugInit();
@@ -593,7 +608,6 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 			/* we only have one report type, so don't look at wValue */
 
 			// XXX: Ainda não entendi quando isto é chamado...
-			// TODO: Fazer ligar um LED quando isto acontecer.
 			LED_TOGGLE(GREEN_LED);
 			build_report_from_char('\0');
 
@@ -616,7 +630,7 @@ int	main(void) {  // {{{
 	int useless_counter = 0;
 	uchar should_send_report = 1;
 
-	uchar idleCounter = 0;
+	int idleCounter = 0;
 
 	cli();
 	hardware_init();
@@ -702,20 +716,34 @@ int	main(void) {  // {{{
 			}
 		}
 
-		if(TIFR & (1<<TOV0)){   /* 22 ms timer */
-			TIFR = 1<<TOV0;
-			if(idleRate != 0){
-				if(idleCounter > 4){
-					idleCounter -= 5;   /* 22 ms in units of 4 ms */
-				}else{
-					idleCounter = idleRate;
+
+		// Timer is set to 1.365ms
+		if (TIFR & (1<<TOV0)) {
+			if (idleRate != 0) {
+				if (idleCounter > 0){
+					idleCounter--;
+				} else {
+					// idleCounter counts how many Timer0 overflows are
+					// required before sending another report.
+					// The exact formula is:
+					// idleCounter = (idleRate * 4)/1.365;
+					// But it's better to avoid floating point math.
+					// 4/1.365 = 2.93, so let's just multiply it by 3.
+					idleCounter = idleRate * 3;
+
 					//keyDidChange = 1;
 					LED_TOGGLE(YELLOW_LED);
-					// This piece of code never runs... because this modified
-					// firmware does not implement "idle"
+					// TODO: implement this... should re-send the current status
+					// Either that, or the idleRate support should be removed.
 				}
 			}
 		}
+
+		// Resetting the Timer0
+		if (TIFR & (1<<TOV0)) {
+			TIFR = 1<<TOV0;
+		}
+
 		if(should_send_report && usbInterruptIsReady()){
 			should_send_report = send_next_char();
 			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
