@@ -92,7 +92,6 @@
 
 // }}}
 
-
 ////////////////////////////////////////////////////////////
 // Button handling code                                  {{{
 
@@ -170,7 +169,6 @@ static void update_key_state() { // {{{
 
 // }}}
 
-
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
 
@@ -209,7 +207,6 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
  */
 
 // }}}
-
 
 ////////////////////////////////////////////////////////////
 // Keyboard emulation code                               {{{
@@ -408,7 +405,6 @@ static uchar send_next_char() {  // {{{
 }  // }}}
 
 // }}}
-
 
 ////////////////////////////////////////////////////////////
 // String utilities                                      {{{
