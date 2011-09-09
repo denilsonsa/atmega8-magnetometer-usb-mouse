@@ -483,7 +483,8 @@ static void build_I2C_debug_string() {
 	int X, Y, Z;
 
 	// +1 because the I2C address is at zero position
-	const uchar *b = sensor_message_buffer+1;
+	// This is a const pointer to a non-const array
+	uchar * const b = sensor_message_buffer+1;
 
 	str = array_to_hexdump(b, 13, string_to_be_typed_on_screen);
 	*str = '\t';
@@ -643,17 +644,29 @@ int	main(void) {  // {{{
 				if (!should_send_report) {
 					// And the firmware is not sending anything
 
+					uchar lastTransOK = 1;
+					uchar *tmp;
+
 					LED_TURN_OFF(GREEN_LED);
 					LED_TURN_OFF(YELLOW_LED);
 					//LED_TURN_OFF(RED_LED);
 
-					sensor_set_address_pointer(0);
-					sensor_message_buffer[0] = SENSOR_I2C_READ_ADDRESS;
-					TWI_Start_Transceiver_With_Data(sensor_message_buffer, 14);
+					// Reading the last 4 registers first, to work-around some
+					// kirkness of the sensor
+					sensor_set_address_pointer(SENSOR_REG_STATUS);
+					tmp = sensor_message_buffer + SENSOR_REG_STATUS;
+					*tmp = SENSOR_I2C_READ_ADDRESS;
+					TWI_Start_Transceiver_With_Data(tmp, 1+4);
+					lastTransOK = TWI_Get_Data_From_Transceiver(tmp, 1+4);
+
 					LED_TURN_ON(YELLOW_LED);
 
-					// This function returns the lastTransOK status
-					if (TWI_Get_Data_From_Transceiver(sensor_message_buffer, 14)) {
+					sensor_set_address_pointer(0);
+					sensor_message_buffer[0] = SENSOR_I2C_READ_ADDRESS;
+					TWI_Start_Transceiver_With_Data(sensor_message_buffer, 1+9);
+					lastTransOK &= TWI_Get_Data_From_Transceiver(sensor_message_buffer, 1+9);
+
+					if (lastTransOK) {
 						LED_TURN_ON(GREEN_LED);
 						build_I2C_debug_string();
 						string_pointer = string_to_be_typed_on_screen;
