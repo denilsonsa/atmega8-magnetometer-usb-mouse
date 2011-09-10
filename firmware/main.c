@@ -679,7 +679,7 @@ static void init_sensor_configuration() {  // {{{
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-static uchar hello_world[] = "Hello, world. Next step: do some Math on paper.\n";
+static uchar hello_world[] = "Hello, YouTube.\n";
 
 static uchar twi_error_string[] = "TWI_statusReg.lastTransOK was FALSE.\n";
 
@@ -968,4 +968,4 @@ int	main(void) {  // {{{
 
 // }}}
 
-// vim:tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}
+// vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}
