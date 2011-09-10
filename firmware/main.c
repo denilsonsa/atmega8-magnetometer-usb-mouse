@@ -791,7 +791,7 @@ static void hardware_init(void) {  // {{{
 	// I'm not using serial-line debugging
 	//odDebugInit();
 
-	LED_TOGGLE(YELLOW_LED);
+	LED_TURN_ON(YELLOW_LED);
 }  // }}}
 
 
@@ -833,11 +833,15 @@ int	main(void) {  // {{{
 	TWI_Master_Initialise();
 	usbInit();
 
+	wdt_reset();
+	sei();
+
 	init_key_state();
 	init_keyboard_emulation();
+	// The next one must be done with interrupts enabled!
 	init_sensor_configuration();
 
-	sei();
+	LED_TURN_ON(GREEN_LED);
 
 	for (;;) {	// main event loop
 		wdt_reset();
