@@ -481,6 +481,64 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 
 // }}}
 
+// HMC5883L configuration definitions  {{{
+// See pages 12, 13, 14 of HMC5883L.pdf
+
+// The Mode Register has 2 possible values for Idle mode.
+#define SENSOR_MODE_SINGLE      0
+#define SENSOR_MODE_CONTINUOUS  1
+#define SENSOR_MODE_IDLE_A      2
+#define SENSOR_MODE_IDLE_B      3
+#define SENSOR_MODE_MASK        3
+
+// How many samples averaged? Default=1
+#define SENSOR_CONF_A_SAMPLES_1    0x00
+#define SENSOR_CONF_A_SAMPLES_2    0x20
+#define SENSOR_CONF_A_SAMPLES_4    0x40
+#define SENSOR_CONF_A_SAMPLES_8    0x60
+#define SENSOR_CONF_A_SAMPLES_MASK 0x60
+
+// Data output rate for continuous mode. Default=15Hz
+#define SENSOR_CONF_A_RATE_0_75     0x00
+#define SENSOR_CONF_A_RATE_1_5      0x04
+#define SENSOR_CONF_A_RATE_3        0x08
+#define SENSOR_CONF_A_RATE_7_5      0x0C
+#define SENSOR_CONF_A_RATE_15       0x10
+#define SENSOR_CONF_A_RATE_30       0x14
+#define SENSOR_CONF_A_RATE_75       0x18
+#define SENSOR_CONF_A_RATE_RESERVED 0x1C
+#define SENSOR_CONF_A_RATE_MASK     0x1C
+
+// Measurement configuration, whether to apply bias. Default=Normal
+#define SENSOR_CONF_A_BIAS_NORMAL   0x00
+#define SENSOR_CONF_A_BIAS_POSITIVE 0x01
+#define SENSOR_CONF_A_BIAS_NEGATIVE 0x02
+#define SENSOR_CONF_A_BIAS_RESERVED 0x03
+#define SENSOR_CONF_A_BIAS_MASK     0x03
+
+// Gain configuration. Default=1.3Ga
+#define SENSOR_CONF_B_GAIN_0_88 0x00
+#define SENSOR_CONF_B_GAIN_1_3  0x20
+#define SENSOR_CONF_B_GAIN_1_9  0x40
+#define SENSOR_CONF_B_GAIN_2_5  0x60
+#define SENSOR_CONF_B_GAIN_4_0  0x80
+#define SENSOR_CONF_B_GAIN_4_7  0xA0
+#define SENSOR_CONF_B_GAIN_5_6  0xC0
+#define SENSOR_CONF_B_GAIN_8_1  0xE0
+#define SENSOR_CONF_B_GAIN_MASK 0xE0
+
+// Digital resolution (mG/LSb) for each gain
+#define SENSOR_GAIN_SCALE_0_88  0.73
+#define SENSOR_GAIN_SCALE_1_3   0.92
+#define SENSOR_GAIN_SCALE_1_9   1.22
+#define SENSOR_GAIN_SCALE_2_5   1.52
+#define SENSOR_GAIN_SCALE_4_0   2.27
+#define SENSOR_GAIN_SCALE_4_7   2.56
+#define SENSOR_GAIN_SCALE_5_6   3.03
+#define SENSOR_GAIN_SCALE_8_1   4.35
+
+// }}}
+
 // 7 should be enough for reading 3x 16-bit numbers.
 // The sensor has 13 registers.
 // 14 should be enough for reading all sensor registers at once (for debugging purposes).
@@ -496,6 +554,14 @@ static void sensor_set_address_pointer(uchar reg) {  // {{{
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
 	msg[1] = reg;
 	TWI_Start_Transceiver_With_Data(msg, 2);
+}  // }}}
+
+static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
+	uchar msg[3];
+	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
+	msg[1] = reg;
+	msg[2] = value;
+	TWI_Start_Transceiver_With_Data(msg, 3);
 }  // }}}
 
 static void build_I2C_debug_string() {  // {{{
@@ -530,6 +596,23 @@ static void build_I2C_debug_string() {  // {{{
 	str++;
 
 	*str = '\0';
+}  // }}}
+
+static void init_sensor_configuration() {  // {{{
+	sensor_set_register_value(
+		SENSOR_REG_CONF_A,
+		SENSOR_CONF_A_SAMPLES_8
+		| SENSOR_CONF_A_RATE_75
+		| SENSOR_CONF_A_BIAS_NORMAL
+	);
+	//sensor_set_register_value(
+	//	SENSOR_REG_CONF_B,
+	//	SENSOR_CONF_B_GAIN_1_3
+	//);
+	sensor_set_register_value(
+		SENSOR_REG_MODE,
+		SENSOR_MODE_CONTINUOUS
+	);
 }  // }}}
 
 // }}}
@@ -661,11 +744,15 @@ int	main(void) {  // {{{
 	int idleCounter = 0;
 
 	cli();
+
 	hardware_init();
-	init_key_state();
-	init_keyboard_emulation();
 	TWI_Master_Initialise();
 	usbInit();
+
+	init_key_state();
+	init_keyboard_emulation();
+	init_sensor_configuration();
+
 	sei();
 
 	for (;;) {	// main event loop
