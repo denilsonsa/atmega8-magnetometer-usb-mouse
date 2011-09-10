@@ -456,12 +456,14 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 
 ////////////////////////////////////////////////////////////
 // Sensor communication over I2C (TWI)                   {{{
+// This sensor has "L883 2105" written on the chip.
+// It is known as HMC5883L or HMC5883.
 
 #define SENSOR_I2C_READ_ADDRESS  0x3D
 #define SENSOR_I2C_WRITE_ADDRESS 0x3C
 
 // HMC5883L register definitions  {{{
-// This sensor has "L883 2105" written on the chip
+// See page 11 of HMC5883L.pdf
 // Read/write registers:
 #define SENSOR_REG_CONF_A       0
 #define SENSOR_REG_CONF_B       1
@@ -479,6 +481,13 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 #define SENSOR_REG_ID_B        11
 #define SENSOR_REG_ID_C        12
 
+// }}}
+
+// HMC5883L status definitions  {{{
+// See page 16 of HMC5883L.pdf
+
+#define SENSOR_STATUS_LOCK  2
+#define SENSOR_STATUS_RDY   1
 // }}}
 
 // HMC5883L configuration definitions  {{{
@@ -539,17 +548,19 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 
 // }}}
 
-// 7 should be enough for reading 3x 16-bit numbers.
-// The sensor has 13 registers.
-// 14 should be enough for reading all sensor registers at once (for debugging purposes).
-uchar sensor_message_buffer[14];
-// 13x 3 chars = 39
-// Each signed 16-bit integer can take 6 chars ("-65536")
-// 3x (6+1) = 21
-// 39 + 21 = 60... Well, 80 chars of buffer are enough!
-uchar string_to_be_typed_on_screen[80];
+// The X,Y,Z data from the sensor
+int sensor_X;
+int sensor_Y;
+int sensor_Z;
+
+// Boolean that detects if the sensor have reported an overflow
+uchar sensor_overflow;
+#define SENSOR_DATA_OVERFLOW -4096
 
 static void sensor_set_address_pointer(uchar reg) {  // {{{
+	// Sets the sensor internal register pointer.
+	// This is required before reading registers.
+
 	uchar msg[2];
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
 	msg[1] = reg;
@@ -557,6 +568,9 @@ static void sensor_set_address_pointer(uchar reg) {  // {{{
 }  // }}}
 
 static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
+	// Sets one of those 3 writable registers to a value.
+	// Only useful for configuration.
+
 	uchar msg[3];
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
 	msg[1] = reg;
@@ -564,38 +578,80 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	TWI_Start_Transceiver_With_Data(msg, 3);
 }  // }}}
 
-static void build_I2C_debug_string() {  // {{{
-	// Builds a hexdump of all registers, followed by X,Y,Z in decimal format
-	// "00 01 02 03 04 05 06 07 08 09 0A 0B 0C\t-1234\t1234\t-1234\n"
+static uchar sensor_read_status_register() {  // {{{
+	// Returns the value of the STATUS register.
+	// No error handling is done in this code.  Please test
+	// "TWI_statusReg.lastTransOK" in order to detect errors.
 
-	uchar *str;
-	int X, Y, Z;
+	uchar msg[2];
+	sensor_set_address_pointer(SENSOR_REG_STATUS);
+	msg[0] = SENSOR_I2C_READ_ADDRESS;
+	TWI_Start_Transceiver_With_Data(msg, 2);
+	TWI_Get_Data_From_Transceiver(msg, 2);
 
-	// +1 because the I2C address is at zero position
-	// This is a const pointer to a non-const array
-	uchar * const b = sensor_message_buffer+1;
+	return msg[1];
+}  // }}}
 
-	str = array_to_hexdump(b, 13, string_to_be_typed_on_screen);
-	*str = '\t';
-	str++;
+static uchar sensor_read_data_registers() {  // {{{
+	// Reads the X,Y,Z data registers and store them at global vars.
+	// In case of a transmission error, the previous values are not changed.
+	//
+	// Returns the same as "TWI_statusReg.lastTransOK".
 
-	X = (b[SENSOR_REG_DATA_X_MSB] << 8) | (b[SENSOR_REG_DATA_X_LSB]);
-	Y = (b[SENSOR_REG_DATA_Y_MSB] << 8) | (b[SENSOR_REG_DATA_Y_LSB]);
-	Z = (b[SENSOR_REG_DATA_Z_MSB] << 8) | (b[SENSOR_REG_DATA_Z_LSB]);
+	// 1 address byte + 6 data bytes = 7 bytes
+	uchar msg[7];
 
-	str = int_to_dec(X, str);
-	*str = '\t';
-	str++;
+	uchar lastTransOK;
 
-	str = int_to_dec(Y, str);
-	*str = '\t';
-	str++;
+	sensor_set_address_pointer(SENSOR_REG_DATA_START);
+	msg[0] = SENSOR_I2C_READ_ADDRESS;
+	TWI_Start_Transceiver_With_Data(msg, 7);
+	lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
 
-	str = int_to_dec(Z, str);
-	*str = '\n';
-	str++;
+	if (lastTransOK) {
+		#define OFFSET (1 - SENSOR_REG_DATA_START)
+		sensor_X = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
+		sensor_Y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
+		sensor_Z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+		#undef OFFSET
 
-	*str = '\0';
+		sensor_overflow =
+			(sensor_X == SENSOR_DATA_OVERFLOW)
+			|| (sensor_Y == SENSOR_DATA_OVERFLOW)
+			|| (sensor_Z == SENSOR_DATA_OVERFLOW);
+	}
+
+	return lastTransOK;
+}  // }}}
+
+static uchar sensor_read_identification_string(uchar *s) {  // {{{
+	// Reads the 3 identification registers from the sensor.
+	// They should read as ASCII "H43".
+	//
+	// Receives a pointer to a string with at least 4 chars of size.
+	// After reading the registers, stores them at *s, followed by '\0'.
+	// In case of a transmission error, the passed string is not touched.
+	//
+	// Returns the same as "TWI_statusReg.lastTransOK".
+
+	// 1 address byte + 3 chars
+	uchar msg[4];
+
+	uchar lastTransOK;
+
+	sensor_set_address_pointer(SENSOR_REG_ID_A);
+	msg[0] = SENSOR_I2C_READ_ADDRESS;
+	TWI_Start_Transceiver_With_Data(msg, 4);
+	lastTransOK = TWI_Get_Data_From_Transceiver(msg, 4);
+
+	if (lastTransOK) {
+		s[0] = msg[1];
+		s[1] = msg[2];
+		s[2] = msg[3];
+		s[3] = '\0';
+	}
+
+	return lastTransOK;
 }  // }}}
 
 static void init_sensor_configuration() {  // {{{
@@ -620,12 +676,20 @@ static void init_sensor_configuration() {  // {{{
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-static uchar hello_world[] = "Hello, world. Reading all registers from sensor.\n";
+static uchar hello_world[] = "Hello, world. Next step: do some Math on paper.\n";
 
 static uchar twi_error_string[] = "TWI_statusReg.lastTransOK was FALSE.\n";
 
+// Thinking about 32-bit:
 // 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
-static uchar number_buffer[12];
+// 10+1+1 = 12
+//
+// Thinking about 3x 16-bit:
+// Each signed 16-bit integer can take 6 chars ("-65536"),
+// plus 1 for a separator (like '\t', ' ' or '\n'),
+// plus 1 for '\0'.
+// 3x (6+1) + 1 = 22
+static uchar number_buffer[22];
 
 // As defined in section 7.2.4 Set_Idle Request
 // of Device Class Definition for Human Interface Devices (HID) version 1.11
@@ -639,6 +703,27 @@ static uchar number_buffer[12];
 // This value is measured in multiples of 4ms.
 // A value of zero means indefinite/infinity.
 static uchar idleRate;
+
+
+static void debug_print_X_Y_Z_to_number_buffer() {  // {{{
+	// "-1234\t1234\t-1234\n"
+
+	uchar *str = number_buffer;
+
+	str = int_to_dec(sensor_X, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(sensor_Y, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(sensor_Z, str);
+	*str = '\n';
+	str++;
+
+	*str = '\0';
+}  // }}}
 
 
 static void hardware_init(void) {  // {{{
@@ -738,9 +823,8 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 
 
 int	main(void) {  // {{{
-	int useless_counter = 0;
 	uchar should_send_report = 1;
-
+	int useless_counter = 0;
 	int idleCounter = 0;
 
 	cli();
@@ -772,6 +856,8 @@ int	main(void) {  // {{{
 			if (key_state & BUTTON_SWITCH) {
 				if (!should_send_report) {
 					// And the firmware is not sending anything
+
+					// Printing "Hello, world"
 					string_pointer = hello_world;
 					should_send_report = 1;
 				}
@@ -779,32 +865,15 @@ int	main(void) {  // {{{
 				if (!should_send_report) {
 					// And the firmware is not sending anything
 
-					uchar lastTransOK = 1;
-					uchar *tmp;
+					// Printing X,Y,Z
 
-					LED_TURN_OFF(GREEN_LED);
-					LED_TURN_OFF(YELLOW_LED);
-					//LED_TURN_OFF(RED_LED);
+					uchar lastTransOK;
 
-					// Reading the last 4 registers first, to work-around some
-					// kirkness of the sensor
-					sensor_set_address_pointer(SENSOR_REG_STATUS);
-					tmp = sensor_message_buffer + SENSOR_REG_STATUS;
-					*tmp = SENSOR_I2C_READ_ADDRESS;
-					TWI_Start_Transceiver_With_Data(tmp, 1+4);
-					lastTransOK = TWI_Get_Data_From_Transceiver(tmp, 1+4);
-
-					LED_TURN_ON(YELLOW_LED);
-
-					sensor_set_address_pointer(0);
-					sensor_message_buffer[0] = SENSOR_I2C_READ_ADDRESS;
-					TWI_Start_Transceiver_With_Data(sensor_message_buffer, 1+9);
-					lastTransOK &= TWI_Get_Data_From_Transceiver(sensor_message_buffer, 1+9);
+					lastTransOK = sensor_read_data_registers();
 
 					if (lastTransOK) {
-						LED_TURN_ON(GREEN_LED);
-						build_I2C_debug_string();
-						string_pointer = string_to_be_typed_on_screen;
+						debug_print_X_Y_Z_to_number_buffer();
+						string_pointer = number_buffer;
 						should_send_report = 1;
 					} else {
 						string_pointer = twi_error_string;
@@ -814,23 +883,74 @@ int	main(void) {  // {{{
 			}
 		}
 		if (ON_KEY_DOWN(BUTTON_2)) {
-			useless_counter++;
+			if (key_state & BUTTON_SWITCH) {
+				if (!should_send_report) {
+					// And the firmware is not sending anything
+
+					// Printing "H43"
+
+					uchar lastTransOK;
+					number_buffer[0] = 'I';
+					number_buffer[1] = 'd';
+					number_buffer[2] = ':';
+					number_buffer[3] = ' ';
+					lastTransOK = sensor_read_identification_string(number_buffer+4);
+					number_buffer[7] = '\n';
+					number_buffer[8] = '\0';
+
+					if (lastTransOK) {
+						string_pointer = number_buffer;
+						should_send_report = 1;
+					} else {
+						string_pointer = twi_error_string;
+						should_send_report = 1;
+					}
+				}
+			} else {
+				if (!should_send_report) {
+					// And the firmware is not sending anything
+
+					// Printing the status register
+					uchar status = sensor_read_status_register();
+					number_buffer[0] = 'S';
+					number_buffer[1] = 't';
+					number_buffer[2] = 'a';
+					number_buffer[3] = 't';
+					number_buffer[4] = 'u';
+					number_buffer[5] = 's';
+					number_buffer[6] = ':';
+					number_buffer[7] = ' ';
+					uchar_to_hex(status, number_buffer+8);
+					number_buffer[10] = '\n';
+					number_buffer[11] = '\0';
+
+					string_pointer = number_buffer;
+					should_send_report = 1;
+				}
+			}
 		}
 		if (ON_KEY_DOWN(BUTTON_3)) {
-			useless_counter--;
-		}
-		if (ON_KEY_DOWN(BUTTON_2) || ON_KEY_DOWN(BUTTON_3)) {
-			if (!should_send_report) {
-				if (key_state & BUTTON_SWITCH) {
+			if (key_state & BUTTON_SWITCH) {
+				useless_counter--;
+
+				if (!should_send_report) {
 					int_to_hex(useless_counter, number_buffer);
 					number_buffer[4] = '\n';
 					number_buffer[5] = '\0';
-				} else {
+
+					string_pointer = number_buffer;
+					should_send_report = 1;
+				}
+			} else {
+				useless_counter++;
+
+				if (!should_send_report) {
 					itoa(useless_counter, (char*)number_buffer, 10);
 					append_newline_to_str(number_buffer);
+
+					string_pointer = number_buffer;
+					should_send_report = 1;
 				}
-				string_pointer = number_buffer;
-				should_send_report = 1;
 			}
 		}
 
