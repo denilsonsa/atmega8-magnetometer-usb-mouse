@@ -845,7 +845,7 @@ int	main(void) {  // {{{
 
 	init_key_state();
 	init_keyboard_emulation();
-	// The next one must be done with interrupts enabled!
+	// Sensor initialization must be done with interrupts enabled!
 	init_sensor_configuration();
 
 	LED_TURN_ON(GREEN_LED);
