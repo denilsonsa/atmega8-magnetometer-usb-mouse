@@ -664,10 +664,10 @@ static void init_sensor_configuration() {  // {{{
 		| SENSOR_CONF_A_RATE_75
 		| SENSOR_CONF_A_BIAS_NORMAL
 	);
-	//sensor_set_register_value(
-	//	SENSOR_REG_CONF_B,
-	//	SENSOR_CONF_B_GAIN_1_3
-	//);
+	sensor_set_register_value(
+		SENSOR_REG_CONF_B,
+		SENSOR_CONF_B_GAIN_1_3
+	);
 	sensor_set_register_value(
 		SENSOR_REG_MODE,
 		SENSOR_MODE_CONTINUOUS
