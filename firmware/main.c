@@ -584,7 +584,9 @@ static uchar sensor_read_status_register() {  // {{{
 	// "TWI_statusReg.lastTransOK" in order to detect errors.
 
 	uchar msg[2];
+
 	sensor_set_address_pointer(SENSOR_REG_STATUS);
+
 	msg[0] = SENSOR_I2C_READ_ADDRESS;
 	TWI_Start_Transceiver_With_Data(msg, 2);
 	TWI_Get_Data_From_Transceiver(msg, 2);
@@ -604,6 +606,7 @@ static uchar sensor_read_data_registers() {  // {{{
 	uchar lastTransOK;
 
 	sensor_set_address_pointer(SENSOR_REG_DATA_START);
+
 	msg[0] = SENSOR_I2C_READ_ADDRESS;
 	TWI_Start_Transceiver_With_Data(msg, 7);
 	lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
