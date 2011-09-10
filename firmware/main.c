@@ -831,7 +831,8 @@ int	main(void) {  // {{{
 	uchar should_send_report = 1;
 	int idle_counter = 0;
 
-	uchar useless_counter = 0;
+	uchar sensor_probe_counter = 0;
+	uchar new_data_received = 0;
 
 	cli();
 
@@ -856,23 +857,43 @@ int	main(void) {  // {{{
 		update_key_state();
 
 		// Red LED lights up if there is any kind of error in I2C communication
-		/*
 		if ( TWI_statusReg.lastTransOK ) {
 			LED_TURN_OFF(RED_LED);
 		} else {
 			LED_TURN_ON(RED_LED);
 		}
-		*/
 
-		if (TIFR & (1<<TOV0)) {
-			LED_TURN_ON(RED_LED);
-			if ( sensor_read_status_register() & SENSOR_STATUS_RDY ) {
-				LED_TURN_ON(GREEN_LED);
-			} else {
-				LED_TURN_OFF(GREEN_LED);
+		// The main switch can be used to "freeze" the sensor values.
+		new_data_received = 0;
+		if (key_state & BUTTON_SWITCH) {
+			// Timer is set to 1.365ms
+			if (TIFR & (1<<TOV0)) {
+				if (sensor_probe_counter > 0){
+					sensor_probe_counter--;
+				} else {
+					uchar lastTransOK;
+
+					// The sensor is configured for 75Hz measurements.
+					// I'm using this timer to read the values at twice that rate.
+					// 5 * 1.365ms = 6.827ms ~= 146Hz
+					sensor_probe_counter = 5;
+
+					lastTransOK = sensor_read_data_registers();
+					if (lastTransOK) {
+						new_data_received = 1;
+					}
+				}
 			}
-			LED_TURN_OFF(RED_LED);
+
+			if (key_state & BUTTON_3) {
+				if (!should_send_report) {
+					debug_print_X_Y_Z_to_number_buffer();
+					string_pointer = number_buffer;
+					should_send_report = 1;
+				}
+			}
 		}
+
 
 		if (ON_KEY_DOWN(BUTTON_1)) {
 			if (key_state & BUTTON_SWITCH) {
@@ -902,104 +923,6 @@ int	main(void) {  // {{{
 						should_send_report = 1;
 					}
 				}
-			}
-		}
-		if (ON_KEY_DOWN(BUTTON_2)) {
-			if (key_state & BUTTON_SWITCH) {
-				if (!should_send_report) {
-					// And the firmware is not sending anything
-
-					// Printing "H43"
-
-					uchar lastTransOK;
-					number_buffer[0] = 'I';
-					number_buffer[1] = 'd';
-					number_buffer[2] = ':';
-					number_buffer[3] = ' ';
-					lastTransOK = sensor_read_identification_string(number_buffer+4);
-					number_buffer[7] = '\n';
-					number_buffer[8] = '\0';
-
-					if (lastTransOK) {
-						string_pointer = number_buffer;
-						should_send_report = 1;
-					} else {
-						string_pointer = twi_error_string;
-						should_send_report = 1;
-					}
-				}
-			} else {
-				if (!should_send_report) {
-					// And the firmware is not sending anything
-
-					/*
-					// Printing the status register
-					uchar status = sensor_read_status_register();
-					number_buffer[0] = 'S';
-					number_buffer[1] = 't';
-					number_buffer[2] = 'a';
-					number_buffer[3] = 't';
-					number_buffer[4] = 'u';
-					number_buffer[5] = 's';
-					number_buffer[6] = ':';
-					number_buffer[7] = ' ';
-					uchar_to_hex(status, number_buffer+8);
-					number_buffer[10] = '\n';
-					number_buffer[11] = '\0';
-					*/
-
-					uchar msg[2];
-
-					sensor_set_address_pointer(useless_counter);
-					msg[0] = SENSOR_I2C_READ_ADDRESS;
-					TWI_Start_Transceiver_With_Data(msg, 2);
-					TWI_Get_Data_From_Transceiver(msg, 2);
-
-					// Printing an arbitrartu register
-					number_buffer[0] = 'R';
-					number_buffer[1] = 'e';
-					number_buffer[2] = 'g';
-					number_buffer[3] = ' ';
-					number_buffer[4] = nibble_to_hex(useless_counter);
-					number_buffer[5] = ' ';
-					number_buffer[6] = '=';
-					number_buffer[7] = ' ';
-					uchar_to_hex(msg[1], number_buffer+8);
-					number_buffer[10] = '\n';
-					number_buffer[11] = '\0';
-
-					string_pointer = number_buffer;
-					should_send_report = 1;
-				}
-			}
-		}
-		if (ON_KEY_DOWN(BUTTON_3)) {
-
-			// Increasing/decreasing the counter.
-			if (key_state & BUTTON_SWITCH) {
-				useless_counter--;
-				if (useless_counter < 0 || useless_counter > SENSOR_REG_ID_C )
-					useless_counter = SENSOR_REG_ID_C;
-			} else {
-				useless_counter++;
-				if (useless_counter < 0 || useless_counter > SENSOR_REG_ID_C )
-					useless_counter = 0;
-			}
-
-			// Printing the value
-			if (!should_send_report) {
-				number_buffer[0] = 'R';
-				number_buffer[1] = 'e';
-				number_buffer[2] = 'g';
-				number_buffer[3] = ':';
-				number_buffer[4] = ' ';
-				number_buffer[5] = nibble_to_hex(useless_counter);
-				number_buffer[6] = ' ';
-				itoa(useless_counter, (char*)(number_buffer+7), 10);
-				append_newline_to_str(number_buffer+7);
-
-				string_pointer = number_buffer;
-				should_send_report = 1;
 			}
 		}
 
