@@ -705,10 +705,10 @@ static uchar number_buffer[22];
 //
 // This value is measured in multiples of 4ms.
 // A value of zero means indefinite/infinity.
-static uchar idleRate;
+static uchar idle_rate;
 
 
-static void debug_print_X_Y_Z_to_number_buffer() {  // {{{
+static uchar* debug_print_X_Y_Z_to_number_buffer() {  // {{{
 	// "-1234\t1234\t-1234\n"
 
 	uchar *str = number_buffer;
@@ -726,6 +726,8 @@ static void debug_print_X_Y_Z_to_number_buffer() {  // {{{
 	str++;
 
 	*str = '\0';
+
+	return str;
 }  // }}}
 
 
@@ -813,10 +815,10 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 			usbMsgPtr = reportBuffer;
 			return sizeof(reportBuffer);
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
-			usbMsgPtr = &idleRate;
+			usbMsgPtr = &idle_rate;
 			return 1;
 		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
-			idleRate = rq->wValue.bytes[1];
+			idle_rate = rq->wValue.bytes[1];
 		}
 	} else {
 		/* no vendor specific requests implemented */
@@ -827,8 +829,9 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 
 int	main(void) {  // {{{
 	uchar should_send_report = 1;
+	int idle_counter = 0;
+
 	uchar useless_counter = 0;
-	int idleCounter = 0;
 
 	cli();
 
@@ -853,10 +856,22 @@ int	main(void) {  // {{{
 		update_key_state();
 
 		// Red LED lights up if there is any kind of error in I2C communication
+		/*
 		if ( TWI_statusReg.lastTransOK ) {
 			LED_TURN_OFF(RED_LED);
 		} else {
 			LED_TURN_ON(RED_LED);
+		}
+		*/
+
+		if (TIFR & (1<<TOV0)) {
+			LED_TURN_ON(RED_LED);
+			if ( sensor_read_status_register() & SENSOR_STATUS_RDY ) {
+				LED_TURN_ON(GREEN_LED);
+			} else {
+				LED_TURN_OFF(GREEN_LED);
+			}
+			LED_TURN_OFF(RED_LED);
 		}
 
 		if (ON_KEY_DOWN(BUTTON_1)) {
@@ -992,22 +1007,22 @@ int	main(void) {  // {{{
 		// Timer is set to 1.365ms
 		if (TIFR & (1<<TOV0)) {
 			// Implementing the idle rate...
-			if (idleRate != 0) {
-				if (idleCounter > 0){
-					idleCounter--;
+			if (idle_rate != 0) {
+				if (idle_counter > 0){
+					idle_counter--;
 				} else {
-					// idleCounter counts how many Timer0 overflows are
+					// idle_counter counts how many Timer0 overflows are
 					// required before sending another report.
 					// The exact formula is:
-					// idleCounter = (idleRate * 4)/1.365;
+					// idle_counter = (idle_rate * 4)/1.365;
 					// But it's better to avoid floating point math.
 					// 4/1.365 = 2.93, so let's just multiply it by 3.
-					idleCounter = idleRate * 3;
+					idle_counter = idle_rate * 3;
 
 					//keyDidChange = 1;
 					LED_TOGGLE(YELLOW_LED);
 					// TODO: implement this... should re-send the current status
-					// Either that, or the idleRate support should be removed.
+					// Either that, or the idle_rate support should be removed.
 				}
 			}
 		}
