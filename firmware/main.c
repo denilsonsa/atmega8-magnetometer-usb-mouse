@@ -494,8 +494,8 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 // See pages 12, 13, 14 of HMC5883L.pdf
 
 // The Mode Register has 2 possible values for Idle mode.
-#define SENSOR_MODE_SINGLE      0
-#define SENSOR_MODE_CONTINUOUS  1
+#define SENSOR_MODE_CONTINUOUS  0
+#define SENSOR_MODE_SINGLE      1
 #define SENSOR_MODE_IDLE_A      2
 #define SENSOR_MODE_IDLE_B      3
 #define SENSOR_MODE_MASK        3
