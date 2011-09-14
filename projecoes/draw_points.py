@@ -2,6 +2,17 @@
 # -*- coding: utf-8 -*-
 # vi:ts=4 sw=4 et
 
+# How to use:
+# ./something_that_generates_points | ./draw_points.py
+# ./draw_points.py < some_data.txt
+#
+# Once the window is opened, it can be resized, or it can be closed by pressing
+# Esc or Q, or by just closing it.
+#
+# Upon reading EOF, it will stop reading from stdin, but the window will remain
+# open until you close it.
+
+
 from __future__ import division
 from __future__ import print_function
 
