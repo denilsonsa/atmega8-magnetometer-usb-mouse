@@ -1,0 +1,9 @@
+0 0 0
+# topleft
+-96	91	170
+# topright
+-159	-113	282
+# bottomright
+-162	-220	221
+# bottomleft
+-94	-40	306

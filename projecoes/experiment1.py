@@ -28,14 +28,15 @@ class State(object):
     CALIBRATION_NAMES = ['topleft', 'topright', 'bottomright', 'bottomleft']
 
     def __init__(self):
+        self.DEBUG = True
         for name in self.CALIBRATION_NAMES:
             setattr(self, name, vector([0,0,0]))
 
-    def calc1(self, C):
+
+    def single_edge_interpolation(self, A, B, C):
+        # A is the left/top edge
+        # B is the right/bottom edge
         # C is the currently pointed value
-        # Let's calculate this according to top edge only
-        A = self.topleft
-        B = self.topright
 
         # N is normal to the plane of A and B
         N = cross(A, B)
@@ -54,22 +55,33 @@ class State(object):
         # Bah... nevermind... I'm going to compare the angles until I get a
         # better solution
         cos_AB = cos_entre_vetores(A, B)
-        cos_AC = cos_entre_vetores(A, C)
-        cos_BC = cos_entre_vetores(B, C)
-        #print "cos_AB", cos_AB
-        #print "cos_AC", cos_AC
-        #print "cos_BC", cos_BC
+        cos_AC = cos_entre_vetores(A, Clinha)
+        cos_BC = cos_entre_vetores(B, Clinha)
+        if self.DEBUG:
+            print "cos_AB", cos_AB
+            print "cos_AC", cos_AC
+            print "cos_BC", cos_BC
 
         # Check if inside the bounds of AB
-        if cos_AC < cos_AB or cos_BC < cos_AB:
-            return None
+        #if cos_AC < cos_AB or cos_BC < cos_AB:
+        #    return None
 
         ang_AB = numpy.arccos(cos_AB)
         ang_AC = numpy.arccos(cos_AC)
         ang_BC = numpy.arccos(cos_BC)
+        if self.DEBUG:
+            print "ang_AB", ang_AB
+            print "ang_AC", ang_AC
+            print "ang_BC", ang_BC
 
         # Return the proportion...
         return ang_AC / ang_AB
+
+    def interpolation_using_2_edges(self, pointer):
+        # This is a very bad approximation
+        x = self.single_edge_interpolation(self.topleft, self.topright, pointer)
+        y = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
+        return (x, y)
 
 
 def reset():
@@ -106,6 +118,10 @@ def main():
             reset()
         elif line.lower() == 'quit':
             break
+        elif line.lower() == 'debug':
+            state.DEBUG = not state.DEBUG
+            print "Debug is now {0}".format("ON" if state.DEBUG else "OFF")
+            sys.stdout.flush()
         elif line.lower() == 'calibration':
             # Prints the calibration vectors
             for name in State.CALIBRATION_NAMES:
@@ -123,17 +139,20 @@ def main():
         # Reading a coordinate
         elif match_vector_line:
             pointer = vector_from_string(line)
-            #print repr(pointer)
+            if state.DEBUG:
+                print repr(pointer)
 
-            x = state.calc1(pointer)
-            y = 0.5
+            x, y = state.interpolation_using_2_edges(pointer)
+            if state.DEBUG:
+                print x, y
             if x is not None and y is not None:
                 x *= 640
                 y *= 480
                 print "{0} {1}".format(x, y)
                 sys.stdout.flush()
+
                 import time
-                time.sleep(0.25)
+                #time.sleep(0.015625)
 
         # Fallback for unknown lines
         else:
