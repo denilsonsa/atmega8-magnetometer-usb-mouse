@@ -183,8 +183,10 @@ def main():
                 print repr(pointer)
 
             x, y = state.interpolation_using_4_edges(pointer)
+
             if state.DEBUG:
                 print x, y
+
             if x is not None and y is not None:
                 #x *= 640
                 #y *= 480
