@@ -36,6 +36,7 @@ class DrawPoints(object):
         self.points = [ (None, None) ] * self.MAX_POINTS
 
         self.resolution = (640, 480)
+        self.thickness = 4
 
         self.poll = select.poll()
         self.poll.register(sys.stdin, select.POLLIN)
@@ -87,7 +88,12 @@ class DrawPoints(object):
         for point, color in izip(self.points, self.colors):
             if point[0] is None or point[1] is None:
                 continue
-            rect = Rect(point[0]-1, point[1]-1, 3, 3)
+            x = point[0] * self.resolution[0]
+            y = point[1] * self.resolution[1]
+            rect = Rect(
+                x - self.thickness, y - self.thickness,
+                1 + 2 * self.thickness, 1 + 2 * self.thickness
+            )
             self.screen.fill(color, rect=rect)
 
         pygame.display.flip()

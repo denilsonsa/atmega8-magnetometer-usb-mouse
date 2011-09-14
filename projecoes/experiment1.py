@@ -83,6 +83,46 @@ class State(object):
         y = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
         return (x, y)
 
+    def interpolation_using_4_edges(self, pointer):
+        # Let:
+        #  A = topleft
+        #  B = topright
+        #  C = bottomright
+        #  D = bottomleft
+        # as 3D vector coordinates
+        #
+        # And let:
+        #  AB = pointer projection at AB edge
+        #  BC = pointer projection at BC edge
+        #  DC = pointer projection at DC edge
+        #  AD = pointer projection at AD edge
+        # as 1D coordinates, already normalized between 0 and 1
+        #
+        # Let's trace a line joining AB and DC, and another joining AD and BC.
+        # The intersection of these two lines should be at the 2D screen
+        # coordinate pointed by the user.
+        #
+        # y(x) = x * (BC - AD) + AD
+        #   y(0) = AD
+        #   y(1) = BC
+        #
+        # x(y) = y * (DC - AB) + AB
+        #   x(0) = AB
+        #   x(1) = DC
+        #
+        # Some math later:
+        # x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
+
+        AB = self.single_edge_interpolation(self.topleft, self.topright, pointer)
+        BC = self.single_edge_interpolation(self.topright, self.bottomright, pointer)
+        DC = self.single_edge_interpolation(self.bottomleft, self.bottomright, pointer)
+        AD = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
+
+        x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
+        y = x * (BC - AD) + AD
+
+        return (x, y)
+
 
 def reset():
     global state
@@ -142,12 +182,12 @@ def main():
             if state.DEBUG:
                 print repr(pointer)
 
-            x, y = state.interpolation_using_2_edges(pointer)
+            x, y = state.interpolation_using_4_edges(pointer)
             if state.DEBUG:
                 print x, y
             if x is not None and y is not None:
-                x *= 640
-                y *= 480
+                #x *= 640
+                #y *= 480
                 print "{0} {1}".format(x, y)
                 sys.stdout.flush()
 
