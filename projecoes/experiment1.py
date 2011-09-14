@@ -51,19 +51,25 @@ class State(object):
         # I could compare the angles, but that would need arccos() function,
         # while I can calculate the cossines directly by dot-product and
         # division.
+        # Bah... nevermind... I'm going to compare the angles until I get a
+        # better solution
         cos_AB = cos_entre_vetores(A, B)
         cos_AC = cos_entre_vetores(A, C)
         cos_BC = cos_entre_vetores(B, C)
-        print "cos_AB", cos_AB
-        print "cos_AC", cos_AC
-        print "cos_BC", cos_BC
+        #print "cos_AB", cos_AB
+        #print "cos_AC", cos_AC
+        #print "cos_BC", cos_BC
 
         # Check if inside the bounds of AB
-        if cos_AC > cos_AB or cos_BC > cos_AB:
+        if cos_AC < cos_AB or cos_BC < cos_AB:
             return None
 
+        ang_AB = numpy.arccos(cos_AB)
+        ang_AC = numpy.arccos(cos_AC)
+        ang_BC = numpy.arccos(cos_BC)
+
         # Return the proportion...
-        return cos_AC/cos_AB
+        return ang_AC / ang_AB
 
 
 def reset():
@@ -107,6 +113,7 @@ def main():
                     name,
                     repr(getattr(state, name))
                 )
+            sys.stdout.flush()
 
         # Calibration coordinates
         elif line.lower() in State.CALIBRATION_NAMES:
@@ -116,16 +123,22 @@ def main():
         # Reading a coordinate
         elif match_vector_line:
             pointer = vector_from_string(line)
-            print repr(pointer)
+            #print repr(pointer)
 
             x = state.calc1(pointer)
-            y = 50
+            y = 0.5
             if x is not None and y is not None:
+                x *= 640
+                y *= 480
                 print "{0} {1}".format(x, y)
+                sys.stdout.flush()
+                import time
+                time.sleep(0.25)
 
         # Fallback for unknown lines
         else:
             print "Unrecognized line {0}: {1}".format(line_number, line)
+            sys.stdout.flush()
 
 
 if __name__ == "__main__":
