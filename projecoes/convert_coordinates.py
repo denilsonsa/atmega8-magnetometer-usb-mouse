@@ -15,8 +15,11 @@ def vector(param):
     return numpy.array(param, dtype='f')
 
 def vector_from_string(s):
-    x,y,z = [float(i) for i in s.split()]
-    return vector([x,y,z])
+    try:
+        x,y,z = [float(i) for i in s.split()]
+        return vector([x,y,z])
+    except:
+        return None
 
 
 cos_entre_vetores = lambda x,y: dot(x,y)/norm(x)/norm(y)
@@ -66,6 +69,12 @@ class State(object):
         #if cos_AC < cos_AB or cos_BC < cos_AB:
         #    return None
 
+        if not (
+            -1 <= cos_AB <= 1 and
+            -1 <= cos_AC <= 1 and
+            -1 <= cos_BC <= 1
+        ):
+            return None
         ang_AB = numpy.arccos(cos_AB)
         ang_AC = numpy.arccos(cos_AC)
         ang_BC = numpy.arccos(cos_BC)
@@ -117,6 +126,9 @@ class State(object):
         BC = self.single_edge_interpolation(self.topright, self.bottomright, pointer)
         DC = self.single_edge_interpolation(self.bottomleft, self.bottomright, pointer)
         AD = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
+
+        if None in [AB, BC, DC, AD]:
+            return (None, None)
 
         x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
         y = x * (BC - AD) + AD
@@ -174,11 +186,16 @@ def main():
         # Calibration coordinates
         elif line.lower() in State.CALIBRATION_NAMES:
             value = raw_input().strip()
-            setattr(state, line.lower(), vector_from_string(value))
+            pointer = vector_from_string(value)
+            if pointer is not None:
+                setattr(state, line.lower(), pointer)
 
         # Reading a coordinate
         elif match_vector_line:
             pointer = vector_from_string(line)
+            if pointer is None:
+                continue
+
             if state.DEBUG:
                 print repr(pointer)
 
