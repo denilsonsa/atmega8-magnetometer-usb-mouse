@@ -31,7 +31,7 @@ class State(object):
     CALIBRATION_NAMES = ['topleft', 'topright', 'bottomright', 'bottomleft']
 
     def __init__(self):
-        self.DEBUG = True
+        self.DEBUG = False
         for name in self.CALIBRATION_NAMES:
             setattr(self, name, vector([0,0,0]))
 
@@ -202,7 +202,7 @@ def main():
             x, y = state.interpolation_using_4_edges(pointer)
 
             if state.DEBUG:
-                print x, y
+                print "x,y", x, y
 
             if x is not None and y is not None:
                 #x *= 640
@@ -211,7 +211,7 @@ def main():
                 sys.stdout.flush()
 
                 import time
-                time.sleep(0.015625)
+                #time.sleep(0.015625)
 
         # Fallback for unknown lines
         else:
