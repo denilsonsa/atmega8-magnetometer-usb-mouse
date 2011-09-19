@@ -211,7 +211,7 @@ def main():
                 sys.stdout.flush()
 
                 import time
-                #time.sleep(0.015625)
+                time.sleep(0.015625)
 
         # Fallback for unknown lines
         else:
