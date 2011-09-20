@@ -20,14 +20,25 @@ import select
 import sys
 from itertools import izip
 
-import pygame
+# Easy way of importing pygame:
+# import pygame
+
+# Hard way of importing pygame:
+import pygame.display
+import pygame.event
+import pygame.image
+import pygame.time
+
 from pygame.locals import *
 
 
 class DrawPoints(object):
 
     def init(self, args):
-        pygame.init()
+        # pygame.init() will try to initialize all pygame modules, including
+        # Cdrom and Audio. I'm not using such things, so let's initialize the
+        # only really required module:
+        pygame.display.init()
 
         if args.persist:
             self.FADE_POINTS = False
