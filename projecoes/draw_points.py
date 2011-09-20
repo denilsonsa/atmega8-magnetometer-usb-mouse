@@ -26,20 +26,32 @@ from pygame.locals import *
 
 class DrawPoints(object):
 
-    def init(self):
+    def init(self, args):
         pygame.init()
 
-        self.MAX_POINTS = 256
-        self.colors = [
-            Color(i,i,i) for i in range(256)
-        ]
-        self.points = [ (None, None) ] * self.MAX_POINTS
+        if args.persist:
+            self.FADE_POINTS = False
+            self.MAX_POINTS = 0
+            self.colors = []
+            self.points = []
+        else:
+            self.FADE_POINTS = True
+            self.MAX_POINTS = 256
+            self.colors = [
+                Color(i,i,i) for i in range(256)
+            ]
+            self.points = [ (None, None) ] * self.MAX_POINTS
+
+        self.BLACK = Color(0, 0, 0)
+        self.WHITE = Color(255, 255, 255)
 
         self.resolution = (640, 480)
-        self.thickness = 4
+        self.thickness = args.size
 
         self.poll = select.poll()
         self.poll.register(sys.stdin, select.POLLIN)
+
+        self.save_as = args.output
 
 
     def run(self):
@@ -78,33 +90,73 @@ class DrawPoints(object):
 
 
     def add_point(self, x, y):
-        self.points.append( (x,y) )
-        if len(self.points) > self.MAX_POINTS:
-            self.points.pop(0)
+        if self.FADE_POINTS:
+            self.points.append( (x,y) )
+            if len(self.points) > self.MAX_POINTS:
+                self.points.pop(0)
+        else:
+            self.draw_point(x, y, self.WHITE)
 
+    def draw_point(self, x, y, color):
+        x *= self.resolution[0]
+        y *= self.resolution[1]
+        rect = Rect(
+            x - self.thickness, y - self.thickness,
+            1 + 2 * self.thickness, 1 + 2 * self.thickness
+        )
+        self.screen.fill(color, rect=rect)
 
     def redraw(self):
-        self.screen.fill(Color(0,0,0))
-        for point, color in izip(self.points, self.colors):
-            if point[0] is None or point[1] is None:
-                continue
-            x = point[0] * self.resolution[0]
-            y = point[1] * self.resolution[1]
-            rect = Rect(
-                x - self.thickness, y - self.thickness,
-                1 + 2 * self.thickness, 1 + 2 * self.thickness
-            )
-            self.screen.fill(color, rect=rect)
+        if self.FADE_POINTS:
+            self.screen.fill(self.BLACK)
+            for point, color in izip(self.points, self.colors):
+                if point[0] is None or point[1] is None:
+                    continue
+                self.draw_point(point[0], point[1], color)
+        else:
+            pass
 
         pygame.display.flip()
 
 
     def quit(self, status=0):
+        if self.save_as:
+            print("Saving image to '{0}'".format(self.save_as))
+            pygame.image.save(self.screen, self.save_as)
+
         pygame.quit()
         sys.exit(status)
 
 
+def parse_args():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Draws 2D points based on coordinates between 0.0 and 1.0"
+    )
+    parser.add_argument(
+        '-p', '--persist',
+        action='store_true',
+        help='Persist the drawing, instead of fading the older points.'
+    )
+    parser.add_argument(
+        '-s', '--size',
+        action='store',
+        type=int,
+        default=4,
+        help='The thickness of each "dot" (default: 4). The actual size is "1 + 2*SIZE".'
+    )
+    parser.add_argument(
+        '-o', '--output',
+        metavar='FILE',
+        action='store',
+        type=str,
+        help='Save the final drawing to a file.'
+    )
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
     program = DrawPoints()
-    program.init()
+    program.init(parse_args())
     program.run()  # This function should never return

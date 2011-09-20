@@ -240,7 +240,8 @@ def main():
                 sys.stdout.flush()
 
                 import time
-                #time.sleep(0.015625)
+                #time.sleep(0.015625)  # 2**-6
+                #time.sleep(2**-8)
             else:
                 print "discarded"
 
