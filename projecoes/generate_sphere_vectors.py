@@ -22,6 +22,7 @@ yaw_window = 45
 def parse_args(args):
     global pitch_window, yaw_window
 
+    calibration_angle = None
     i = 0
     while i < len(args):
         arg = args[i]
@@ -40,7 +41,7 @@ def parse_args(args):
         elif arg in ['--calibrate', '-c']:
             i+= 1
             value = int(args[i])
-            print_calibration(value)
+            calibration_angle = value
 
         elif arg in ['--pitch', '-p']:
             i+= 1
@@ -53,6 +54,9 @@ def parse_args(args):
             yaw_window = value
 
         i+= 1
+
+    if calibration_angle is not None:
+        print_calibration(value)
 
 def print_calibration(angle):
     global pitch_window, yaw_window
@@ -92,6 +96,8 @@ def spherical_to_cartesian(theta, phi):
 def main(args):
     parse_args(args)
 
+    SHOULD_SLEEP = False
+
     for theta in range(45, -45, -2):
     #for theta in range(75, -75, -5):
         #for phi in range(0, 360, 5):
@@ -99,11 +105,13 @@ def main(args):
             x, y, z = spherical_to_cartesian(theta, phi)
             print('{0}\t{1}\t{2}'.format(x, y, z))
 
-        import time
-        sys.stdout.flush()
-        sys.stderr.write('theta={0}\n'.format(theta))
-        sys.stderr.flush()
-        time.sleep(0.5)
+        if SHOULD_SLEEP:
+            sys.stdout.flush()
+            sys.stderr.write('theta={0}\n'.format(theta))
+            sys.stderr.flush()
+
+            import time
+            time.sleep(0.5)
 
 
 if __name__ == "__main__":
