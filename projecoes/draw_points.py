@@ -63,6 +63,7 @@ class DrawPoints(object):
         self.poll.register(sys.stdin, select.POLLIN)
 
         self.save_as = args.output
+        self.quit_after_eof = args.quit_after_eof
 
 
     def run(self):
@@ -93,6 +94,8 @@ class DrawPoints(object):
                             # EOF
                             self.poll.unregister(sys.stdin)
                             pygame.time.set_timer(USEREVENT, 0)
+                            if self.quit_after_eof:
+                                self.quit()
                         try:
                             x,y = [float(i) for i in line.strip().split()]
                         except:
@@ -173,6 +176,12 @@ def parse_args():
         action='store',
         type=str,
         help='Save the final drawing to a file.'
+    )
+    parser.add_argument(
+        '-q', '--quit-after-eof',
+        action='store_true',
+        dest='quit_after_eof',
+        help='Close the program after finding EOF in stdin'
     )
     args = parser.parse_args()
     return args
