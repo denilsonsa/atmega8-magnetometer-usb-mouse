@@ -37,14 +37,35 @@ class State(object):
 
 
     def single_edge_interpolation(self, A, B, C):
-        # A is the left/top edge
-        # B is the right/bottom edge
-        # C is the currently pointed value
+        # A and B are one of the corners.
+        # C is the currently pointed value.
+        #
+        # Returns None in case of errors.
+        #
+        # Returns None if C is at the opposite side of N, when looking at the
+        # plane AOB. In other words, if the angle between N and C is greater
+        # than 90 degrees.
+        #
+        # Else, returns a value between 0.0 and 1.0, which means how close to A
+        # is C, inside the segment AB.
+        #
+        #
+        # N ^
+        #   |   _
+        #   |  .'| B (pointing inside this drawing)
+        #   |.'
+        # O *--------> A
+        #
+        # N = A x B
 
         # N is normal to the plane of A and B
         N = cross(A, B)
         # Converting to unit vector
         # N /= norm(N)
+
+        # Checking the side of C, in relation to N and plane AB
+        if dot(N, C) < 0:
+            return None
 
         # Clinha is the projection of C onto AB plane.
         # I don't care about the size of this vector, only about the direction.
@@ -88,8 +109,13 @@ class State(object):
 
     def interpolation_using_2_edges(self, pointer):
         # This is a very bad approximation
-        x = self.single_edge_interpolation(self.topleft, self.topright, pointer)
-        y = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
+        x = self.single_edge_interpolation(self.topleft   , self.topright, pointer)
+        y = self.single_edge_interpolation(self.bottomleft, self.topleft , pointer)
+        if None in [x, y]:
+            return (None, None)
+
+        y = 1 - y
+
         return (x, y)
 
     def interpolation_using_4_edges(self, pointer):
@@ -122,13 +148,16 @@ class State(object):
         # Some math later:
         # x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
 
-        AB = self.single_edge_interpolation(self.topleft, self.topright, pointer)
-        BC = self.single_edge_interpolation(self.topright, self.bottomright, pointer)
-        DC = self.single_edge_interpolation(self.bottomleft, self.bottomright, pointer)
-        AD = self.single_edge_interpolation(self.topleft, self.bottomleft, pointer)
+        AB = self.single_edge_interpolation(self.topleft    , self.topright   , pointer)
+        BC = self.single_edge_interpolation(self.topright   , self.bottomright, pointer)
+        DC = self.single_edge_interpolation(self.bottomright, self.bottomleft , pointer)
+        AD = self.single_edge_interpolation(self.bottomleft , self.topleft    , pointer)
 
         if None in [AB, BC, DC, AD]:
             return (None, None)
+
+        DC = 1 - DC
+        AD = 1 - AD
 
         x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
         y = x * (BC - AD) + AD
@@ -212,6 +241,8 @@ def main():
 
                 import time
                 #time.sleep(0.015625)
+            else:
+                print "discarded"
 
         # Fallback for unknown lines
         else:

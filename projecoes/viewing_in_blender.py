@@ -115,16 +115,19 @@ def main():
     for line in f:
         line = line.strip()
 
-        try:
-            x, y = [float(i) for i in line.split()]
-        except:
-            continue
+        if line == 'discarded':
+            ipo_x += 1
+        else:
+            try:
+                x, y = [float(i) for i in line.split()]
+            except:
+                continue
 
-        # Add coordinate to ScreenPoint object
-        curvex.append(new_bezier_point(1 + ipo_x*FPS, x*screen_scaling))
-        curvey.append(new_bezier_point(1 + ipo_x*FPS, y*screen_scaling))
+            # Add coordinate to ScreenPoint object
+            curvex.append(new_bezier_point(1 + ipo_x*FPS, x*screen_scaling))
+            curvey.append(new_bezier_point(1 + ipo_x*FPS, y*screen_scaling))
 
-        ipo_x += 1
+            ipo_x += 1
 
     f.close()
 
