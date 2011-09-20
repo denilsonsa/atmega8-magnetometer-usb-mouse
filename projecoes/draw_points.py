@@ -132,7 +132,8 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Draws 2D points based on coordinates between 0.0 and 1.0"
+        description="Draws 2D points based on coordinates between 0.0 and 1.0",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
         '-p', '--persist',
@@ -143,8 +144,8 @@ def parse_args():
         '-s', '--size',
         action='store',
         type=int,
-        default=4,
-        help='The thickness of each "dot" (default: 4). The actual size is "1 + 2*SIZE".'
+        default=2,
+        help='The thickness of each "dot". The actual size is "1 + 2*SIZE".'
     )
     parser.add_argument(
         '-o', '--output',
