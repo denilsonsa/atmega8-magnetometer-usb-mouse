@@ -5,6 +5,8 @@ syntax: glob
 *~
 .#*
 *.bak
+# Blender backup files:
+*.blend1
 # Vim/Gvim temporary files:
 .*.swp
 .swp
