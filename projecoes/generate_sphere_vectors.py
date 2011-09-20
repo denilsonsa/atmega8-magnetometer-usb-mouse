@@ -118,8 +118,8 @@ def parse_args(args=None):
     parser.add_argument(
         '-s', '--sleep',
         action='store',
-        type=int,
-        default=0,
+        type=float,
+        default=0.0,
         metavar='MS',
         dest='sleep_ms',
         help='Sleep MS milliseconds after each theta value'
@@ -148,7 +148,6 @@ def print_calibration():
         )
         print(name)
         print('{0}\t{1}\t{2}'.format(x, y, z))
-    sys.stdout.flush()
 
 def spherical_to_cartesian(theta, phi):
     global options

@@ -5,6 +5,7 @@
 import numpy
 import re
 import sys
+import time
 
 from numpy import matrix, array, cross, dot, rad2deg, deg2rad
 from numpy.linalg import norm
@@ -168,8 +169,39 @@ def reset():
     state = State()
 
 
+def parse_args():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Converts 3D vector coordinates to 2D screen coordinates',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        '-s', '--sleep',
+        action='store',
+        type=float,
+        default=0.0,
+        metavar='MS',
+        dest='sleep_ms',
+        help='Sleep MS milliseconds after each printed coordinate'
+    )
+    parser.add_argument(
+        '-f', '--flush',
+        action='store_true',
+        dest='force_flush',
+        help='Force stdout flush after each printed coordinate (automatically enabled if --sleep is set)'
+    )
+
+    args = parser.parse_args()
+    return args
+
+
 def main():
     re_vector_line = re.compile(r'^\s*([-\d]+)\s*([-\d]+)\s*([-\d]+)')
+
+    global options
+    options = parse_args()
 
     global state
     reset()
@@ -235,11 +267,14 @@ def main():
                 #x *= 640
                 #y *= 480
                 print "{0} {1}".format(x, y)
-                sys.stdout.flush()
 
-                import time
-                #time.sleep(0.015625)  # 2**-6
-                #time.sleep(2**-8)
+                if options.sleep_ms > 0 or options.force_flush:
+                    sys.stdout.flush()
+
+                if options.sleep_ms > 0:
+                    #time.sleep(0.015625)  # 2**-6
+                    #time.sleep(2**-8)
+                    time.sleep(options.sleep_ms/1000.0)
             else:
                 print "discarded"
 
