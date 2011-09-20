@@ -45,7 +45,7 @@ class DrawPoints(object):
         self.BLACK = Color(0, 0, 0)
         self.WHITE = Color(255, 255, 255)
 
-        self.resolution = (640, 480)
+        self.resolution = args.window_size
         self.thickness = args.size
 
         self.poll = select.poll()
@@ -146,6 +146,15 @@ def parse_args():
         type=int,
         default=2,
         help='The thickness of each "dot". The actual size is "1 + 2*SIZE".'
+    )
+    parser.add_argument(
+        '-w', '--window',
+        action='store',
+        type=int,
+        nargs=2,
+        default=(640, 480),
+        dest='window_size',
+        help='The size of the window'
     )
     parser.add_argument(
         '-o', '--output',
