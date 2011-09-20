@@ -35,7 +35,7 @@ class State(object):
             setattr(self, name, vector([0,0,0]))
 
 
-    def single_edge_interpolation(self, A, B, C):
+    def single_edge_interpolation(self, A, B, C, use_angles=False):
         # A and B are one of the corners.
         # C is the currently pointed value.
         #
@@ -95,21 +95,36 @@ class State(object):
             -1 <= cos_BC <= 1
         ):
             return None
-        ang_AB = numpy.arccos(cos_AB)
-        ang_AC = numpy.arccos(cos_AC)
-        ang_BC = numpy.arccos(cos_BC)
-        if self.DEBUG:
-            print "ang_AB", ang_AB
-            print "ang_AC", ang_AC
-            print "ang_BC", ang_BC
 
-        # Return the proportion...
-        return ang_AC / ang_AB
+        if use_angles:
+            # Calculate the proportion based on angles
+            ang_AB = numpy.arccos(cos_AB)
+            ang_AC = numpy.arccos(cos_AC)
+            ang_BC = numpy.arccos(cos_BC)
+            if self.DEBUG:
+                print "ang_AB", ang_AB
+                print "ang_AC", ang_AC
+                print "ang_BC", ang_BC
 
-    def interpolation_using_2_edges(self, pointer):
+            # Return the proportion
+            return ang_AC / ang_AB
+        else:
+            # Calculate the proportion based on sines
+            sin_AB = numpy.sqrt(1 - cos_AB**2)
+            sin_AC = numpy.sqrt(1 - cos_AC**2)
+            sin_BC = numpy.sqrt(1 - cos_BC**2)
+            if self.DEBUG:
+                print "sin_AB", sin_AB
+                print "sin_AC", sin_AC
+                print "sin_BC", sin_BC
+
+            # Return the proportion
+            return sin_AC / sin_AB
+
+    def interpolation_using_2_edges(self, pointer, use_angles=False):
         # This is a very bad approximation
-        x = self.single_edge_interpolation(self.topleft   , self.topright, pointer)
-        y = self.single_edge_interpolation(self.bottomleft, self.topleft , pointer)
+        x = self.single_edge_interpolation(self.topleft   , self.topright, pointer, use_angles)
+        y = self.single_edge_interpolation(self.bottomleft, self.topleft , pointer, use_angles)
         if None in [x, y]:
             return (None, None)
 
@@ -117,7 +132,7 @@ class State(object):
 
         return (x, y)
 
-    def interpolation_using_4_edges(self, pointer):
+    def interpolation_using_4_edges(self, pointer, use_angles=False):
         # Let:
         #  A = topleft
         #  B = topright
@@ -147,10 +162,10 @@ class State(object):
         # Some math later:
         # x = (AD * (DC - AB) + AB) / (1 - (BC - AD) * (DC - AB))
 
-        AB = self.single_edge_interpolation(self.topleft    , self.topright   , pointer)
-        BC = self.single_edge_interpolation(self.topright   , self.bottomright, pointer)
-        DC = self.single_edge_interpolation(self.bottomright, self.bottomleft , pointer)
-        AD = self.single_edge_interpolation(self.bottomleft , self.topleft    , pointer)
+        AB = self.single_edge_interpolation(self.topleft    , self.topright   , pointer, use_angles)
+        BC = self.single_edge_interpolation(self.topright   , self.bottomright, pointer, use_angles)
+        DC = self.single_edge_interpolation(self.bottomright, self.bottomleft , pointer, use_angles)
+        AD = self.single_edge_interpolation(self.bottomleft , self.topleft    , pointer, use_angles)
 
         if None in [AB, BC, DC, AD]:
             return (None, None)
@@ -182,8 +197,8 @@ def parse_args():
         '-a', '--algorithm',
         action='store',
         type=int,
-        default=2,
-        choices=(1,2),
+        default=3,
+        choices=(1, 2, 3, 4),
         help='Use a different algorithm for 3D->2D conversion, read the source code to learn the available algorithms'
     )
     parser.add_argument(
@@ -272,9 +287,13 @@ def main():
             # Okay, this sequence of if statements is ugly. A list or dict
             # would probably be cleaner.
             if options.algorithm == 1:
-                x, y = state.interpolation_using_2_edges(pointer)
+                x, y = state.interpolation_using_2_edges(pointer, use_angles=True)
             elif options.algorithm == 2:
-                x, y = state.interpolation_using_4_edges(pointer)
+                x, y = state.interpolation_using_2_edges(pointer, use_angles=False)
+            elif options.algorithm == 3:
+                x, y = state.interpolation_using_4_edges(pointer, use_angles=True)
+            elif options.algorithm == 4:
+                x, y = state.interpolation_using_4_edges(pointer, use_angles=False)
 
             if state.DEBUG:
                 print "x,y", x, y
