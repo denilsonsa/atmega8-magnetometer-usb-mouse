@@ -174,9 +174,18 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         description='Converts 3D vector coordinates to 2D screen coordinates',
+        epilog='3D coordinates are arbitrary, and only the direction is taken into account. Before starting the conversion, this program needs calibration by setting the 4 corners of the screen to 3D coordinates. This program prints 2D coordinates between 0.0 and 1.0.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
+    parser.add_argument(
+        '-a', '--algorithm',
+        action='store',
+        type=int,
+        default=2,
+        choices=(1,2),
+        help='Use a different algorithm for 3D->2D conversion, read the source code to learn the available algorithms'
+    )
     parser.add_argument(
         '-s', '--sleep',
         action='store',
@@ -258,14 +267,20 @@ def main():
             if state.DEBUG:
                 print repr(pointer)
 
-            x, y = state.interpolation_using_4_edges(pointer)
+            # Doing the 3D->2D conversion
+            #
+            # Okay, this sequence of if statements is ugly. A list or dict
+            # would probably be cleaner.
+            if options.algorithm == 1:
+                x, y = state.interpolation_using_2_edges(pointer)
+            elif options.algorithm == 2:
+                x, y = state.interpolation_using_4_edges(pointer)
 
             if state.DEBUG:
                 print "x,y", x, y
 
+            # Printing the final 2D coordinates
             if x is not None and y is not None:
-                #x *= 640
-                #y *= 480
                 print "{0} {1}".format(x, y)
 
                 if options.sleep_ms > 0 or options.force_flush:
