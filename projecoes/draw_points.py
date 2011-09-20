@@ -74,8 +74,6 @@ class DrawPoints(object):
         pygame.time.set_timer(USEREVENT, 10)
 
         while True:
-            self.redraw()
-
             for event in [pygame.event.wait(),]+pygame.event.get():
                 if event.type == QUIT:
                     self.quit()
@@ -85,6 +83,7 @@ class DrawPoints(object):
                 elif event.type == VIDEORESIZE:
                     self.resolution = event.size
                     self.screen = pygame.display.set_mode(self.resolution, RESIZABLE)
+                    self.redraw()
 
                 elif event.type == USEREVENT:
                     # poll() returns a list of file-descriptors that are "ready"
@@ -101,6 +100,7 @@ class DrawPoints(object):
                         except:
                             continue
                         self.add_point(x,y)
+                    self.redraw()
 
 
     def add_point(self, x, y):
