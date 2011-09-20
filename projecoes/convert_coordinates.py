@@ -22,9 +22,7 @@ def vector_from_string(s):
         return None
 
 
-cos_entre_vetores = lambda x,y: dot(x,y)/norm(x)/norm(y)
-angulo_entre_vetores_rad = lambda x,y: numpy.arccos(cos_entre_vetores(x,y))
-angulo_entre_vetores_deg = lambda x,y: rad2deg(angulo_entre_vetores_rad(x,y))
+cos_between_vectors = lambda A,B: dot(A,B)/norm(A)/norm(B)
 
 
 class State(object):
@@ -78,9 +76,9 @@ class State(object):
         # division.
         # Bah... nevermind... I'm going to compare the angles until I get a
         # better solution
-        cos_AB = cos_entre_vetores(A, B)
-        cos_AC = cos_entre_vetores(A, Clinha)
-        cos_BC = cos_entre_vetores(B, Clinha)
+        cos_AB = cos_between_vectors(A, B)
+        cos_AC = cos_between_vectors(A, Clinha)
+        cos_BC = cos_between_vectors(B, Clinha)
         if self.DEBUG:
             print "cos_AB", cos_AB
             print "cos_AC", cos_AC
