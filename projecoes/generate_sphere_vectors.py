@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import sys
+import time
 
 from math import sin, cos, radians, degrees
 
@@ -43,6 +44,7 @@ def parse_args(args=None):
         #formatter_class=argparse.ArgumentDefaultsHelpFormatter
         #formatter_class=argparse.RawDescriptionHelpFormatter
     )
+
     parser.add_argument(
         '-r', '--radius',
         action='store',
@@ -50,6 +52,27 @@ def parse_args(args=None):
         default=200,
         help='The radius of the sphere, i.e. the size (norm) of each vector'
     )
+    parser.add_argument(
+        '--phi-range', '--h-range',
+        action='store',
+        type=int,
+        nargs=3,
+        default=(90, -91, -1),
+        metavar=('START', 'STOP', 'STEP'),
+        dest='phi_range',
+        help='Phi (horizontal) range when printing the vectors, passed directly to Python\'s range() function'
+    )
+    parser.add_argument(
+        '--theta-range', '--v-range',
+        action='store',
+        type=int,
+        nargs=3,
+        default=(45, -45, -2),
+        metavar=('START', 'STOP', 'STEP'),
+        dest='theta_range',
+        help='Theta (vertical) range when printing the vectors, passed directly to Python\'s range() function'
+    )
+
     parser.add_argument(
         '-P', '--PHI', '--h-aperture',
         action='store',
@@ -93,24 +116,13 @@ def parse_args(args=None):
         help='Don\'t print the calibration vectors at the start'
     )
     parser.add_argument(
-        '--phi-range', '--h-range',
+        '-s', '--sleep',
         action='store',
         type=int,
-        nargs=3,
-        default=(90, -91, -1),
-        metavar=('START', 'STOP', 'STEP'),
-        dest='phi_range',
-        help='Phi (horizontal) range when printing the vectors, passed directly to Python\'s range() function'
-    )
-    parser.add_argument(
-        '--theta-range', '--v-range',
-        action='store',
-        type=int,
-        nargs=3,
-        default=(45, -45, -2),
-        metavar=('START', 'STOP', 'STEP'),
-        dest='theta_range',
-        help='Theta (vertical) range when printing the vectors, passed directly to Python\'s range() function'
+        default=0,
+        metavar='MS',
+        dest='sleep_ms',
+        help='Sleep MS milliseconds after each theta value'
     )
 
     options = parser.parse_args(args)
@@ -162,8 +174,6 @@ def main():
     if not options.omit_calibration:
         print_calibration()
 
-    SHOULD_SLEEP = False
-
     for theta in xrange(*options.theta_range):
     #for theta in xrange(45, -45, -2):
     #for theta in xrange(75, -75, -5):
@@ -173,13 +183,15 @@ def main():
             x, y, z = spherical_to_cartesian(theta, phi)
             print('{0}\t{1}\t{2}'.format(x, y, z))
 
-        if SHOULD_SLEEP:
+        if options.sleep_ms > 0:
+            # Flushing the output
             sys.stdout.flush()
-            sys.stderr.write('theta={0}\n'.format(theta))
-            sys.stderr.flush()
 
-            import time
-            time.sleep(0.5)
+            # Printing the current theta value
+            #sys.stderr.write('theta={0}\n'.format(theta))
+            #sys.stderr.flush()
+
+            time.sleep(options.sleep_ms/1000.0)
 
 
 if __name__ == "__main__":
