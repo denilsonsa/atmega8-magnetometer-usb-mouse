@@ -60,16 +60,27 @@ class State(object):
         # N is normal to the plane of A and B
         N = cross(A, B)
         # Converting to unit vector
-        # N /= norm(N)
+        N /= norm(N)
+
+        # Dot product between N and C
+        NdotC = dot(N, C)
 
         # Checking the side of C, in relation to N and plane AB
-        if dot(N, C) < 0:
+        if NdotC < 0:
             return None
+
+
+        # Clinha is the projection of C onto AB plane.
+        Clinha = C - NdotC * N
 
         # Clinha is the projection of C onto AB plane.
         # I don't care about the size of this vector, only about the direction.
         # http://www.euclideanspace.com/maths/geometry/elements/plane/lineOnPlane/index.htm
-        Clinha = cross(N, cross(C,N))
+        #Clinha = cross(N, cross(C,N))
+
+        if state.DEBUG:
+            print "N", repr(N)
+            print "Clinha", repr(Clinha)
 
         # Comparing the cossines...
         # I could compare the angles, but that would need arccos() function,
