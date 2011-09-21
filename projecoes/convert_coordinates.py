@@ -119,6 +119,10 @@ class State(object):
 
             # Return the proportion
             return ang_AC / ang_AB
+        elif using == 'cos':
+            # Calculate the proportion based on cos
+            # Return the proportion
+            return (1 - cos_AC) / (1 - cos_AB)
         elif using == 'sin':
             # Calculate the proportion based on sin
             sin_AB = numpy.sqrt(1 - cos_AB**2)
@@ -225,8 +229,8 @@ def parse_args():
         '-a', '--algorithm',
         action='store',
         type=int,
-        default=4,
-        choices=(1, 2, 3, 4, 5, 6),
+        default=5,
+        choices=tuple(range(1,1+8)),
         help='Use a different algorithm for 3D->2D conversion, read the source code to learn the available algorithms'
     )
     parser.add_argument(
@@ -317,14 +321,19 @@ def main():
             if options.algorithm == 1:
                 x, y = state.interpolation_using_2_edges(pointer, using='angle')
             elif options.algorithm == 2:
-                x, y = state.interpolation_using_2_edges(pointer, using='sin')
+                x, y = state.interpolation_using_2_edges(pointer, using='cos')
             elif options.algorithm == 3:
-                x, y = state.interpolation_using_2_edges(pointer, using='tan')
+                x, y = state.interpolation_using_2_edges(pointer, using='sin')
             elif options.algorithm == 4:
-                x, y = state.interpolation_using_4_edges(pointer, using='angle')
+                x, y = state.interpolation_using_2_edges(pointer, using='tan')
+
             elif options.algorithm == 5:
-                x, y = state.interpolation_using_4_edges(pointer, using='sin')
+                x, y = state.interpolation_using_4_edges(pointer, using='angle')
             elif options.algorithm == 6:
+                x, y = state.interpolation_using_4_edges(pointer, using='cos')
+            elif options.algorithm == 7:
+                x, y = state.interpolation_using_4_edges(pointer, using='sin')
+            elif options.algorithm == 8:
                 x, y = state.interpolation_using_4_edges(pointer, using='tan')
 
             if state.DEBUG:
