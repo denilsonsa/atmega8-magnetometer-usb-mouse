@@ -233,9 +233,9 @@ class State(object):
         D = self.bottomleft
         P = pointer
 
-        #A /= norm(A)
-        #B /= norm(B)
-        #D /= norm(D)
+        A /= norm(A)
+        B /= norm(B)
+        D /= norm(D)
         #P /= norm(P)
 
         col1 = (B-A)
