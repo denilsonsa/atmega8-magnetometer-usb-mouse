@@ -15,7 +15,7 @@ for abertura in {10..90..5} ; do
 	P=${abertura}
 	T=${abertura}
 
-	for a in {1..8} ; do
+	for a in {1..9} ; do
 		./generate_sphere_vectors.py -P ${P} -T ${T} -p ${p} -t ${t} \
 		| ./convert_coordinates.py -a ${a} \
 		| ./draw_points.py -p -s ${DOT_SIZE} -q -o "P${P}T${T}p${p}t${t}_a${a}.png"

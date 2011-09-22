@@ -210,6 +210,52 @@ class State(object):
 
         return (x, y)
 
+    def interpolation_using_linear_equations(self, pointer):
+        # Let ABD be the plane of the screen. (yes, I'm ignoring C)
+        # Let P be the currently pointed direction.
+        # Let X be the point that, at the same time, is contained into ABD
+        # plane and P direction.
+        # Let (u,v) be the 2D screen coordinates in range 0.0 to 1.0.
+        #
+        # Thus X = A + u*(B-A) + v*(D-A)
+        # And  X = t*P
+        # where t is a scalar that is not useful for this program.
+        #
+        # Thus we can build this linear system:
+        # A + u*(B-A) + v*(D-A) = t*P
+        # u*(B-A) + v*(D-A) - t*P = -A
+        #
+        # Or, in matrix notation:
+        # [ (B-A) , (D-A) , -P] dot (u,v,t).T = -A
+
+        A = self.topleft
+        B = self.topright
+        D = self.bottomleft
+        P = pointer
+
+        #A /= norm(A)
+        #B /= norm(B)
+        #D /= norm(D)
+        #P /= norm(P)
+
+        col1 = (B-A)
+        col2 = (D-A)
+        col3 = -P
+
+        #col1 /= norm(col1)
+        #col2 /= norm(col2)
+        #col3 /= norm(col3)
+
+        M = array([col1, col2, col3])
+        M = M.T
+
+        try:
+            X = numpy.linalg.solve(M, -A)
+            return (X[0], X[1])
+
+        except numpy.linalg.LinAlgError:
+            return (None, None)
+
 
 def reset():
     global state
@@ -230,7 +276,7 @@ def parse_args():
         action='store',
         type=int,
         default=5,
-        choices=tuple(range(1,1+8)),
+        choices=tuple(range(1,1+9)),
         help='Use a different algorithm for 3D->2D conversion, read the source code to learn the available algorithms'
     )
     parser.add_argument(
@@ -335,6 +381,9 @@ def main():
                 x, y = state.interpolation_using_4_edges(pointer, using='sin')
             elif options.algorithm == 8:
                 x, y = state.interpolation_using_4_edges(pointer, using='tan')
+
+            elif options.algorithm == 9:
+                x, y = state.interpolation_using_linear_equations(pointer)
 
             if state.DEBUG:
                 print "x,y", x, y
