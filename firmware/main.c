@@ -288,7 +288,17 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
 static uchar last_char = '\0';
 
 // Pointer to RAM for the string being typed.
-static uchar *string_pointer = NULL;
+static uchar *string_output_pointer = NULL;
+
+// Shared output buffer, other functions are free to use this as needed.
+static uchar string_output_buffer[80];
+
+// Copies a string from PGM to string_output_buffer and also sets
+// string_output_pointer.
+#define output_pgm_string(str) do { \
+		strcpy_P(string_output_buffer, str); \
+		string_output_pointer = string_output_buffer; \
+	} while(0);
 
 static void build_report_from_char(uchar c) {  // {{{
 	last_char = c;
@@ -351,7 +361,7 @@ static void build_report_from_char(uchar c) {  // {{{
 }  // }}}
 
 static uchar send_next_char() {  // {{{
-	// Builds a Report with the char pointed by 'string_pointer'.
+	// Builds a Report with the char pointed by 'string_output_pointer'.
 	//
 	// If a valid char is found, builds the report and returns 1.
 	// If the pointer is NULL or the char is '\0', builds a "no key being
@@ -360,24 +370,24 @@ static uchar send_next_char() {  // {{{
 	// If the next char is equal to the last char, then sends a "no key" before
 	// sending the char.
 
-	if (string_pointer != NULL && *string_pointer != '\0') {
-		if (*string_pointer == last_char) {
+	if (string_output_pointer != NULL && *string_output_pointer != '\0') {
+		if (*string_output_pointer == last_char) {
 			build_report_from_char('\0');
 		} else {
-			build_report_from_char(*string_pointer);
-			string_pointer++;
+			build_report_from_char(*string_output_pointer);
+			string_output_pointer++;
 		}
 		return 1;
 	} else {
 		build_report_from_char('\0');
-		string_pointer = NULL;
+		string_output_pointer = NULL;
 		return 0;
 	}
 }  // }}}
 
 static void init_keyboard_emulation() {  // {{{
 	last_char = '\0';
-	string_pointer = NULL;
+	string_output_pointer = NULL;
 }  // }}}
 
 // }}}
@@ -677,22 +687,18 @@ static void init_sensor_configuration() {  // {{{
 // }}}
 
 ////////////////////////////////////////////////////////////
+// Menu user interface for configuring the device        {{{
+
+#include "menu.inc.c"
+
+// }}}
+
+////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-static uchar hello_world[] = "Hello, YouTube.\n";
+static const char hello_world[] PROGMEM = "Hello, YouTube.\n";
 
-static uchar twi_error_string[] = "TWI_statusReg.lastTransOK was FALSE.\n";
-
-// Thinking about 32-bit:
-// 2**31 has 10 decimal digits, plus 1 for signal, plus 1 for NULL terminator
-// 10+1+1 = 12
-//
-// Thinking about 3x 16-bit:
-// Each signed 16-bit integer can take 6 chars ("-65536"),
-// plus 1 for a separator (like '\t', ' ' or '\n'),
-// plus 1 for '\0'.
-// 3x (6+1) + 1 = 22
-static uchar number_buffer[22];
+static const char twi_error_string[] PROGMEM = "TWI_statusReg.lastTransOK was FALSE.\n";
 
 // As defined in section 7.2.4 Set_Idle Request
 // of Device Class Definition for Human Interface Devices (HID) version 1.11
@@ -708,10 +714,10 @@ static uchar number_buffer[22];
 static uchar idle_rate;
 
 
-static uchar* debug_print_X_Y_Z_to_number_buffer() {  // {{{
+static uchar* debug_print_X_Y_Z_to_string_buffer() {  // {{{
 	// "-1234\t1234\t-1234\n"
 
-	uchar *str = number_buffer;
+	uchar *str = string_output_buffer;
 
 	str = int_to_dec(sensor_X, str);
 	*str = '\t';
@@ -887,9 +893,8 @@ int	main(void) {  // {{{
 
 			if (key_state & BUTTON_3) {
 				if (!should_send_report) {
-					debug_print_X_Y_Z_to_number_buffer();
-					string_pointer = number_buffer;
-					should_send_report = 1;
+					debug_print_X_Y_Z_to_string_buffer();
+					string_output_pointer = string_output_buffer;
 				}
 			}
 		}
@@ -901,8 +906,7 @@ int	main(void) {  // {{{
 					// And the firmware is not sending anything
 
 					// Printing "Hello, world"
-					string_pointer = hello_world;
-					should_send_report = 1;
+					output_pgm_string(hello_world);
 				}
 			} else {
 				if (!should_send_report) {
@@ -915,12 +919,10 @@ int	main(void) {  // {{{
 					lastTransOK = sensor_read_data_registers();
 
 					if (lastTransOK) {
-						debug_print_X_Y_Z_to_number_buffer();
-						string_pointer = number_buffer;
-						should_send_report = 1;
+						debug_print_X_Y_Z_to_string_buffer();
+						string_output_pointer = string_output_buffer;
 					} else {
-						string_pointer = twi_error_string;
-						should_send_report = 1;
+						output_pgm_string(twi_error_string);
 					}
 				}
 			}
@@ -957,8 +959,17 @@ int	main(void) {  // {{{
 			TIFR = 1<<TOV0;
 		}
 
+		// Automatically send report if there is something in the buffer.
+		if (string_output_pointer != NULL) {
+			// TODO: refactor this "should_send_report" var. Currently, its
+			// meaning is the same as comparing string_output_buffer to NULL.
+			// So, it's redundant.
+			should_send_report = 1;
+		}
+
 		// Sending USB Interrupt-in report
 		if(should_send_report && usbInterruptIsReady()){
+			// TODO: no need to return a value here...
 			should_send_report = send_next_char();
 			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 		}

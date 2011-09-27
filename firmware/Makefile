@@ -53,6 +53,8 @@ endif
 
 CFLAGS   = -mmcu=$(MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -std=c99 -pipe -Os -Wall
+# -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless
+CFLAGS  += -Wno-pointer-sign
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 # -fms-extensions is required in order to accept anonymous structures and unions
@@ -163,7 +165,7 @@ comments:
 
 # Dependencies
 $(PROGNAME).s: $(PROGNAME).c usbconfig.h
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h
+$(PROGNAME).o: $(PROGNAME).c usbconfig.h menu.inc.c
 ifdef BUILDING_BOOTLOADER
 $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 else
