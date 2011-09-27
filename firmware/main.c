@@ -900,6 +900,15 @@ int	main(void) {  // {{{
 		}
 
 
+		if (ON_KEY_UP(BUTTON_SWITCH)) {
+			init_menu_ui();
+		}
+
+		if (!(key_state & BUTTON_SWITCH)) {
+			body_menu_ui();
+		}
+
+		/*
 		if (ON_KEY_DOWN(BUTTON_1)) {
 			if (key_state & BUTTON_SWITCH) {
 				if (!should_send_report) {
@@ -927,6 +936,7 @@ int	main(void) {  // {{{
 				}
 			}
 		}
+		*/
 
 
 		// Timer is set to 1.365ms

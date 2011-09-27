@@ -16,7 +16,7 @@ static const char main_menu_zero   [] PROGMEM = "1. Calibrate zero\n";
 static const char main_menu_corners[] PROGMEM = "2. Calibrate corners\n";
 static const char main_menu_sensor [] PROGMEM = "3. Read sensor\n";
 
-static PGM_P main_menu_strings[] PROGMEM = {
+static PGM_P main_menu_strings[] = {
 	main_menu_zero,
 	main_menu_corners,
 	main_menu_sensor,
@@ -31,12 +31,14 @@ static void init_menu_ui() {
 	output_pgm_string(main_menu_strings[current_item]);
 }
 
-static void body_menu_ui() {
+void body_menu_ui() {
 	if (ON_KEY_DOWN(BUTTON_PREV)) {
 		if (current_item == 0) {
-			// Find the latest menu item
+			// Find the NULL terminator...
 			while (main_menu_strings[current_item] != NULL)
 				current_item++;
+			// Now go back to the last item.
+			current_item--;
 		} else {
 			current_item--;
 		}
