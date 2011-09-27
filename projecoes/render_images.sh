@@ -27,3 +27,6 @@ for abertura in {10..90..5} ; do
 		| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_a${a}.png"
 	done
 done
+
+echo "If you want to save space, also run this command:"
+echo "optipng -o7 images/*"
