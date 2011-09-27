@@ -1,4 +1,6 @@
 syntax: glob
+# Ignored directory
+projecoes/images/
 # Temporary and backup files:
 \#*#
 .*~
