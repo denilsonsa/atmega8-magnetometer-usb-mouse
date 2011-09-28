@@ -227,18 +227,19 @@ static uchar sensor_read_data_registers() {  // {{{
 	}
 }  // }}}
 
-static void sensor_start_continuous_reading() {
+static void sensor_start_continuous_reading() {  // {{{
 	sensor_func_step = 0;
 	sensor_new_data_available = 0;
 	sensor_error_while_reading = 0;
 	sensor_continuous_reading = 1;
-}
-static void sensor_stop_continuous_reading() {
+}  // }}}
+
+static void sensor_stop_continuous_reading() {  // {{{
 	sensor_func_step = 0;
 	//sensor_new_data_available = 0;
 	//sensor_error_while_reading = 0;
 	sensor_continuous_reading = 0;
-}
+}  // }}}
 
 
 static uchar sensor_read_identification_string(uchar *s) {  // {{{
