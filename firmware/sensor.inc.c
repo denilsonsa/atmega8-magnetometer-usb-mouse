@@ -10,11 +10,15 @@
 // This sensor has "L883 2105" written on the chip.
 // It is known as HMC5883L or HMC5883.
 
+////////////////////////////////////////////////////////////
+// Constant definitions                                  {{{
+
 #define SENSOR_I2C_READ_ADDRESS  0x3D
 #define SENSOR_I2C_WRITE_ADDRESS 0x3C
 
 // HMC5883L register definitions  {{{
 // See page 11 of HMC5883L.pdf
+
 // Read/write registers:
 #define SENSOR_REG_CONF_A       0
 #define SENSOR_REG_CONF_B       1
@@ -39,6 +43,7 @@
 
 #define SENSOR_STATUS_LOCK  2
 #define SENSOR_STATUS_RDY   1
+
 // }}}
 
 // HMC5883L configuration definitions  {{{
@@ -99,6 +104,17 @@
 
 // }}}
 
+// Return codes for the non-blocking functions  {{{
+
+#define SENSOR_FUNC_STILL_WORKING 0
+#define SENSOR_FUNC_DONE          1
+#define SENSOR_FUNC_ERROR         2
+
+// }}}
+
+// }}}
+
+
 // The X,Y,Z data from the sensor
 int sensor_X;
 int sensor_Y;
@@ -107,6 +123,12 @@ int sensor_Z;
 // Boolean that detects if the sensor have reported an overflow
 uchar sensor_overflow;
 #define SENSOR_DATA_OVERFLOW -4096
+
+// Used to determine the next step in non-blocking functions.
+// Must be set to zero to ensure each function starts from the beginning.
+uchar sensor_func_step;
+
+
 
 static void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
@@ -133,10 +155,12 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	TWI_Start_Transceiver_With_Data(msg, 3);
 }  // }}}
 
+
+
 // TODO, FIXME: use "if (TWI_Transceiver_Busy())" in order to avoid these
 // blocking functions (which are causing some device resets).
 
-static uchar sensor_read_status_register() {  // {{{
+static uchar DELETE_ME_sensor_read_status_register() {  // {{{
 	// Returns the value of the STATUS register.
 	// No error handling is done in this code.  Please test
 	// "TWI_statusReg.lastTransOK" in order to detect errors.
@@ -152,6 +176,7 @@ static uchar sensor_read_status_register() {  // {{{
 	return msg[1];
 }  // }}}
 
+// TODO: rewrite this one!
 static uchar sensor_read_data_registers() {  // {{{
 	// Reads the X,Y,Z data registers and store them at global vars.
 	// In case of a transmission error, the previous values are not changed.
@@ -191,31 +216,49 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 	//
 	// Receives a pointer to a string with at least 4 chars of size.
 	// After reading the registers, stores them at *s, followed by '\0'.
-	// In case of a transmission error, the passed string is not touched.
-	//
-	// Returns the same as "TWI_statusReg.lastTransOK".
+	// In case of a transmission error, the *s is not touched.
 
 	// 1 address byte + 3 chars
 	uchar msg[4];
 
 	uchar lastTransOK;
 
-	sensor_set_address_pointer(SENSOR_REG_ID_A);
-	msg[0] = SENSOR_I2C_READ_ADDRESS;
-	TWI_Start_Transceiver_With_Data(msg, 4);
-	lastTransOK = TWI_Get_Data_From_Transceiver(msg, 4);
+	switch(sensor_func_step) {
+		case 0:  // Set address pointer
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
-	if (lastTransOK) {
-		s[0] = msg[1];
-		s[1] = msg[2];
-		s[2] = msg[3];
-		s[3] = '\0';
+			sensor_set_address_pointer(SENSOR_REG_ID_A);
+			sensor_func_step = 1;
+		case 1:  // Start reading operation
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
+
+			msg[0] = SENSOR_I2C_READ_ADDRESS;
+			TWI_Start_Transceiver_With_Data(msg, 4);
+
+			sensor_func_step = 2;
+		case 2:  // Finished reading operation
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
+
+			lastTransOK = TWI_Get_Data_From_Transceiver(msg, 4);
+			sensor_func_step = 0;
+
+			if (lastTransOK) {
+				s[0] = msg[1];
+				s[1] = msg[2];
+				s[2] = msg[3];
+				s[3] = '\0';
+				return SENSOR_FUNC_DONE;
+			} else {
+				return SENSOR_FUNC_ERROR;
+			}
+		default:
+			return SENSOR_FUNC_ERROR;
 	}
-
-	return lastTransOK;
 }  // }}}
 
 static void init_sensor_configuration() {  // {{{
+	sensor_func_step = 0;
+
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,
 		SENSOR_CONF_A_SAMPLES_8

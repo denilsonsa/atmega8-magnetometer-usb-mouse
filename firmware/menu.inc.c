@@ -32,6 +32,8 @@ static const char  error_menu_item[] PROGMEM = "Error in menu system!\n";
 static const PGM_P error_menu_strings[] PROGMEM = {
 	error_menu_item
 };
+// Also other error messages:
+static const char  error_sensor_string[] PROGMEM = "Error in sensor code!\n";
 // }}}
 
 // Main menu, with all main options  {{{
@@ -86,7 +88,7 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 #define UI_SENSOR_MENU 4
 
 static const char sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
-static const char sensor_menu_2[] PROGMEM = "3.2. Print status register\n";
+static const char sensor_menu_2[] PROGMEM = "3.2. Print configuration registers\n";
 static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z once\n";
 static const char sensor_menu_4[] PROGMEM = "3.4. Print X,Y,Z continually\n";
 static const char sensor_menu_5[] PROGMEM = "3.5. << main menu\n";
@@ -104,6 +106,8 @@ static PGM_P      sensor_menu_strings[] PROGMEM = {
 #define UI_MIN_MENU_ID UI_ROOT_MENU
 #define UI_MAX_MENU_ID UI_SENSOR_MENU
 
+#define UI_SENSOR_ID_WIDGET 0x10
+
 // }}}
 
 ////////////////////////////////////////////////////////////
@@ -112,7 +116,7 @@ static PGM_P      sensor_menu_strings[] PROGMEM = {
 typedef struct UIState {
 	// Current active UI widget
 	uchar widget_id;
-	// Current menu item
+	// Current menu item, or other state for non-menu widgets
 	uchar menu_item;
 } UIState;
 
@@ -195,17 +199,20 @@ static void ui_next_menu_item() {  // {{{
 	ui_should_print_menu_item = 1;
 }  // }}}
 
-static void ui_enter_menu(uchar which_menu) {  // {{{
-	// Pushes the current widget (usually a parent menu), and enters the
-	// (sub)menu.
+static void ui_enter_widget(uchar new_widget) {  // {{{
+	// Pushes the current widget (usually a parent menu), and enters a
+	// (sub)menu or widget.
 
 	ui_push_state();
 
-	ui.widget_id = which_menu;
+	ui.widget_id = new_widget;
 	ui.menu_item = 0;
 
-	ui_load_menu_items();
-	ui_should_print_menu_item = 1;
+	// If the new widget is a menu, load the items and print the current one.
+	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+		ui_load_menu_items();
+		ui_should_print_menu_item = 1;
+	}
 }  // }}}
 
 // }}}
@@ -224,9 +231,7 @@ static void init_ui_system() {   // {{{
 	ui_pop_state();
 }  // }}}
 
-static void ui_main_code() {  // {{{
-	// This must be called in the main loop.
-	//
+static void ui_menu_code() {  // {{{
 	// This function is huge, almost a big mess. That's because it handles the
 	// actions of all menu items.
 
@@ -248,20 +253,20 @@ static void ui_main_code() {  // {{{
 			////////////////////
 			case UI_ROOT_MENU:
 				// This is an empty "fake" menu, with only one item.
-				ui_enter_menu(UI_MAIN_MENU);
+				ui_enter_widget(UI_MAIN_MENU);
 				break;
 
 			////////////////////
 			case UI_MAIN_MENU:
 				switch (ui.menu_item) {
 					case 0:
-						ui_enter_menu(UI_ZERO_MENU);
+						ui_enter_widget(UI_ZERO_MENU);
 						break;
 					case 1:
-						ui_enter_menu(UI_CORNERS_MENU);
+						ui_enter_widget(UI_CORNERS_MENU);
 						break;
 					case 2:
-						ui_enter_menu(UI_SENSOR_MENU);
+						ui_enter_widget(UI_SENSOR_MENU);
 						break;
 					case 3:  // Quit menu
 						ui_pop_state();
@@ -311,6 +316,8 @@ static void ui_main_code() {  // {{{
 			case UI_SENSOR_MENU:
 				switch (ui.menu_item) {
 					case 0:
+						ui_enter_widget(UI_SENSOR_ID_WIDGET);
+						break;
 					case 1:
 					case 2:
 					case 3:
@@ -324,6 +331,43 @@ static void ui_main_code() {  // {{{
 					case 4:  // Back to main menu
 						ui_pop_state();
 						break;
+				}
+				break;
+		}
+	}
+}  // }}}
+
+static void ui_main_code() {  // {{{
+	// This must be called in the main loop.
+	//
+	// This function handles the actions of all UI widgets.
+
+	uchar return_code;
+
+	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+		ui_menu_code();
+	} else {
+		switch (ui.widget_id) {
+			////////////////////
+			case UI_SENSOR_ID_WIDGET:
+				if (string_output_pointer != NULL) {
+					// Do nothing, let's wait the previous output...
+					break;
+				}
+				if (ui.menu_item == 0) {
+					sensor_func_step = 0;
+					ui.menu_item = 1;
+				}
+
+				return_code = sensor_read_identification_string(string_output_buffer);
+
+				if (return_code == SENSOR_FUNC_DONE) {
+					append_newline_to_str(string_output_buffer);
+					string_output_pointer = string_output_buffer;
+					ui_pop_state();
+				} else if (return_code == SENSOR_FUNC_ERROR) {
+					output_pgm_string(error_sensor_string);
+					ui_pop_state();
 				}
 				break;
 		}
