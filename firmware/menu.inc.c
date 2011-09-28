@@ -15,98 +15,109 @@
 ////////////////////////////////////////////////////////////
 // Menu definitions (constants in progmem)               {{{
 
+// All available UI widgets
+#define UI_ROOT_MENU 0
+#define UI_MAIN_MENU 1
+#define UI_ZERO_MENU 2
+#define UI_CORNERS_MENU 3
+#define UI_SENSOR_MENU 4
+
+#define UI_MIN_MENU_ID UI_ROOT_MENU
+#define UI_MAX_MENU_ID UI_SENSOR_MENU
+
+#define UI_SENSOR_ID_WIDGET        0x10
+#define UI_SENSOR_XYZ_ONCE_WIDGET  0x11
+#define UI_SENSOR_XYZ_CONT_WIDGET  0x12
+
+
+typedef struct MenuItem {
+	// The menu text string
+	PGM_P text;
+	// The widget that will be activated on this menu item
+	uchar action;
+} MenuItem;
+
+
 // Empty menu, which is also the root menu  {{{
 // Yeah, this is just a fake menu with only one empty item.
-#define UI_ROOT_MENU 0
 
-static const char  empty_menu_item[] PROGMEM = "";
-#define            empty_menu_total_items 1
-static const PGM_P empty_menu_strings[] PROGMEM = {
-	empty_menu_item
+static const char     empty_menu_1[] PROGMEM = "";
+#define               empty_menu_total_items 1
+static const MenuItem empty_menu_items[] PROGMEM = {
+	{empty_menu_1, UI_MAIN_MENU}
 };
 // }}}
 
 // Error item, for when something goes wrong  {{{
-static const char  error_menu_item[] PROGMEM = "Error in menu system!\n";
-#define            error_menu_total_items 1
-static const PGM_P error_menu_strings[] PROGMEM = {
-	error_menu_item
+static const char     error_menu_1[] PROGMEM = "Error in menu system!\n";
+#define               error_menu_total_items 1
+static const MenuItem error_menu_items[] PROGMEM = {
+	{error_menu_1, 0}
 };
 // Also other error messages:
 static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
 // }}}
 
 // Main menu, with all main options  {{{
-#define UI_MAIN_MENU 1
 
-static const char  main_menu_1[] PROGMEM = "1. Calibrate zero\n";
-static const char  main_menu_2[] PROGMEM = "2. Calibrate corners\n";
-static const char  main_menu_3[] PROGMEM = "3. Sensor data\n";
-static const char  main_menu_4[] PROGMEM = "4. << quit menu\n";
-#define            main_menu_total_items 4
-static const PGM_P main_menu_strings[] PROGMEM = {
-	main_menu_1,
-	main_menu_2,
-	main_menu_3,
-	main_menu_4
+static const char     main_menu_1[] PROGMEM = "1. Calibrate zero\n";
+static const char     main_menu_2[] PROGMEM = "2. Calibrate corners\n";
+static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+static const char     main_menu_4[] PROGMEM = "4. << quit menu\n";
+#define               main_menu_total_items 4
+static const MenuItem main_menu_items[] PROGMEM = {
+	{main_menu_1, UI_ZERO_MENU},
+	{main_menu_2, UI_CORNERS_MENU},
+	{main_menu_3, UI_SENSOR_MENU},
+	{main_menu_4, 0}
 };
 // }}}
 
 // Zero calibration menu  {{{
-#define UI_ZERO_MENU 2
 
-static const char  zero_menu_1[] PROGMEM = "1.1. Print calibrated zero\n";
-static const char  zero_menu_2[] PROGMEM = "1.2. Recalibrate zero\n";
-static const char  zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
-static const char  zero_menu_4[] PROGMEM = "1.4. << main menu\n";
-#define            zero_menu_total_items 4
-static const PGM_P zero_menu_strings[] PROGMEM = {
-	zero_menu_1,
-	zero_menu_2,
-	zero_menu_3,
-	zero_menu_4
+static const char     zero_menu_1[] PROGMEM = "1.1. Print calibrated zero\n";
+static const char     zero_menu_2[] PROGMEM = "1.2. Recalibrate zero\n";
+static const char     zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
+static const char     zero_menu_4[] PROGMEM = "1.4. << main menu\n";
+#define               zero_menu_total_items 4
+static const MenuItem zero_menu_items[] PROGMEM = {
+	{zero_menu_1, UI_ROOT_MENU},
+	{zero_menu_2, UI_ROOT_MENU},
+	{zero_menu_3, UI_ROOT_MENU},
+	{zero_menu_4, 0}
 };
 // }}}
 
 // Corner calibration menu  {{{
-#define UI_CORNERS_MENU 3
 
-static const char corners_menu_1[] PROGMEM = "2.1. Print calibrated corners\n";
-static const char corners_menu_2[] PROGMEM = "2.2. Recalibrate corners\n";
-static const char corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm being used, but here?\n";
-static const char corners_menu_4[] PROGMEM = "2.4. << main menu\n";
-#define           corners_menu_total_items 4
-static PGM_P      corners_menu_strings[] PROGMEM = {
-	corners_menu_1,
-	corners_menu_2,
-	corners_menu_3,
-	corners_menu_4
+static const char     corners_menu_1[] PROGMEM = "2.1. Print calibrated corners\n";
+static const char     corners_menu_2[] PROGMEM = "2.2. Recalibrate corners\n";
+static const char     corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm being used, but here?\n";
+static const char     corners_menu_4[] PROGMEM = "2.4. << main menu\n";
+#define               corners_menu_total_items 4
+static const MenuItem corners_menu_items[] PROGMEM = {
+	{corners_menu_1, UI_ROOT_MENU},
+	{corners_menu_2, UI_ROOT_MENU},
+	{corners_menu_3, UI_ROOT_MENU},
+	{corners_menu_4, 0}
 };
 // }}}
 
 // Sensor data menu  {{{
-#define UI_SENSOR_MENU 4
 
-static const char sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
-static const char sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
-static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
-static const char sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
-#define           sensor_menu_total_items 4
-static PGM_P      sensor_menu_strings[] PROGMEM = {
-	sensor_menu_1,
-	sensor_menu_2,
-	sensor_menu_3,
-	sensor_menu_4
+static const char     sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
+static const char     sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
+static const char     sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
+static const char     sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
+#define               sensor_menu_total_items 4
+static const MenuItem sensor_menu_items[] PROGMEM = {
+	{sensor_menu_1, UI_SENSOR_ID_WIDGET},
+	{sensor_menu_2, UI_SENSOR_XYZ_ONCE_WIDGET},
+	{sensor_menu_3, UI_SENSOR_XYZ_CONT_WIDGET},
+	{sensor_menu_4, 0}
 };
 // }}}
 
-
-#define UI_MIN_MENU_ID UI_ROOT_MENU
-#define UI_MAX_MENU_ID UI_SENSOR_MENU
-
-#define UI_SENSOR_ID_WIDGET       0x10
-#define UI_SENSOR_XYZ_ONCE        0x11
-#define UI_SENSOR_XYZ_CONTINUOUS  0x12
 
 // }}}
 
@@ -127,8 +138,8 @@ UIState ui;
 UIState ui_stack[5];
 uchar ui_stack_top;
 
-// Each menu can have at most 8 menu items. This value is arbitrary.
-static PGM_P ui_menu_strings[8];
+// Each menu can have at most 6 menu items. This value is arbitrary.
+static MenuItem ui_menu_items[6];
 static uchar ui_menu_total_items;
 
 // Should the current menu item be printed in the next ui_main_code() call?
@@ -146,7 +157,7 @@ static void ui_load_menu_items() {  // {{{
 
 // Ah... A preprocessor macro to avoid copy-pasting
 #define case_body(prefix) \
-			memcpy_P(ui_menu_strings, prefix##_menu_strings, sizeof(prefix##_menu_strings)); \
+			memcpy_P(ui_menu_items, prefix##_menu_items, sizeof(prefix##_menu_items)); \
 			ui_menu_total_items = prefix##_menu_total_items; \
 			break;
 
@@ -232,14 +243,11 @@ static void init_ui_system() {   // {{{
 }  // }}}
 
 static void ui_menu_code() {  // {{{
-	// This function is huge, almost a big mess. That's because it handles the
-	// actions of all menu items.
-
 
 	// If the current menu item needs to be printed and the firmware is not
 	// busy printing something else
 	if (ui_should_print_menu_item && string_output_pointer == NULL) {
-		output_pgm_string(ui_menu_strings[ui.menu_item]);
+		output_pgm_string(ui_menu_items[ui.menu_item].text);
 		ui_should_print_menu_item = 0;
 	}
 
@@ -249,87 +257,13 @@ static void ui_menu_code() {  // {{{
 	} else if (ON_KEY_DOWN(BUTTON_NEXT)) {
 		ui_next_menu_item();
 	} else if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
-		switch (ui.widget_id) {
-			////////////////////
-			case UI_ROOT_MENU:
-				// This is an empty "fake" menu, with only one item.
-				ui_enter_widget(UI_MAIN_MENU);
-				break;
+		uchar action;
+		action = ui_menu_items[ui.menu_item].action;
 
-			////////////////////
-			case UI_MAIN_MENU:
-				switch (ui.menu_item) {
-					case 0:
-						ui_enter_widget(UI_ZERO_MENU);
-						break;
-					case 1:
-						ui_enter_widget(UI_CORNERS_MENU);
-						break;
-					case 2:
-						ui_enter_widget(UI_SENSOR_MENU);
-						break;
-					case 3:  // Quit menu
-						ui_pop_state();
-						break;
-				}
-				break;
-
-			////////////////////
-			case UI_ZERO_MENU:
-				switch (ui.menu_item) {
-					case 0:
-					case 1:
-					case 2:
-						string_output_buffer[0] = 'z';
-						uchar_to_hex(ui.menu_item, string_output_buffer+1);
-						string_output_buffer[3] = '\n';
-						string_output_buffer[4] = '\0';
-						string_output_pointer = string_output_buffer;
-						break;
-
-					case 3:  // Back to main menu
-						ui_pop_state();
-						break;
-				}
-				break;
-
-			////////////////////
-			case UI_CORNERS_MENU:
-				switch (ui.menu_item) {
-					case 0:
-					case 1:
-					case 2:
-						string_output_buffer[0] = 'c';
-						uchar_to_hex(ui.menu_item, string_output_buffer+1);
-						string_output_buffer[3] = '\n';
-						string_output_buffer[4] = '\0';
-						string_output_pointer = string_output_buffer;
-						break;
-
-					case 3:  // Back to main menu
-						ui_pop_state();
-						break;
-				}
-				break;
-
-			////////////////////
-			case UI_SENSOR_MENU:
-				switch (ui.menu_item) {
-					case 0:
-						ui_enter_widget(UI_SENSOR_ID_WIDGET);
-						break;
-					case 1:
-						ui_enter_widget(UI_SENSOR_XYZ_ONCE);
-						break;
-					case 2:
-						ui_enter_widget(UI_SENSOR_XYZ_CONTINUOUS);
-						break;
-
-					case 3:  // Back to main menu
-						ui_pop_state();
-						break;
-				}
-				break;
+		if (action == 0) {
+			ui_pop_state();
+		} else {
+			ui_enter_widget(action);
 		}
 	}
 }  // }}}
@@ -369,7 +303,7 @@ static void ui_main_code() {  // {{{
 				break;  // }}}
 
 			////////////////////
-			case UI_SENSOR_XYZ_ONCE:  // {{{
+			case UI_SENSOR_XYZ_ONCE_WIDGET:  // {{{
 				if (ui.menu_item == 0) {
 					if (string_output_pointer != NULL) {
 						// Do nothing, let's wait the previous output...
@@ -395,7 +329,7 @@ static void ui_main_code() {  // {{{
 				break;  // }}}
 
 			////////////////////
-			case UI_SENSOR_XYZ_CONTINUOUS:  // {{{
+			case UI_SENSOR_XYZ_CONT_WIDGET:  // {{{
 				if (ui.menu_item == 0) {
 					if (string_output_pointer != NULL) {
 						// Do nothing, let's wait the previous output...
