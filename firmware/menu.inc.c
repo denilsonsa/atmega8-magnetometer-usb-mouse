@@ -88,17 +88,16 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 #define UI_SENSOR_MENU 4
 
 static const char sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
-static const char sensor_menu_2[] PROGMEM = "3.2. Print configuration registers\n";
-static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z once\n";
-static const char sensor_menu_4[] PROGMEM = "3.4. Print X,Y,Z continually\n";
-static const char sensor_menu_5[] PROGMEM = "3.5. << main menu\n";
-#define           sensor_menu_total_items 5
+//static const char sensor_menu_2[] PROGMEM = "3.2. Print configuration registers\n";
+static const char sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
+static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
+static const char sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
+#define           sensor_menu_total_items 4
 static PGM_P      sensor_menu_strings[] PROGMEM = {
 	sensor_menu_1,
 	sensor_menu_2,
 	sensor_menu_3,
-	sensor_menu_4,
-	sensor_menu_5
+	sensor_menu_4
 };
 // }}}
 
@@ -106,7 +105,9 @@ static PGM_P      sensor_menu_strings[] PROGMEM = {
 #define UI_MIN_MENU_ID UI_ROOT_MENU
 #define UI_MAX_MENU_ID UI_SENSOR_MENU
 
-#define UI_SENSOR_ID_WIDGET 0x10
+#define UI_SENSOR_ID_WIDGET       0x10
+#define UI_SENSOR_XYZ_ONCE        0x11
+#define UI_SENSOR_XYZ_CONTINUOUS  0x12
 
 // }}}
 
@@ -319,16 +320,13 @@ static void ui_menu_code() {  // {{{
 						ui_enter_widget(UI_SENSOR_ID_WIDGET);
 						break;
 					case 1:
+						ui_enter_widget(UI_SENSOR_XYZ_ONCE);
+						break;
 					case 2:
-					case 3:
-						string_output_buffer[0] = 's';
-						uchar_to_hex(ui.menu_item, string_output_buffer+1);
-						string_output_buffer[3] = '\n';
-						string_output_buffer[4] = '\0';
-						string_output_pointer = string_output_buffer;
+						ui_enter_widget(UI_SENSOR_XYZ_CONTINUOUS);
 						break;
 
-					case 4:  // Back to main menu
+					case 3:  // Back to main menu
 						ui_pop_state();
 						break;
 				}
@@ -370,6 +368,57 @@ static void ui_main_code() {  // {{{
 					ui_pop_state();
 				}
 				break;
+
+			////////////////////
+			case UI_SENSOR_XYZ_ONCE:
+				if (ui.menu_item == 0) {
+					if (string_output_pointer != NULL) {
+						// Do nothing, let's wait the previous output...
+						break;
+					}
+					sensor_func_step = 0;
+					sensor_new_data_available = 0;
+					sensor_continuous_reading = 1;
+					ui.menu_item = 1;
+				} else {
+					if (sensor_new_data_available && string_output_pointer == NULL) {
+						sensor_new_data_available = 0;
+						sensor_continuous_reading = 0;
+						debug_print_X_Y_Z_to_string_output_buffer();
+						string_output_pointer = string_output_buffer;
+						ui_pop_state();
+					}
+				}
+				break;
+
+			////////////////////
+			case UI_SENSOR_XYZ_CONTINUOUS:
+				if (ui.menu_item == 0) {
+					if (string_output_pointer != NULL) {
+						// Do nothing, let's wait the previous output...
+						break;
+					}
+					sensor_func_step = 0;
+					sensor_new_data_available = 0;
+					sensor_continuous_reading = 1;
+					ui.menu_item = 1;
+				} else {
+					if (sensor_new_data_available && string_output_pointer == NULL) {
+						sensor_new_data_available = 0;
+						debug_print_X_Y_Z_to_string_output_buffer();
+						string_output_pointer = string_output_buffer;
+					}
+					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
+						sensor_func_step = 0;
+						sensor_continuous_reading = 0;
+						ui_pop_state();
+					}
+				}
+				break;
+
+			default:
+				// Fallback in case of errors
+				ui_pop_state();
 		}
 	}
 }  // }}}

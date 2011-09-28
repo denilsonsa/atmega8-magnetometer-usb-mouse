@@ -38,6 +38,13 @@
 
 
 ////////////////////////////////////////////////////////////
+// Sensor communication over I2C (TWI)                   {{{
+
+#include "sensor.inc.c"
+
+// }}}
+
+////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
 
 /* ATmega8 pin assignments:
@@ -482,12 +489,27 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 	return str+2;
 }  // }}}
 
-// }}}
+static uchar* debug_print_X_Y_Z_to_string_output_buffer() {  // {{{
+	// "-1234\t1234\t-1234\n"
 
-////////////////////////////////////////////////////////////
-// Sensor communication over I2C (TWI)                   {{{
+	uchar *str = string_output_buffer;
 
-#include "sensor.inc.c"
+	str = int_to_dec(sensor_X, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(sensor_Y, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(sensor_Z, str);
+	*str = '\n';
+	str++;
+
+	*str = '\0';
+
+	return str;
+}  // }}}
 
 // }}}
 
@@ -517,33 +539,6 @@ static const char twi_error_string[] PROGMEM = "TWI_statusReg.lastTransOK was FA
 // This value is measured in multiples of 4ms.
 // A value of zero means indefinite/infinity.
 static uchar idle_rate;
-
-// Enable continuous reading of sensor values
-uchar sensor_continuous_reading;
-
-
-
-static uchar* debug_print_X_Y_Z_to_string_buffer() {  // {{{
-	// "-1234\t1234\t-1234\n"
-
-	uchar *str = string_output_buffer;
-
-	str = int_to_dec(sensor_X, str);
-	*str = '\t';
-	str++;
-
-	str = int_to_dec(sensor_Y, str);
-	*str = '\t';
-	str++;
-
-	str = int_to_dec(sensor_Z, str);
-	*str = '\n';
-	str++;
-
-	*str = '\0';
-
-	return str;
-}  // }}}
 
 
 static void hardware_init(void) {  // {{{
@@ -720,21 +715,6 @@ int	main(void) {  // {{{
 					sensor_probe_counter = 5;
 				}
 			}
-
-			// TODO: Delete this
-			/*
-			if (ON_KEY_DOWN(BUTTON_1)) {
-				output_pgm_string(hello_world);
-			}
-			*/
-
-			// TODO: Move this to inside the menu
-			if (key_state & BUTTON_3) {
-				if (!should_send_report) {
-					debug_print_X_Y_Z_to_string_buffer();
-					string_output_pointer = string_output_buffer;
-				}
-			}
 		}
 
 
@@ -758,7 +738,7 @@ int	main(void) {  // {{{
 					lastTransOK = sensor_read_data_registers();
 
 					if (lastTransOK) {
-						debug_print_X_Y_Z_to_string_buffer();
+						debug_print_X_Y_Z_to_string_output_buffer();
 						string_output_pointer = string_output_buffer;
 					} else {
 						output_pgm_string(twi_error_string);

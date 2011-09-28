@@ -132,6 +132,10 @@ uchar sensor_new_data_available;
 // Must be set to zero to ensure each function starts from the beginning.
 uchar sensor_func_step;
 
+// Enable continuous reading of sensor values
+// This variable is used only in main() main loop. It's not used by the code in
+// this file.
+uchar sensor_continuous_reading;
 
 
 static void sensor_set_address_pointer(uchar reg) {  // {{{
