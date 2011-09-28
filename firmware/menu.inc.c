@@ -29,6 +29,7 @@
 #define UI_MIN_MENU_ID UI_ROOT_MENU
 #define UI_MAX_MENU_ID UI_SENSOR_MENU
 
+// Checking if a widget is a menu
 #define UI_IS_MENU(id) ((id) >= UI_MIN_MENU_ID && (id) <= UI_MAX_MENU_ID)
 
 // Other widgets
@@ -131,7 +132,8 @@ typedef struct MenuLoadingInfo {
 
 #define MENU_LOADING(prefix) {prefix##_menu_items, prefix##_menu_total_items}
 static const MenuLoadingInfo menu_loading[] PROGMEM = {
-	MENU_LOADING(empty),
+	MENU_LOADING(error),  // The error menu is at element 0
+	MENU_LOADING(empty),  // And the UI with id ZERO starts at element 1
 	MENU_LOADING(main),
 	MENU_LOADING(zero),
 	MENU_LOADING(corners),
@@ -176,20 +178,24 @@ uchar ui_should_print_menu_item;
 static void ui_load_menu_items() {  // {{{
 	// Loads the menu strings from PROGMEM to RAM
 
+	// Load from this id
+	uchar id;
 	// Pointer to the source address
 	PGM_VOID_P menu_items;
 
 	if (UI_IS_MENU(ui.widget_id)) {
-		// This version is more portable:
-		//memcpy_P(&menu_items, &menu_loading[ui.widget_id - UI_MIN_MENU_ID].menu_items, sizeof(PGM_P));
-		// This version is shorter (40 bytes smaller):
-		menu_items = pgm_read_word_near(&menu_loading[ui.widget_id - UI_MIN_MENU_ID].menu_items);
-
-		ui_menu_total_items = pgm_read_byte_near(&menu_loading[ui.widget_id - UI_MIN_MENU_ID].total_items);
+		id = ui.widget_id - UI_MIN_MENU_ID + 1;
 	} else {
-		menu_items = error_menu_items;
-		ui_menu_total_items = error_menu_total_items;
+		id = 0;
 	}
+
+	// This version is more portable:
+	//memcpy_P(&menu_items, &menu_loading[id].menu_items, sizeof(PGM_P));
+	// But this version is shorter (40 bytes smaller):
+	// But this assertion must be true: assert(sizeof(PGM_VOID_P) == 2)
+	menu_items = pgm_read_word_near(&menu_loading[id].menu_items);
+
+	ui_menu_total_items = pgm_read_byte_near(&menu_loading[id].total_items);
 
 	// Copying to RAM array ui_menu_items
 	memcpy_P(ui_menu_items, menu_items, ui_menu_total_items * sizeof(*ui_menu_items));
