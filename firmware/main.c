@@ -172,7 +172,7 @@ static void update_key_state() { // {{{
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
 
-static uchar    reportBuffer[2];    /* buffer for HID reports */
+static uchar    report_buffer[2];    /* buffer for HID reports */
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
@@ -304,57 +304,57 @@ static void build_report_from_char(uchar c) {  // {{{
 	last_char = c;
 
 	if (c >= '1' && c <= '9') {
-		reportBuffer[0] = 0;
-		reportBuffer[1] = KEY_1 + c - '1';
+		report_buffer[0] = 0;
+		report_buffer[1] = KEY_1 + c - '1';
 	}
 	else if (c == '0') {
-		reportBuffer[0] = 0;
-		reportBuffer[1] = KEY_0;
+		report_buffer[0] = 0;
+		report_buffer[1] = KEY_0;
 	}
 	else if (c >= 'a' && c <= 'z') {
-		reportBuffer[0] = 0;
-		reportBuffer[1] = KEY_A + c - 'a';
+		report_buffer[0] = 0;
+		report_buffer[1] = KEY_A + c - 'a';
 	}
 	else if (c >= 'A' && c <= 'Z') {
-		reportBuffer[0] = MOD_SHIFT_LEFT;
-		reportBuffer[1] = KEY_A + c - 'A';
+		report_buffer[0] = MOD_SHIFT_LEFT;
+		report_buffer[1] = KEY_A + c - 'A';
 	}
 	else {
 		switch (c) {
-			case '\n': reportBuffer[1] = KEY_ENTER;     break;
+			case '\n': report_buffer[1] = KEY_ENTER;     break;
 
-			case '\t': reportBuffer[1] = KEY_TAB;       break;
+			case '\t': report_buffer[1] = KEY_TAB;       break;
 
-			case ' ':  reportBuffer[1] = KEY_SPACE;     break;
+			case ' ':  report_buffer[1] = KEY_SPACE;     break;
 
 			case '_':
-			case '-':  reportBuffer[1] = KEY_MINUS;     break;
+			case '-':  report_buffer[1] = KEY_MINUS;     break;
 
 			case '+':
-			case '=':  reportBuffer[1] = KEY_EQUAL;     break;
+			case '=':  report_buffer[1] = KEY_EQUAL;     break;
 
 			// Warning: this key is c-cedilla in BR-ABNT2 layout
 			case ':':
-			case ';':  reportBuffer[1] = KEY_SEMICOLON; break;
+			case ';':  report_buffer[1] = KEY_SEMICOLON; break;
 
 			case '<':
-			case ',':  reportBuffer[1] = KEY_COMMA;     break;
+			case ',':  report_buffer[1] = KEY_COMMA;     break;
 
 			case '>':
-			case '.':  reportBuffer[1] = KEY_PERIOD;    break;
+			case '.':  report_buffer[1] = KEY_PERIOD;    break;
 
-			case '!':  reportBuffer[1] = KEY_1;         break;
-			case '@':  reportBuffer[1] = KEY_2;         break;
-			case '#':  reportBuffer[1] = KEY_3;         break;
-			case '$':  reportBuffer[1] = KEY_4;         break;
-			case '%':  reportBuffer[1] = KEY_5;         break;
-			case '&':  reportBuffer[1] = KEY_7;         break;
-			case '*':  reportBuffer[1] = KEY_8;         break;
-			case '(':  reportBuffer[1] = KEY_9;         break;
-			case ')':  reportBuffer[1] = KEY_0;         break;
+			case '!':  report_buffer[1] = KEY_1;         break;
+			case '@':  report_buffer[1] = KEY_2;         break;
+			case '#':  report_buffer[1] = KEY_3;         break;
+			case '$':  report_buffer[1] = KEY_4;         break;
+			case '%':  report_buffer[1] = KEY_5;         break;
+			case '&':  report_buffer[1] = KEY_7;         break;
+			case '*':  report_buffer[1] = KEY_8;         break;
+			case '(':  report_buffer[1] = KEY_9;         break;
+			case ')':  report_buffer[1] = KEY_0;         break;
 
 			default:
-				reportBuffer[1] = 0;
+				report_buffer[1] = 0;
 		}
 
 		switch (c) {
@@ -373,10 +373,10 @@ static void build_report_from_char(uchar c) {  // {{{
 			case '*':
 			case '(':
 			case ')':
-				reportBuffer[0] = MOD_SHIFT_LEFT;
+				report_buffer[0] = MOD_SHIFT_LEFT;
 				break;
 			default:
-				reportBuffer[0] = 0;
+				report_buffer[0] = 0;
 		}
 	}
 }  // }}}
@@ -388,16 +388,22 @@ static uchar send_next_char() {  // {{{
 	// If the pointer is NULL or the char is '\0', builds a "no key being
 	// pressed" report and returns 0.
 	//
-	// If the next char is equal to the last char, then sends a "no key" before
-	// sending the char.
+	// If the next char uses the same key as the previous one, then sends a
+	// "no key" before sending the char.
 
 	if (string_output_pointer != NULL && *string_output_pointer != '\0') {
-		if (*string_output_pointer == last_char) {
-			build_report_from_char('\0');
+		uchar old_report_buffer_key;
+
+		old_report_buffer_key = report_buffer[1];
+		build_report_from_char(*string_output_pointer);
+
+		if (old_report_buffer_key == report_buffer[1]) {
+			report_buffer[0] = 0;
+			report_buffer[1] = 0;
 		} else {
-			build_report_from_char(*string_output_pointer);
 			string_output_pointer++;
 		}
+
 		return 1;
 	} else {
 		build_report_from_char('\0');
@@ -833,7 +839,7 @@ static void hardware_init(void) {  // {{{
 uchar usbFunctionSetup(uchar data[8]) {  // {{{
 	usbRequest_t *rq = (void *)data;
 
-	usbMsgPtr = reportBuffer;
+	usbMsgPtr = report_buffer;
 	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {    /* class request type */
 		if (rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
 			/* we only have one report type, so don't look at wValue */
@@ -842,8 +848,8 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 			LED_TOGGLE(GREEN_LED);
 			build_report_from_char('\0');
 
-			usbMsgPtr = reportBuffer;
-			return sizeof(reportBuffer);
+			usbMsgPtr = report_buffer;
+			return sizeof(report_buffer);
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
 			return 1;
@@ -1006,7 +1012,7 @@ int	main(void) {  // {{{
 		if(should_send_report && usbInterruptIsReady()){
 			// TODO: no need to return a value here...
 			should_send_report = send_next_char();
-			usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+			usbSetInterrupt(report_buffer, sizeof(report_buffer));
 		}
 	}
 	return 0;
