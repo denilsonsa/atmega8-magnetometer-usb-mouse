@@ -851,6 +851,7 @@ int	main(void) {  // {{{
 
 	init_key_state();
 	init_keyboard_emulation();
+	init_ui_system();
 	// Sensor initialization must be done with interrupts enabled!
 	init_sensor_configuration();
 
@@ -902,6 +903,7 @@ int	main(void) {  // {{{
 
 		if (ON_KEY_UP(BUTTON_SWITCH)) {
 			init_menu_ui();
+			refresh_menu_ui();
 		}
 
 		if (!(key_state & BUTTON_SWITCH)) {
