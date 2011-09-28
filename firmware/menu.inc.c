@@ -11,6 +11,7 @@
 #define BUTTON_NEXT    BUTTON_2
 #define BUTTON_CONFIRM BUTTON_3
 
+
 ////////////////////////////////////////////////////////////
 // Menu definitions (constants in progmem)               {{{
 
@@ -76,34 +77,53 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 };
 // }}}
 
+#define UI_MIN_MENU_ID UI_ROOT_MENU
+#define UI_MAX_MENU_ID UI_CORNERS_MENU
+
 // }}}
 
 ////////////////////////////////////////////////////////////
 // UI and Menu variables (state)                         {{{
 
-// Current active UI screen/widget
-static uchar ui_active_widget;
+typedef struct UIState {
+	// Current active UI widget
+	uchar widget_id;
+	// Current menu item
+	uchar menu_item;
+} UIState;
+
+// Current UI state
+UIState ui;
+
+// At most 5 stacked widgets. This value is arbitrary.
+UIState ui_stack[5];
+uchar ui_stack_top;
 
 // Each menu can have at most 8 menu items. This value is arbitrary.
-static PGM_P menu_strings[8];
-static uchar menu_total_items;
-static uchar menu_current_item;
+static PGM_P ui_menu_strings[8];
+static uchar ui_menu_total_items;
+
+// Should the current menu item be printed in the next ui_main_code() call?
+// If the firmware is busy printing something else, this flag won't be reset,
+// and the current menu item will be printed whenever it is appropriate.
+uchar ui_should_print_menu_item;
 
 // }}}
 
 ////////////////////////////////////////////////////////////
-// Generic menu handling functions                       {{{
+// UI and menu handling functions                        {{{
 
-static void load_menu_items(uchar which_menu) {  // {{{
+static void ui_load_menu_items() {  // {{{
+	// Loads the menu strings from PROGMEM to RAM
 
 // Ah... A preprocessor macro to avoid copy-pasting
 #define case_item(number, prefix) \
 		case number: \
-			memcpy_P(menu_strings, prefix##_menu_strings, sizeof(prefix##_menu_strings)); \
-			menu_total_items = prefix##_menu_total_items; \
+			memcpy_P(ui_menu_strings, prefix##_menu_strings, sizeof(prefix##_menu_strings)); \
+			ui_menu_total_items = prefix##_menu_total_items; \
 			break;
 
-	switch (which_menu) {
+	switch (ui.widget_id) {
 		case_item(UI_ROOT_MENU, empty)
 		case_item(UI_MAIN_MENU, main)
 		case_item(UI_ZERO_MENU, zero)
@@ -113,119 +133,129 @@ static void load_menu_items(uchar which_menu) {  // {{{
 #undef case_item
 }  // }}}
 
-#define print_menu_item() output_pgm_string(menu_strings[menu_current_item])
+void ui_push_state() {  // {{{
+	ui_stack[ui_stack_top] = ui;
+	ui_stack_top++;
+}  // }}}
 
-static void prev_menu_item() {  // {{{
-	if (menu_current_item == 0) {
-		menu_current_item = menu_total_items;
+void ui_pop_state() {  // {{{
+	if (ui_stack_top > 0) {
+		ui_stack_top--;
+		ui = ui_stack[ui_stack_top];
+	} else {
+		ui.widget_id = UI_ROOT_MENU;
+		ui.menu_item = 0;
 	}
-	menu_current_item--;
-	print_menu_item();
-}  // }}}
 
-static void next_menu_item() {  // {{{
-	menu_current_item++;
-	if (menu_current_item == menu_total_items) {
-		menu_current_item = 0;
+	// If the state is a menu, reload the items and print the current item.
+	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+		ui_load_menu_items();
+		ui_should_print_menu_item = 1;
 	}
-	print_menu_item();
 }  // }}}
 
-static void refresh_menu_ui() {  // {{{
-	// refresh_ is called right after init_, and also after coming back from a
-	// "pop()" (i.e. after a UI "screen" has finished, refresh_ is called for
-	// the previous one in the stack).
-
-	// reload_menu...
-	load_menu_items(ui_active_widget);
-
-	print_menu_item();
+static void ui_prev_menu_item() {  // {{{
+	if (ui.menu_item == 0) {
+		ui.menu_item = ui_menu_total_items;
+	}
+	ui.menu_item--;
+	ui_should_print_menu_item = 1;
 }  // }}}
 
-static void init_menu_ui() {  // {{{
-	// init_ is called upon "entering" (or starting) a UI "screen".
-
-	// Reset menu cursor
-	menu_current_item = 0;
-
-	refresh_menu_ui();
+static void ui_next_menu_item() {  // {{{
+	ui.menu_item++;
+	if (ui.menu_item == ui_menu_total_items) {
+		ui.menu_item = 0;
+	}
+	ui_should_print_menu_item = 1;
 }  // }}}
 
-static void enter_menu(uchar which_menu) {  // {{{
-	ui_active_widget = which_menu;
-	init_menu_ui();
+static void ui_enter_menu(uchar which_menu) {  // {{{
+	// Pushes the current widget (usually a parent menu), and enters the
+	// (sub)menu.
+
+	ui_push_state();
+
+	ui.widget_id = which_menu;
+	ui.menu_item = 0;
+
+	ui_load_menu_items();
+	ui_should_print_menu_item = 1;
 }  // }}}
 
-static void body_menu_ui() {  // {{{
-	// main_ is called in the main loop.
+static void ui_main_code() {  // {{{
+	// This must be called in the main loop.
+
+	// If must print the current menu item and the firmware is not busy
+	// printing something else
+	if (ui_should_print_menu_item && string_output_pointer == NULL) {
+		output_pgm_string(ui_menu_strings[ui.menu_item]);
+		ui_should_print_menu_item = 0;
+	}
 
 	if (ON_KEY_DOWN(BUTTON_PREV)) {
-		prev_menu_item();
+		ui_prev_menu_item();
 	} else if (ON_KEY_DOWN(BUTTON_NEXT)) {
-		next_menu_item();
+		ui_next_menu_item();
 	} else if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
-		switch (ui_active_widget) {
+		switch (ui.widget_id) {
 			case UI_ROOT_MENU:
-				enter_menu(UI_MAIN_MENU);
+				ui_enter_menu(UI_MAIN_MENU);
 				break;
 
 			case UI_MAIN_MENU:
-				switch (menu_current_item) {
+				switch (ui.menu_item) {
 					case 0:
-						enter_menu(UI_ZERO_MENU);
+						ui_enter_menu(UI_ZERO_MENU);
 						break;
 					case 1:
-						enter_menu(UI_CORNERS_MENU);
+						ui_enter_menu(UI_CORNERS_MENU);
 						break;
 					case 2:
 						string_output_buffer[0] = 'm';
-						uchar_to_hex(menu_current_item, string_output_buffer+1);
+						uchar_to_hex(ui.menu_item, string_output_buffer+1);
 						string_output_buffer[3] = '\n';
 						string_output_buffer[4] = '\0';
 						string_output_pointer = string_output_buffer;
 						break;
 					case 3:  // Quit menu
-						enter_menu(UI_ROOT_MENU);
+						ui_pop_state();
 						break;
 				}
 				break;
 
 			case UI_ZERO_MENU:
-				switch (menu_current_item) {
+				switch (ui.menu_item) {
 					case 0:
 					case 1:
 					case 2:
 						string_output_buffer[0] = 'z';
-						uchar_to_hex(menu_current_item, string_output_buffer+1);
+						uchar_to_hex(ui.menu_item, string_output_buffer+1);
 						string_output_buffer[3] = '\n';
 						string_output_buffer[4] = '\0';
 						string_output_pointer = string_output_buffer;
 						break;
 
 					case 3:  // Back to main menu
-						ui_active_widget = UI_MAIN_MENU;
-						init_menu_ui();
-						refresh_menu_ui();
+						ui_pop_state();
 						break;
 				}
 				break;
 
 			case UI_CORNERS_MENU:
-				switch (menu_current_item) {
+				switch (ui.menu_item) {
 					case 0:
 					case 1:
 					case 2:
 						string_output_buffer[0] = 'c';
-						uchar_to_hex(menu_current_item, string_output_buffer+1);
+						uchar_to_hex(ui.menu_item, string_output_buffer+1);
 						string_output_buffer[3] = '\n';
 						string_output_buffer[4] = '\0';
 						string_output_pointer = string_output_buffer;
 						break;
 
 					case 3:  // Back to main menu
-						ui_active_widget = UI_MAIN_MENU;
-						init_menu_ui();
-						refresh_menu_ui();
+						ui_pop_state();
 						break;
 				}
 				break;
@@ -239,7 +269,13 @@ static void body_menu_ui() {  // {{{
 
 static void init_ui_system() {   // {{{
 	// Must be called in the main initialization routine
-	ui_active_widget = UI_ROOT_MENU;
+
+	// Emptying the stack
+	ui_stack_top = 0;
+
+	// Calling ui_pop_state() with an empty stack will reload the initial
+	// widget (the root/empty menu).
+	ui_pop_state();
 }  // }}}
 
 
