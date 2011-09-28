@@ -347,7 +347,7 @@ static void ui_main_code() {  // {{{
 	} else {
 		switch (ui.widget_id) {
 			////////////////////
-			case UI_SENSOR_ID_WIDGET:
+			case UI_SENSOR_ID_WIDGET:  // {{{
 				if (string_output_pointer != NULL) {
 					// Do nothing, let's wait the previous output...
 					break;
@@ -367,10 +367,10 @@ static void ui_main_code() {  // {{{
 					output_pgm_string(error_sensor_string);
 					ui_pop_state();
 				}
-				break;
+				break;  // }}}
 
 			////////////////////
-			case UI_SENSOR_XYZ_ONCE:
+			case UI_SENSOR_XYZ_ONCE:  // {{{
 				if (ui.menu_item == 0) {
 					if (string_output_pointer != NULL) {
 						// Do nothing, let's wait the previous output...
@@ -389,10 +389,10 @@ static void ui_main_code() {  // {{{
 						ui_pop_state();
 					}
 				}
-				break;
+				break;  // }}}
 
 			////////////////////
-			case UI_SENSOR_XYZ_CONTINUOUS:
+			case UI_SENSOR_XYZ_CONTINUOUS:  // {{{
 				if (ui.menu_item == 0) {
 					if (string_output_pointer != NULL) {
 						// Do nothing, let's wait the previous output...
@@ -414,7 +414,7 @@ static void ui_main_code() {  // {{{
 						ui_pop_state();
 					}
 				}
-				break;
+				break;  // }}}
 
 			default:
 				// Fallback in case of errors
