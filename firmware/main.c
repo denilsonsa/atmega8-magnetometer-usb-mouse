@@ -368,6 +368,7 @@ static void build_report_from_char(uchar c) {  // {{{
 				break;
 
 			default:
+				report_buffer[0] = 0;
 				report_buffer[1] = 0;
 		}
 	}
@@ -398,7 +399,8 @@ static uchar send_next_char() {  // {{{
 
 		return 1;
 	} else {
-		build_report_from_char('\0');
+		report_buffer[0] = 0;
+		report_buffer[1] = 0;
 		string_output_pointer = NULL;
 		return 0;
 	}
