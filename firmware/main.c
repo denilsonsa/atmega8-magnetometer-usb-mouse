@@ -333,6 +333,7 @@ static void build_report_from_char(uchar c) {  // {{{
 			case '+':
 			case '=':  reportBuffer[1] = KEY_EQUAL;     break;
 
+			// Warning: this key is c-cedilla in BR-ABNT2 layout
 			case ':':
 			case ';':  reportBuffer[1] = KEY_SEMICOLON; break;
 
@@ -341,6 +342,16 @@ static void build_report_from_char(uchar c) {  // {{{
 
 			case '>':
 			case '.':  reportBuffer[1] = KEY_PERIOD;    break;
+
+			case '!':  reportBuffer[1] = KEY_1;         break;
+			case '@':  reportBuffer[1] = KEY_2;         break;
+			case '#':  reportBuffer[1] = KEY_3;         break;
+			case '$':  reportBuffer[1] = KEY_4;         break;
+			case '%':  reportBuffer[1] = KEY_5;         break;
+			case '&':  reportBuffer[1] = KEY_7;         break;
+			case '*':  reportBuffer[1] = KEY_8;         break;
+			case '(':  reportBuffer[1] = KEY_9;         break;
+			case ')':  reportBuffer[1] = KEY_0;         break;
 
 			default:
 				reportBuffer[1] = 0;
@@ -352,6 +363,16 @@ static void build_report_from_char(uchar c) {  // {{{
 			case ':':
 			case '<':
 			case '>':
+
+			case '!':
+			case '@':
+			case '#':
+			case '$':
+			case '%':
+			case '&':
+			case '*':
+			case '(':
+			case ')':
 				reportBuffer[0] = MOD_SHIFT_LEFT;
 				break;
 			default:
@@ -699,7 +720,7 @@ static void init_sensor_configuration() {  // {{{
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-static const char hello_world[] PROGMEM = "Hello, YouTube.\n";
+static const char hello_world[] PROGMEM = "Hello, !@#$%&*() -_ =+ ,< .> ;: /?\n";
 
 static const char twi_error_string[] PROGMEM = "TWI_statusReg.lastTransOK was FALSE.\n";
 
@@ -893,6 +914,10 @@ int	main(void) {  // {{{
 						new_data_received = 1;
 					}
 				}
+			}
+
+			if (ON_KEY_DOWN(BUTTON_1)) {
+				output_pgm_string(hello_world);
 			}
 
 			if (key_state & BUTTON_3) {
