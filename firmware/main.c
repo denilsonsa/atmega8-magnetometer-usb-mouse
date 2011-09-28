@@ -390,7 +390,7 @@ static uchar send_next_char() {  // {{{
 		old_report_buffer_key = report_buffer[1];
 		build_report_from_char(*string_output_pointer);
 
-		if (old_report_buffer_key == report_buffer[1]) {
+		if (old_report_buffer_key == report_buffer[1] && report_buffer[1] != 0) {
 			report_buffer[0] = 0;
 			report_buffer[1] = 0;
 		} else {
