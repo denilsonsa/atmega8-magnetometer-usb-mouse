@@ -15,31 +15,37 @@
 ////////////////////////////////////////////////////////////
 // Menu definitions (constants in progmem)               {{{
 
-// All available UI widgets
-#define UI_ROOT_MENU 0
-#define UI_MAIN_MENU 1
-#define UI_ZERO_MENU 2
-#define UI_CORNERS_MENU 3
-#define UI_SENSOR_MENU 4
+// All available UI widgets  {{{
 
+// Menus
+// Note: the ROOT (empty) menu must be ZERO
+#define UI_ROOT_MENU    0
+#define UI_MAIN_MENU    1
+#define UI_ZERO_MENU    2
+#define UI_CORNERS_MENU 3
+#define UI_SENSOR_MENU  4
+
+// UI_MIN_MENU_ID must be ZERO
 #define UI_MIN_MENU_ID UI_ROOT_MENU
 #define UI_MAX_MENU_ID UI_SENSOR_MENU
 
+#define UI_IS_MENU(id) ((id) >= UI_MIN_MENU_ID && (id) <= UI_MAX_MENU_ID)
+
+// Other widgets
 #define UI_SENSOR_ID_WIDGET        0x10
 #define UI_SENSOR_XYZ_ONCE_WIDGET  0x11
 #define UI_SENSOR_XYZ_CONT_WIDGET  0x12
+// }}}
 
-
-typedef struct MenuItem {
+typedef struct MenuItem {  // {{{
 	// The menu text string
 	PGM_P text;
 	// The widget that will be activated on this menu item
 	uchar action;
-} MenuItem;
+} MenuItem;  // }}}
 
-
-// Empty menu, which is also the root menu  {{{
-// Yeah, this is just a fake menu with only one empty item.
+// Root/empty menu  {{{
+// Yeah, this is just a "fake" menu with only one empty item.
 
 static const char     empty_menu_1[] PROGMEM = "";
 #define               empty_menu_total_items 1
@@ -48,18 +54,15 @@ static const MenuItem empty_menu_items[] PROGMEM = {
 };
 // }}}
 
-// Error item, for when something goes wrong  {{{
+// Error menu, for when something goes wrong  {{{
 static const char     error_menu_1[] PROGMEM = "Error in menu system!\n";
 #define               error_menu_total_items 1
 static const MenuItem error_menu_items[] PROGMEM = {
 	{error_menu_1, 0}
 };
-// Also other error messages:
-static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
 // }}}
 
 // Main menu, with all main options  {{{
-
 static const char     main_menu_1[] PROGMEM = "1. Calibrate zero\n";
 static const char     main_menu_2[] PROGMEM = "2. Calibrate corners\n";
 static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
@@ -74,7 +77,6 @@ static const MenuItem main_menu_items[] PROGMEM = {
 // }}}
 
 // Zero calibration menu  {{{
-
 static const char     zero_menu_1[] PROGMEM = "1.1. Print calibrated zero\n";
 static const char     zero_menu_2[] PROGMEM = "1.2. Recalibrate zero\n";
 static const char     zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
@@ -89,7 +91,6 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 // }}}
 
 // Corner calibration menu  {{{
-
 static const char     corners_menu_1[] PROGMEM = "2.1. Print calibrated corners\n";
 static const char     corners_menu_2[] PROGMEM = "2.2. Recalibrate corners\n";
 static const char     corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm being used, but here?\n";
@@ -104,7 +105,6 @@ static const MenuItem corners_menu_items[] PROGMEM = {
 // }}}
 
 // Sensor data menu  {{{
-
 static const char     sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
 static const char     sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
 static const char     sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
@@ -116,8 +116,29 @@ static const MenuItem sensor_menu_items[] PROGMEM = {
 	{sensor_menu_3, UI_SENSOR_XYZ_CONT_WIDGET},
 	{sensor_menu_4, 0}
 };
+
+// Error message:
+static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
 // }}}
 
+// Data used by ui_load_menu_items()  {{{
+typedef struct MenuLoadingInfo {
+	// Pointer to the array of MenuItems
+	PGM_VOID_P menu_items;
+	// Number of items in this menu
+	uchar total_items;
+} MenuLoadingInfo;
+
+#define MENU_LOADING(prefix) {prefix##_menu_items, prefix##_menu_total_items}
+static const MenuLoadingInfo menu_loading[] PROGMEM = {
+	MENU_LOADING(empty),
+	MENU_LOADING(main),
+	MENU_LOADING(zero),
+	MENU_LOADING(corners),
+	MENU_LOADING(sensor)
+};
+#undef MENU_LOADING
+// }}}
 
 // }}}
 
@@ -155,22 +176,23 @@ uchar ui_should_print_menu_item;
 static void ui_load_menu_items() {  // {{{
 	// Loads the menu strings from PROGMEM to RAM
 
-// Ah... A preprocessor macro to avoid copy-pasting
-#define case_body(prefix) \
-			memcpy_P(ui_menu_items, prefix##_menu_items, sizeof(prefix##_menu_items)); \
-			ui_menu_total_items = prefix##_menu_total_items; \
-			break;
+	// Pointer to the source address
+	PGM_VOID_P menu_items;
 
-	switch (ui.widget_id) {
-		case UI_ROOT_MENU:    case_body(empty)
-		case UI_MAIN_MENU:    case_body(main)
-		case UI_ZERO_MENU:    case_body(zero)
-		case UI_CORNERS_MENU: case_body(corners)
-		case UI_SENSOR_MENU:  case_body(sensor)
-		default:              case_body(error)
+	if (UI_IS_MENU(ui.widget_id)) {
+		// This version is more portable:
+		//memcpy_P(&menu_items, &menu_loading[ui.widget_id - UI_MIN_MENU_ID].menu_items, sizeof(PGM_P));
+		// This version is shorter (40 bytes smaller):
+		menu_items = pgm_read_word_near(&menu_loading[ui.widget_id - UI_MIN_MENU_ID].menu_items);
+
+		ui_menu_total_items = pgm_read_byte_near(&menu_loading[ui.widget_id - UI_MIN_MENU_ID].total_items);
+	} else {
+		menu_items = error_menu_items;
+		ui_menu_total_items = error_menu_total_items;
 	}
 
-#undef case_body
+	// Copying to RAM array ui_menu_items
+	memcpy_P(ui_menu_items, menu_items, ui_menu_total_items * sizeof(*ui_menu_items));
 }  // }}}
 
 void ui_push_state() {  // {{{
@@ -188,7 +210,7 @@ void ui_pop_state() {  // {{{
 	}
 
 	// If the state is a menu, reload the items and print the current item.
-	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+	if (UI_IS_MENU(ui.widget_id)) {
 		ui_load_menu_items();
 		ui_should_print_menu_item = 1;
 	}
@@ -220,7 +242,7 @@ static void ui_enter_widget(uchar new_widget) {  // {{{
 	ui.menu_item = 0;
 
 	// If the new widget is a menu, load the items and print the current one.
-	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+	if (UI_IS_MENU(ui.widget_id)) {
 		ui_load_menu_items();
 		ui_should_print_menu_item = 1;
 	}
@@ -251,7 +273,7 @@ static void ui_menu_code() {  // {{{
 		ui_should_print_menu_item = 0;
 	}
 
-
+	// Handling button events
 	if (ON_KEY_DOWN(BUTTON_PREV)) {
 		ui_prev_menu_item();
 	} else if (ON_KEY_DOWN(BUTTON_NEXT)) {
@@ -275,7 +297,7 @@ static void ui_main_code() {  // {{{
 
 	uchar return_code;
 
-	if (ui.widget_id >= UI_MIN_MENU_ID && ui.widget_id <= UI_MAX_MENU_ID) {
+	if (UI_IS_MENU(ui.widget_id)) {
 		ui_menu_code();
 	} else {
 		switch (ui.widget_id) {
