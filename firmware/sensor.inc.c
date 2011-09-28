@@ -124,6 +124,10 @@ int sensor_Z;
 uchar sensor_overflow;
 #define SENSOR_DATA_OVERFLOW -4096
 
+// Set to 1 whenever new sensor data has been read.
+uchar sensor_new_data_available;
+
+
 // Used to determine the next step in non-blocking functions.
 // Must be set to zero to ensure each function starts from the beginning.
 uchar sensor_func_step;
@@ -134,7 +138,7 @@ static void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
 	// This is required before reading registers.
 	//
-	// This is non-blocking (except if TWI is already busy).
+	// This function is non-blocking (except if TWI is already busy).
 
 	uchar msg[2];
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
@@ -146,7 +150,7 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	// Sets one of those 3 writable registers to a value.
 	// Only useful for configuration.
 	//
-	// This is non-blocking (except if TWI is already busy).
+	// This function is non-blocking (except if TWI is already busy).
 
 	uchar msg[3];
 	msg[0] = SENSOR_I2C_WRITE_ADDRESS;
@@ -156,58 +160,59 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 }  // }}}
 
 
-
-// TODO, FIXME: use "if (TWI_Transceiver_Busy())" in order to avoid these
-// blocking functions (which are causing some device resets).
-
-static uchar DELETE_ME_sensor_read_status_register() {  // {{{
-	// Returns the value of the STATUS register.
-	// No error handling is done in this code.  Please test
-	// "TWI_statusReg.lastTransOK" in order to detect errors.
-
-	uchar msg[2];
-
-	sensor_set_address_pointer(SENSOR_REG_STATUS);
-
-	msg[0] = SENSOR_I2C_READ_ADDRESS;
-	TWI_Start_Transceiver_With_Data(msg, 2);
-	TWI_Get_Data_From_Transceiver(msg, 2);
-
-	return msg[1];
-}  // }}}
-
-// TODO: rewrite this one!
 static uchar sensor_read_data_registers() {  // {{{
 	// Reads the X,Y,Z data registers and store them at global vars.
 	// In case of a transmission error, the previous values are not changed.
 	//
-	// Returns the same as "TWI_statusReg.lastTransOK".
+	// This function is non-blocking.
 
 	// 1 address byte + 6 data bytes = 7 bytes
 	uchar msg[7];
 
 	uchar lastTransOK;
 
-	sensor_set_address_pointer(SENSOR_REG_DATA_START);
+	switch(sensor_func_step) {
+		case 0:  // Set address pointer
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
-	msg[0] = SENSOR_I2C_READ_ADDRESS;
-	TWI_Start_Transceiver_With_Data(msg, 7);
-	lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
+			sensor_set_address_pointer(SENSOR_REG_DATA_START);
+			sensor_func_step = 1;
+		case 1:  // Start reading operation
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
-	if (lastTransOK) {
-		#define OFFSET (1 - SENSOR_REG_DATA_START)
-		sensor_X = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
-		sensor_Y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
-		sensor_Z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
-		#undef OFFSET
+			msg[0] = SENSOR_I2C_READ_ADDRESS;
+			TWI_Start_Transceiver_With_Data(msg, 7);
 
-		sensor_overflow =
-			(sensor_X == SENSOR_DATA_OVERFLOW)
-			|| (sensor_Y == SENSOR_DATA_OVERFLOW)
-			|| (sensor_Z == SENSOR_DATA_OVERFLOW);
+			sensor_func_step = 2;
+		case 2:  // Finished reading operation
+			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
+
+			lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
+			sensor_func_step = 0;
+
+			if (lastTransOK) {
+				#define OFFSET (1 - SENSOR_REG_DATA_START)
+				sensor_X = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
+				sensor_Y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
+				sensor_Z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+				#undef OFFSET
+
+				sensor_overflow =
+					(sensor_X == SENSOR_DATA_OVERFLOW)
+					|| (sensor_Y == SENSOR_DATA_OVERFLOW)
+					|| (sensor_Z == SENSOR_DATA_OVERFLOW);
+
+				sensor_new_data_available = 1;
+
+				// TODO: zero compensation here.
+
+				return SENSOR_FUNC_DONE;
+			} else {
+				return SENSOR_FUNC_ERROR;
+			}
+		default:
+			return SENSOR_FUNC_ERROR;
 	}
-
-	return lastTransOK;
 }  // }}}
 
 static uchar sensor_read_identification_string(uchar *s) {  // {{{
@@ -217,6 +222,8 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 	// Receives a pointer to a string with at least 4 chars of size.
 	// After reading the registers, stores them at *s, followed by '\0'.
 	// In case of a transmission error, the *s is not touched.
+	//
+	// This function is non-blocking.
 
 	// 1 address byte + 3 chars
 	uchar msg[4];
@@ -256,8 +263,10 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 	}
 }  // }}}
 
+
 static void init_sensor_configuration() {  // {{{
 	sensor_func_step = 0;
+	sensor_new_data_available = 0;
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,

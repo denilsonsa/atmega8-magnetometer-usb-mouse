@@ -518,6 +518,10 @@ static const char twi_error_string[] PROGMEM = "TWI_statusReg.lastTransOK was FA
 // A value of zero means indefinite/infinity.
 static uchar idle_rate;
 
+// Enable continuous reading of sensor values
+uchar sensor_continuous_reading;
+
+
 
 static uchar* debug_print_X_Y_Z_to_string_buffer() {  // {{{
 	// "-1234\t1234\t-1234\n"
@@ -643,7 +647,6 @@ int	main(void) {  // {{{
 	int idle_counter = 0;
 
 	uchar sensor_probe_counter = 0;
-	uchar new_data_received = 0;
 
 	cli();
 
@@ -675,32 +678,57 @@ int	main(void) {  // {{{
 			LED_TURN_ON(RED_LED);
 		}
 
-		// The main switch can be used to "freeze" the sensor values.
-		new_data_received = 0;
+		// Handling of the main switch
+		if (key_changed & BUTTON_SWITCH) {
+			// When the switch changes state, it's better to reset this
+			// variable, in order to avoid bugs.
+			sensor_func_step = 0;
+		}
+
+		if (ON_KEY_UP(BUTTON_SWITCH)) {
+			// Upon releasing the switch, stop the continuous reading.
+			sensor_continuous_reading = 0;
+			// And also reset the menu system.
+			init_ui_system();
+		}
+
 		if (key_state & BUTTON_SWITCH) {
+			sensor_continuous_reading = 1;
+		} else {
+			ui_main_code();
+		}
+
+		// Continuous reading of sensor data
+		if (sensor_continuous_reading) {
 			// Timer is set to 1.365ms
 			if (TIFR & (1<<TOV0)) {
+				// The sensor is configured for 75Hz measurements.
+				// I'm using this timer to read the values at twice that rate.
+				// 5 * 1.365ms = 6.827ms ~= 146Hz
 				if (sensor_probe_counter > 0){
+					// Waiting...
 					sensor_probe_counter--;
-				} else {
-					uchar lastTransOK;
+				}
+			}
+			if (sensor_probe_counter == 0) {
+				// Time for reading new data!
+				uchar return_code;
 
-					// The sensor is configured for 75Hz measurements.
-					// I'm using this timer to read the values at twice that rate.
-					// 5 * 1.365ms = 6.827ms ~= 146Hz
+				return_code = sensor_read_data_registers();
+				if (return_code == SENSOR_FUNC_DONE || return_code == SENSOR_FUNC_ERROR) {
+					// Restart the counter+timer
 					sensor_probe_counter = 5;
-
-					lastTransOK = sensor_read_data_registers();
-					if (lastTransOK) {
-						new_data_received = 1;
-					}
 				}
 			}
 
+			// TODO: Delete this
+			/*
 			if (ON_KEY_DOWN(BUTTON_1)) {
 				output_pgm_string(hello_world);
 			}
+			*/
 
+			// TODO: Move this to inside the menu
 			if (key_state & BUTTON_3) {
 				if (!should_send_report) {
 					debug_print_X_Y_Z_to_string_buffer();
@@ -709,10 +737,6 @@ int	main(void) {  // {{{
 			}
 		}
 
-
-		if (!(key_state & BUTTON_SWITCH)) {
-			ui_main_code();
-		}
 
 		/*
 		if (ON_KEY_DOWN(BUTTON_1)) {
