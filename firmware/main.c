@@ -903,7 +903,6 @@ int	main(void) {  // {{{
 
 		if (ON_KEY_UP(BUTTON_SWITCH)) {
 			init_menu_ui();
-			refresh_menu_ui();
 		}
 
 		if (!(key_state & BUTTON_SWITCH)) {
