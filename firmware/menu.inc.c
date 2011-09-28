@@ -34,7 +34,6 @@ static const PGM_P error_menu_strings[] PROGMEM = {
 };
 // }}}
 
-
 // Main menu, with all main options  {{{
 #define UI_MAIN_MENU 1
 
@@ -50,7 +49,6 @@ static const PGM_P main_menu_strings[] PROGMEM = {
 	main_menu_4
 };
 // }}}
-
 
 // Zero calibration menu  {{{
 #define UI_ZERO_MENU 2
@@ -68,7 +66,6 @@ static const PGM_P zero_menu_strings[] PROGMEM = {
 };
 // }}}
 
-
 // Corner calibration menu  {{{
 #define UI_CORNERS_MENU 3
 
@@ -84,7 +81,6 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 	corners_menu_4
 };
 // }}}
-
 
 // Sensor data menu  {{{
 #define UI_SENSOR_MENU 4
@@ -212,15 +208,36 @@ static void ui_enter_menu(uchar which_menu) {  // {{{
 	ui_should_print_menu_item = 1;
 }  // }}}
 
+// }}}
+
+////////////////////////////////////////////////////////////
+// UI and menu public functions                          {{{
+
+static void init_ui_system() {   // {{{
+	// Must be called in the main initialization routine
+
+	// Emptying the stack
+	ui_stack_top = 0;
+
+	// Calling ui_pop_state() with an empty stack will reload the initial
+	// widget (the root/empty menu).
+	ui_pop_state();
+}  // }}}
+
 static void ui_main_code() {  // {{{
 	// This must be called in the main loop.
+	//
+	// This function is huge, almost a big mess. That's because it handles the
+	// actions of all menu items.
 
-	// If must print the current menu item and the firmware is not busy
-	// printing something else
+
+	// If the current menu item needs to be printed and the firmware is not
+	// busy printing something else
 	if (ui_should_print_menu_item && string_output_pointer == NULL) {
 		output_pgm_string(ui_menu_strings[ui.menu_item]);
 		ui_should_print_menu_item = 0;
 	}
+
 
 	if (ON_KEY_DOWN(BUTTON_PREV)) {
 		ui_prev_menu_item();
@@ -228,10 +245,13 @@ static void ui_main_code() {  // {{{
 		ui_next_menu_item();
 	} else if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
 		switch (ui.widget_id) {
+			////////////////////
 			case UI_ROOT_MENU:
+				// This is an empty "fake" menu, with only one item.
 				ui_enter_menu(UI_MAIN_MENU);
 				break;
 
+			////////////////////
 			case UI_MAIN_MENU:
 				switch (ui.menu_item) {
 					case 0:
@@ -249,6 +269,7 @@ static void ui_main_code() {  // {{{
 				}
 				break;
 
+			////////////////////
 			case UI_ZERO_MENU:
 				switch (ui.menu_item) {
 					case 0:
@@ -267,6 +288,7 @@ static void ui_main_code() {  // {{{
 				}
 				break;
 
+			////////////////////
 			case UI_CORNERS_MENU:
 				switch (ui.menu_item) {
 					case 0:
@@ -285,6 +307,7 @@ static void ui_main_code() {  // {{{
 				}
 				break;
 
+			////////////////////
 			case UI_SENSOR_MENU:
 				switch (ui.menu_item) {
 					case 0:
@@ -308,19 +331,6 @@ static void ui_main_code() {  // {{{
 }  // }}}
 
 // }}}
-
-
-
-static void init_ui_system() {   // {{{
-	// Must be called in the main initialization routine
-
-	// Emptying the stack
-	ui_stack_top = 0;
-
-	// Calling ui_pop_state() with an empty stack will reload the initial
-	// widget (the root/empty menu).
-	ui_pop_state();
-}  // }}}
 
 
 // vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}
