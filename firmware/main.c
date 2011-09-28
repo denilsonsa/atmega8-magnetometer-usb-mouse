@@ -588,6 +588,9 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	TWI_Start_Transceiver_With_Data(msg, 3);
 }  // }}}
 
+// TODO, FIXME: use "if (TWI_Transceiver_Busy())" in order to avoid these
+// blocking functions (which are causing some device resets).
+
 static uchar sensor_read_status_register() {  // {{{
 	// Returns the value of the STATUS register.
 	// No error handling is done in this code.  Please test

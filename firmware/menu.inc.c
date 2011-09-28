@@ -26,13 +26,21 @@ static const PGM_P empty_menu_strings[] PROGMEM = {
 };
 // }}}
 
+// Error item, for when something goes wrong  {{{
+static const char  error_menu_item[] PROGMEM = "Error in menu system!\n";
+#define            error_menu_total_items 1
+static const PGM_P error_menu_strings[] PROGMEM = {
+	error_menu_item
+};
+// }}}
+
 
 // Main menu, with all main options  {{{
 #define UI_MAIN_MENU 1
 
 static const char  main_menu_1[] PROGMEM = "1. Calibrate zero\n";
 static const char  main_menu_2[] PROGMEM = "2. Calibrate corners\n";
-static const char  main_menu_3[] PROGMEM = "3. Read sensor\n";
+static const char  main_menu_3[] PROGMEM = "3. Sensor data\n";
 static const char  main_menu_4[] PROGMEM = "4. << quit menu\n";
 #define            main_menu_total_items 4
 static const PGM_P main_menu_strings[] PROGMEM = {
@@ -77,8 +85,28 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 };
 // }}}
 
+
+// Sensor data menu  {{{
+#define UI_SENSOR_MENU 4
+
+static const char sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
+static const char sensor_menu_2[] PROGMEM = "3.2. Print status register\n";
+static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z once\n";
+static const char sensor_menu_4[] PROGMEM = "3.4. Print X,Y,Z continually\n";
+static const char sensor_menu_5[] PROGMEM = "3.5. << main menu\n";
+#define           sensor_menu_total_items 5
+static PGM_P      sensor_menu_strings[] PROGMEM = {
+	sensor_menu_1,
+	sensor_menu_2,
+	sensor_menu_3,
+	sensor_menu_4,
+	sensor_menu_5
+};
+// }}}
+
+
 #define UI_MIN_MENU_ID UI_ROOT_MENU
-#define UI_MAX_MENU_ID UI_CORNERS_MENU
+#define UI_MAX_MENU_ID UI_SENSOR_MENU
 
 // }}}
 
@@ -117,20 +145,21 @@ static void ui_load_menu_items() {  // {{{
 	// Loads the menu strings from PROGMEM to RAM
 
 // Ah... A preprocessor macro to avoid copy-pasting
-#define case_item(number, prefix) \
-		case number: \
+#define case_body(prefix) \
 			memcpy_P(ui_menu_strings, prefix##_menu_strings, sizeof(prefix##_menu_strings)); \
 			ui_menu_total_items = prefix##_menu_total_items; \
 			break;
 
 	switch (ui.widget_id) {
-		case_item(UI_ROOT_MENU, empty)
-		case_item(UI_MAIN_MENU, main)
-		case_item(UI_ZERO_MENU, zero)
-		case_item(UI_CORNERS_MENU, corners)
+		case UI_ROOT_MENU:    case_body(empty)
+		case UI_MAIN_MENU:    case_body(main)
+		case UI_ZERO_MENU:    case_body(zero)
+		case UI_CORNERS_MENU: case_body(corners)
+		case UI_SENSOR_MENU:  case_body(sensor)
+		default:              case_body(error)
 	}
 
-#undef case_item
+#undef case_body
 }  // }}}
 
 void ui_push_state() {  // {{{
@@ -212,11 +241,7 @@ static void ui_main_code() {  // {{{
 						ui_enter_menu(UI_CORNERS_MENU);
 						break;
 					case 2:
-						string_output_buffer[0] = 'm';
-						uchar_to_hex(ui.menu_item, string_output_buffer+1);
-						string_output_buffer[3] = '\n';
-						string_output_buffer[4] = '\0';
-						string_output_pointer = string_output_buffer;
+						ui_enter_menu(UI_SENSOR_MENU);
 						break;
 					case 3:  // Quit menu
 						ui_pop_state();
@@ -255,6 +280,25 @@ static void ui_main_code() {  // {{{
 						break;
 
 					case 3:  // Back to main menu
+						ui_pop_state();
+						break;
+				}
+				break;
+
+			case UI_SENSOR_MENU:
+				switch (ui.menu_item) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+						string_output_buffer[0] = 's';
+						uchar_to_hex(ui.menu_item, string_output_buffer+1);
+						string_output_buffer[3] = '\n';
+						string_output_buffer[4] = '\0';
+						string_output_pointer = string_output_buffer;
+						break;
+
+					case 4:  // Back to main menu
 						ui_pop_state();
 						break;
 				}
