@@ -718,37 +718,6 @@ int	main(void) {  // {{{
 		}
 
 
-		/*
-		if (ON_KEY_DOWN(BUTTON_1)) {
-			if (key_state & BUTTON_SWITCH) {
-				if (!should_send_report) {
-					// And the firmware is not sending anything
-
-					// Printing "Hello, world"
-					output_pgm_string(hello_world);
-				}
-			} else {
-				if (!should_send_report) {
-					// And the firmware is not sending anything
-
-					// Printing X,Y,Z
-
-					uchar lastTransOK;
-
-					lastTransOK = sensor_read_data_registers();
-
-					if (lastTransOK) {
-						debug_print_X_Y_Z_to_string_output_buffer();
-						string_output_pointer = string_output_buffer;
-					} else {
-						output_pgm_string(twi_error_string);
-					}
-				}
-			}
-		}
-		*/
-
-
 		// Timer is set to 1.365ms
 		if (TIFR & (1<<TOV0)) {
 			// Implementing the idle rate...

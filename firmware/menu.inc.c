@@ -33,7 +33,7 @@ static const PGM_P error_menu_strings[] PROGMEM = {
 	error_menu_item
 };
 // Also other error messages:
-static const char  error_sensor_string[] PROGMEM = "Error in sensor code!\n";
+static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
 // }}}
 
 // Main menu, with all main options  {{{
@@ -88,7 +88,6 @@ static PGM_P      corners_menu_strings[] PROGMEM = {
 #define UI_SENSOR_MENU 4
 
 static const char sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
-//static const char sensor_menu_2[] PROGMEM = "3.2. Print configuration registers\n";
 static const char sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
 static const char sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
 static const char sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
@@ -376,17 +375,21 @@ static void ui_main_code() {  // {{{
 						// Do nothing, let's wait the previous output...
 						break;
 					}
-					sensor_func_step = 0;
-					sensor_new_data_available = 0;
-					sensor_continuous_reading = 1;
+					sensor_start_continuous_reading();
 					ui.menu_item = 1;
 				} else {
-					if (sensor_new_data_available && string_output_pointer == NULL) {
-						sensor_new_data_available = 0;
-						sensor_continuous_reading = 0;
-						debug_print_X_Y_Z_to_string_output_buffer();
-						string_output_pointer = string_output_buffer;
-						ui_pop_state();
+					if (string_output_pointer == NULL) {
+						if (sensor_new_data_available) {
+							sensor_new_data_available = 0;
+							sensor_stop_continuous_reading();
+							debug_print_X_Y_Z_to_string_output_buffer();
+							string_output_pointer = string_output_buffer;
+							ui_pop_state();
+						} else if (sensor_error_while_reading) {
+							sensor_stop_continuous_reading();
+							output_pgm_string(error_sensor_string);
+							ui_pop_state();
+						}
 					}
 				}
 				break;  // }}}
@@ -398,19 +401,22 @@ static void ui_main_code() {  // {{{
 						// Do nothing, let's wait the previous output...
 						break;
 					}
-					sensor_func_step = 0;
-					sensor_new_data_available = 0;
-					sensor_continuous_reading = 1;
+					sensor_start_continuous_reading();
 					ui.menu_item = 1;
 				} else {
-					if (sensor_new_data_available && string_output_pointer == NULL) {
-						sensor_new_data_available = 0;
-						debug_print_X_Y_Z_to_string_output_buffer();
-						string_output_pointer = string_output_buffer;
+					if (string_output_pointer == NULL) {
+						if (sensor_new_data_available) {
+							sensor_new_data_available = 0;
+							debug_print_X_Y_Z_to_string_output_buffer();
+							string_output_pointer = string_output_buffer;
+						} else if (sensor_error_while_reading) {
+							sensor_stop_continuous_reading();
+							output_pgm_string(error_sensor_string);
+							ui_pop_state();
+						}
 					}
 					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
-						sensor_func_step = 0;
-						sensor_continuous_reading = 0;
+						sensor_stop_continuous_reading();
 						ui_pop_state();
 					}
 				}

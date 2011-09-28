@@ -127,6 +127,11 @@ uchar sensor_overflow;
 // Set to 1 whenever new sensor data has been read.
 uchar sensor_new_data_available;
 
+// Almost the same as TWI_statusReg.lastTransOK.
+// Gets set whenever a function returns with SENSOR_FUNC_ERROR.
+// Gets reset whenever a function returns with SENSOR_FUNC_DONE.
+uchar sensor_error_while_reading;
+
 
 // Used to determine the next step in non-blocking functions.
 // Must be set to zero to ensure each function starts from the beginning.
@@ -210,14 +215,31 @@ static uchar sensor_read_data_registers() {  // {{{
 
 				// TODO: zero compensation here.
 
+				sensor_error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
+				sensor_error_while_reading = 1;
 				return SENSOR_FUNC_ERROR;
 			}
 		default:
+			sensor_error_while_reading = 1;
 			return SENSOR_FUNC_ERROR;
 	}
 }  // }}}
+
+static void sensor_start_continuous_reading() {
+	sensor_func_step = 0;
+	sensor_new_data_available = 0;
+	sensor_error_while_reading = 0;
+	sensor_continuous_reading = 1;
+}
+static void sensor_stop_continuous_reading() {
+	sensor_func_step = 0;
+	//sensor_new_data_available = 0;
+	//sensor_error_while_reading = 0;
+	sensor_continuous_reading = 0;
+}
+
 
 static uchar sensor_read_identification_string(uchar *s) {  // {{{
 	// Reads the 3 identification registers from the sensor.
@@ -258,11 +280,14 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 				s[1] = msg[2];
 				s[2] = msg[3];
 				s[3] = '\0';
+				sensor_error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
+				sensor_error_while_reading = 1;
 				return SENSOR_FUNC_ERROR;
 			}
 		default:
+			sensor_error_while_reading = 1;
 			return SENSOR_FUNC_ERROR;
 	}
 }  // }}}
@@ -271,6 +296,7 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 static void init_sensor_configuration() {  // {{{
 	sensor_func_step = 0;
 	sensor_new_data_available = 0;
+	sensor_error_while_reading = 0;
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,
