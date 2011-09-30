@@ -94,6 +94,7 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 };
 
 // Other messages:
+static const char zero_calibration[] PROGMEM = "Move the sensor in all possible directions, then press the button to finish\n";
 static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is now ";
 static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
@@ -177,6 +178,10 @@ static uchar ui_menu_total_items;
 // If the firmware is busy printing something else, this flag won't be reset,
 // and the current menu item will be printed whenever it is appropriate.
 uchar ui_should_print_menu_item;
+
+// Used by Zero Calibration routine
+XYZVector zerocal_min;
+XYZVector zerocal_max;
 
 // }}}
 
@@ -327,6 +332,58 @@ static void ui_main_code() {  // {{{
 				break;  // }}}
 
 			////////////////////
+			case UI_ZERO_CAL_WIDGET:  // {{{
+				if (ui.menu_item == 0) {
+					if (string_output_pointer != NULL) {
+						// Do nothing, let's wait the previous output...
+						break;
+					}
+
+					output_pgm_string(zero_calibration);
+					sensor_start_continuous_reading();
+					ui.menu_item = 1;
+				} else if(ui.menu_item == 1) {
+					// The first reading
+					if (sensor_new_data_available) {
+						sensor_new_data_available = 0;
+
+						if (!sensor_overflow) {
+							zerocal_min = sensor_data;
+							zerocal_max = sensor_data;
+							ui.menu_item = 2;
+						}
+					}
+				} else {
+					if (sensor_new_data_available) {
+						sensor_new_data_available = 0;
+
+						if (!sensor_overflow) {
+							if (sensor_data.x < zerocal_min.x) zerocal_min.x = sensor_data.x;
+							if (sensor_data.y < zerocal_min.y) zerocal_min.y = sensor_data.y;
+							if (sensor_data.z < zerocal_min.z) zerocal_min.z = sensor_data.z;
+
+							if (sensor_data.x > zerocal_max.x) zerocal_max.x = sensor_data.x;
+							if (sensor_data.y > zerocal_max.y) zerocal_max.y = sensor_data.y;
+							if (sensor_data.z > zerocal_max.z) zerocal_max.z = sensor_data.z;
+						}
+					}
+
+					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
+						sensor_stop_continuous_reading();
+
+						sensor_zero.x = (zerocal_min.x + zerocal_max.x) / 2;
+						sensor_zero.y = (zerocal_min.y + zerocal_max.y) / 2;
+						sensor_zero.z = (zerocal_min.z + zerocal_max.z) / 2;
+
+						// TODO: store this to EEPROM
+
+						ui_pop_state();
+						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
+					}
+				}
+				break;  // }}}
+
+			////////////////////
 			case UI_ZERO_TOGGLE_WIDGET:  // {{{
 				if (string_output_pointer != NULL) {
 					// Do nothing, let's wait the previous output...
@@ -347,6 +404,7 @@ static void ui_main_code() {  // {{{
 					ui_pop_state();
 				}
 				break;  // }}}
+
 
 			////////////////////
 			case UI_SENSOR_ID_WIDGET:  // {{{
