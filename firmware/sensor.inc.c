@@ -114,11 +114,12 @@
 
 // }}}
 
+typedef struct XYZVector {
+	int x, y, z;
+} XYZVector;
 
 // The X,Y,Z data from the sensor
-int sensor_X;
-int sensor_Y;
-int sensor_Z;
+XYZVector sensor_data;
 
 // Boolean that detects if the sensor have reported an overflow
 uchar sensor_overflow;
@@ -201,15 +202,15 @@ static uchar sensor_read_data_registers() {  // {{{
 
 			if (lastTransOK) {
 				#define OFFSET (1 - SENSOR_REG_DATA_START)
-				sensor_X = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
-				sensor_Y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
-				sensor_Z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+				sensor_data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
+				sensor_data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
+				sensor_data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
 				#undef OFFSET
 
 				sensor_overflow =
-					(sensor_X == SENSOR_DATA_OVERFLOW)
-					|| (sensor_Y == SENSOR_DATA_OVERFLOW)
-					|| (sensor_Z == SENSOR_DATA_OVERFLOW);
+					(sensor_data.x == SENSOR_DATA_OVERFLOW)
+					|| (sensor_data.y == SENSOR_DATA_OVERFLOW)
+					|| (sensor_data.z == SENSOR_DATA_OVERFLOW);
 
 				sensor_new_data_available = 1;
 

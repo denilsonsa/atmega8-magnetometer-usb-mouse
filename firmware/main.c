@@ -489,20 +489,20 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 	return str+2;
 }  // }}}
 
-static uchar* debug_print_X_Y_Z_to_string_output_buffer() {  // {{{
+static uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  // {{{
 	// "-1234\t1234\t-1234\n"
 
 	uchar *str = string_output_buffer;
 
-	str = int_to_dec(sensor_X, str);
+	str = int_to_dec(vector->x, str);
 	*str = '\t';
 	str++;
 
-	str = int_to_dec(sensor_Y, str);
+	str = int_to_dec(vector->y, str);
 	*str = '\t';
 	str++;
 
-	str = int_to_dec(sensor_Z, str);
+	str = int_to_dec(vector->z, str);
 	*str = '\n';
 	str++;
 

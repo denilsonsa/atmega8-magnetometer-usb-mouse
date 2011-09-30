@@ -193,7 +193,7 @@ static void ui_load_menu_items() {  // {{{
 	//memcpy_P(&menu_items, &menu_loading[id].menu_items, sizeof(PGM_P));
 	// But this version is shorter (40 bytes smaller):
 	// But this assertion must be true: assert(sizeof(PGM_VOID_P) == 2)
-	menu_items = pgm_read_word_near(&menu_loading[id].menu_items);
+	menu_items = (PGM_VOID_P) pgm_read_word_near(&menu_loading[id].menu_items);
 
 	ui_menu_total_items = pgm_read_byte_near(&menu_loading[id].total_items);
 
@@ -344,7 +344,7 @@ static void ui_main_code() {  // {{{
 						if (sensor_new_data_available) {
 							sensor_new_data_available = 0;
 							sensor_stop_continuous_reading();
-							debug_print_X_Y_Z_to_string_output_buffer();
+							debug_print_X_Y_Z_to_string_output_buffer(&sensor_data);
 							string_output_pointer = string_output_buffer;
 							ui_pop_state();
 						} else if (sensor_error_while_reading) {
@@ -369,7 +369,7 @@ static void ui_main_code() {  // {{{
 					if (string_output_pointer == NULL) {
 						if (sensor_new_data_available) {
 							sensor_new_data_available = 0;
-							debug_print_X_Y_Z_to_string_output_buffer();
+							debug_print_X_Y_Z_to_string_output_buffer(&sensor_data);
 							string_output_pointer = string_output_buffer;
 						} else if (sensor_error_while_reading) {
 							sensor_stop_continuous_reading();
