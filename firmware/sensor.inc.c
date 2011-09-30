@@ -144,6 +144,12 @@ uchar sensor_func_step;
 uchar sensor_continuous_reading;
 
 
+// Zero calibration
+XYZVector sensor_zero;
+// Boolean to enable Zero compensation
+uchar sensor_zero_compensation;
+
+
 static void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
 	// This is required before reading registers.
@@ -214,7 +220,11 @@ static uchar sensor_read_data_registers() {  // {{{
 
 				sensor_new_data_available = 1;
 
-				// TODO: zero compensation here.
+				if (sensor_zero_compensation && !sensor_overflow) {
+					sensor_data.x -= sensor_zero.x;
+					sensor_data.y -= sensor_zero.y;
+					sensor_data.z -= sensor_zero.z;
+				}
 
 				sensor_error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
@@ -299,6 +309,12 @@ static void init_sensor_configuration() {  // {{{
 	sensor_func_step = 0;
 	sensor_new_data_available = 0;
 	sensor_error_while_reading = 0;
+
+	// TODO: read zero values from EEPROM
+	sensor_zero.x = 0;
+	sensor_zero.y = 0;
+	sensor_zero.z = 0;
+	sensor_zero_compensation = 0;
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,

@@ -33,9 +33,12 @@
 #define UI_IS_MENU(id) ((id) >= UI_MIN_MENU_ID && (id) <= UI_MAX_MENU_ID)
 
 // Other widgets
-#define UI_SENSOR_ID_WIDGET        0x10
-#define UI_SENSOR_XYZ_ONCE_WIDGET  0x11
-#define UI_SENSOR_XYZ_CONT_WIDGET  0x12
+#define UI_ZERO_PRINT_WIDGET       0x10
+#define UI_ZERO_CAL_WIDGET         0x11
+#define UI_ZERO_TOGGLE_WIDGET      0x12
+#define UI_SENSOR_ID_WIDGET        0x13
+#define UI_SENSOR_XYZ_ONCE_WIDGET  0x14
+#define UI_SENSOR_XYZ_CONT_WIDGET  0x15
 // }}}
 
 typedef struct MenuItem {  // {{{
@@ -84,11 +87,16 @@ static const char     zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
 static const char     zero_menu_4[] PROGMEM = "1.4. << main menu\n";
 #define               zero_menu_total_items 4
 static const MenuItem zero_menu_items[] PROGMEM = {
-	{zero_menu_1, UI_ROOT_MENU},
-	{zero_menu_2, UI_ROOT_MENU},
-	{zero_menu_3, UI_ROOT_MENU},
+	{zero_menu_1, UI_ZERO_PRINT_WIDGET},
+	{zero_menu_2, UI_ZERO_CAL_WIDGET},
+	{zero_menu_3, UI_ZERO_TOGGLE_WIDGET},
 	{zero_menu_4, 0}
 };
+
+// Other messages:
+static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is now ";
+static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
+static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
 // }}}
 
 // Corner calibration menu  {{{
@@ -307,6 +315,39 @@ static void ui_main_code() {  // {{{
 		ui_menu_code();
 	} else {
 		switch (ui.widget_id) {
+			////////////////////
+			case UI_ZERO_PRINT_WIDGET:  // {{{
+				if (string_output_pointer != NULL) {
+					// Do nothing, let's wait the previous output...
+				} else {
+					debug_print_X_Y_Z_to_string_output_buffer(&sensor_zero);
+					string_output_pointer = string_output_buffer;
+					ui_pop_state();
+				}
+				break;  // }}}
+
+			////////////////////
+			case UI_ZERO_TOGGLE_WIDGET:  // {{{
+				if (string_output_pointer != NULL) {
+					// Do nothing, let's wait the previous output...
+				} else {
+					// Toggling current state
+					sensor_zero_compensation = !sensor_zero_compensation;
+
+					// TODO: store this to EEPROM
+
+					// Printing the current state
+					output_pgm_string(zero_compensation_prefix);
+					if (sensor_zero_compensation) {
+						strcat_P(string_output_buffer, zero_compensation_suffix_on);
+					} else {
+						strcat_P(string_output_buffer, zero_compensation_suffix_off);
+					}
+
+					ui_pop_state();
+				}
+				break;  // }}}
+
 			////////////////////
 			case UI_SENSOR_ID_WIDGET:  // {{{
 				if (string_output_pointer != NULL) {
