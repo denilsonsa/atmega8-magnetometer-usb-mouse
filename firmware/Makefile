@@ -1,36 +1,62 @@
 ### Microcontroller and programmer configuration ###
 
-# $(MCU) is passed to GCC
-MCU = atmega8
+# $(GCC_MCU) is passed to GCC
+GCC_MCU = atmega8
 
-# $(PROGRAMMER_MCU) is passed to avrdude
-PROGRAMMER_MCU = atmega8
-
-# For parallel port programmer:
-#AVRDUDE_PARAMS = -p $(PROGRAMMER_MCU) -c bsd -P /dev/parport0 -E noreset
-# For USBasp
-AVRDUDE_PARAMS = -p $(PROGRAMMER_MCU) -c usbasp
-
-# -D  = Disable auto erase for flash memory
-#       This is required in order to write main firmware to flash without
-#       erasing the bootloader.
-AVRDUDE_PARAMS += -D
+# $(AVRDUDE_MCU) is passed to avrdude
+AVRDUDE_MCU = atmega8
 
 # Microcontroller clock
 F_CPU = 12000000
+
+# For parallel port programmer:
+#AVRDUDE_PARAMS = -c bsd -P /dev/parport0 -E noreset
+# For USBasp
+AVRDUDE_PARAMS = -c usbasp
+
+# Should we reserve space for the bootloader?
+# This option also sets the correct FUSE bytes.
+BOOTLOADER_ENABLED = 1
 
 # BOOTLOADER_ADDRESS is 1800 for 8k devices, 3800 for 16k and 7800 for 32k.
 # The datasheet says the start address is at 0xC00, but that is indexed in
 # words. Multiplying that number by 2 we get 0x1800, indexed in bytes.
 BOOTLOADER_ADDRESS = 1800
 
+
+### Configurations that depend on the value of BOOTLOADER_ENABLED ###
+
+# FUSE bytes
+#
+# Note: lfuse should work as either 0x9F or 0xEF
+# Note: hfuse should be 0xC0 if bootloader is enabled
+#                    or 0xC1 if bootloader is disabled
+#
+# Tip: This site is handy for calculating the fuse bytes:
+#      http://www.engbedded.com/fusecalc/
+#
+# If you prefer, avrdude also supports binary (0b prefix), hexadecimal
+# (0x prefix), octal (0 prefix) and decimal (no prefix)
+
+ifeq (BOOTLOADER_ENABLED, 1)
+AVRDUDE_PARAMS_FUSE = -U hfuse:w:0xC0:m -U lfuse:w:0x9F:m
+else
+AVRDUDE_PARAMS_FUSE = -U hfuse:w:0xC1:m -U lfuse:w:0x9F:m
+endif
+
+# Maximum firmware size
 # ATmega8 has 8K of flash ROM, but 1024 words (2048 bytes) are reserved for the
 # bootloader
 ifdef BUILDING_BOOTLOADER
-CHECKSIZE_CODELIMIT = 2048
+ CHECKSIZE_CODELIMIT = 2048
 else
-CHECKSIZE_CODELIMIT = 6144
+ ifeq (BOOTLOADER_ENABLED, 1)
+  CHECKSIZE_CODELIMIT = 6144
+ else
+  CHECKSIZE_CODELIMIT = 8192
+ endif
 endif
+
 
 ### Compiling tools configuration ###
 
@@ -43,6 +69,17 @@ OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 SIZE    = avr-size
 
+AVRDUDE = avrdude
+
+AVRDUDE_PARAMS += -p $(AVRDUDE_MCU)
+
+ifeq (BOOTLOADER_ENABLED, 1)
+# -D  = Disable auto erase for flash memory
+#       This is required in order to write main firmware to flash without
+#       erasing the bootloader.
+AVRDUDE_PARAMS += -D
+endif
+
 ifdef BUILDING_BOOTLOADER
 VUSBDIR   = ../vusb-20100715/usbdrv
 CHECKSIZE = ../checksize
@@ -51,7 +88,8 @@ VUSBDIR   = ./vusb-20100715/usbdrv
 CHECKSIZE = ./checksize
 endif
 
-CFLAGS   = -mmcu=$(MCU) -DF_CPU=$(F_CPU)
+CFLAGS   = -mmcu=$(GCC_MCU) -DF_CPU=$(F_CPU)
+CFLAGS  += -DBOOTLOADER_ENABLED=$(BOOTLOADER_ENABLED)
 CFLAGS  += -std=c99 -pipe -Os -Wall
 # -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless
 CFLAGS  += -Wno-pointer-sign
@@ -123,30 +161,26 @@ boot:
 	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 all
 
 writeboot:
-	avrdude $(AVRDUDE_PARAMS) \
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
 		-U flash:w:bootloader/bootloader.hex:i
 
 writeflash:
-	avrdude $(AVRDUDE_PARAMS) \
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
 		-U flash:w:$(PROGNAME).hex:i
 
 writeeeprom:
-	avrdude $(AVRDUDE_PARAMS) \
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
 		-U eeprom:w:$(PROGNAME).eep:i
 
 writefuse:
-	avrdude $(AVRDUDE_PARAMS) \
-		-U hfuse:w:0xC0:m \
-		-U lfuse:w:0x9F:m
-# Note: lfuse should work as either 0x9F or 0xEF
-# Note: avrdude supports binary (0b prefix), hexadecimal (0x prefix),
-#       octal (0 prefix) and decimal (no prefix)
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
+		$(AVRDUDE_PARAMS_FUSE)
 
 erase:
-	avrdude $(AVRDUDE_PARAMS) \
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
 		-e
 dump:
-	avrdude $(AVRDUDE_PARAMS) \
+	$(AVRDUDE) $(AVRDUDE_PARAMS) \
 		-U flash:r:flash.dump:i \
 		-U eeprom:r:eeprom.dump:i \
 		-U hfuse:r:hfuse.dump:b \
