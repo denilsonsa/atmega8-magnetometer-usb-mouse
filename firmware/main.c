@@ -38,8 +38,12 @@
 // I'm not using serial-line debugging
 //#include "oddebug.h"
 
+
 // AVR315 Using the TWI module as I2C master
-#include "avr315/TWI_Master.h"
+//#include "avr315/TWI_Master.h"
+// Including the C source directly saves 58 bytes
+#define TWI_MASTER_STATIC static
+#include "avr315/TWI_Master.c"
 
 
 ////////////////////////////////////////////////////////////

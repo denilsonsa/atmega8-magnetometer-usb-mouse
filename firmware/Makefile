@@ -91,12 +91,29 @@ endif
 CFLAGS   = -mmcu=$(GCC_MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -DBOOTLOADER_ENABLED=$(BOOTLOADER_ENABLED)
 CFLAGS  += -std=c99 -pipe -Os -Wall
-# -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless
+
+# From GCC manpage:
+#   -mcall-prologues
+#      Functions prologues/epilogues expanded as call to appropriate subroutines.
+#      Code size will be smaller.
+# However, in my experiment it actually increased the code size by 54 bytes.
+#CFLAGS  += -mcall-prologues
+
+# From GCC manpage:
+#   -mtiny-stack
+#     Change only the low 8 bits of the stack pointer.
+# This saved 10 bytes.
+#CFLAGS  += -mtiny-stack
+
+# -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless.
 CFLAGS  += -Wno-pointer-sign
+
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+
 # -fms-extensions is required in order to accept anonymous structures and unions
 CFLAGS  += -fms-extensions
+
 CFLAGS  += -I./ -I$(VUSBDIR)
 CXXFLAGS = $(CFLAGS)
 ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
@@ -153,7 +170,7 @@ clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
 ifndef BUILDING_BOOTLOADER
 	rm -f $(VUSBDIR)/{oddebug,usbdrv,usbdrvasm}.{o,s,lst,map}
-	rm -f avr315/TWI_Master.{o,s,lst,map}
+#	rm -f avr315/TWI_Master.{o,s,lst,map}
 	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 clean
 endif
 
@@ -205,9 +222,9 @@ $(PROGNAME).s: $(PROGNAME).c usbconfig.h
 $(PROGNAME).o: $(PROGNAME).c usbconfig.h
 $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 else
-$(PROGNAME).s: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
-$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o avr315/TWI_Master.o
+$(PROGNAME).s: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c avr315/TWI_Master.c
+$(PROGNAME).o: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c avr315/TWI_Master.c
+$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
 endif
 
 

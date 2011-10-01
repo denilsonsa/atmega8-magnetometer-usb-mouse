@@ -20,6 +20,9 @@
 *
 ****************************************************************************/
 
+#ifndef __TWI_Master_h_included__
+#define __TWI_Master_h_included__
+
 /****************************************************************************
   TWI Status/Control register definitions
 ****************************************************************************/
@@ -35,6 +38,13 @@
 
 // Not used! This driver presumes prescaler = 00
 //#define TWI_TWPS          0x00
+
+// Define this to static prior importing this header in order to prefix all
+// definitions with static modifier. This is useful if TWI_Master.c is included
+// into the main firmware source, and saves about 60 bytes.
+#ifndef TWI_MASTER_STATIC
+#define TWI_MASTER_STATIC
+#endif
 
 /****************************************************************************
   Global definitions
@@ -55,12 +65,13 @@ extern union TWI_statusReg TWI_statusReg;
 /****************************************************************************
   Function definitions
 ****************************************************************************/
-void TWI_Master_Initialise( void );
-unsigned char TWI_Transceiver_Busy( void );
-unsigned char TWI_Get_State_Info( void );
-void TWI_Start_Transceiver_With_Data( unsigned char * , unsigned char );
-void TWI_Start_Transceiver( void );
-unsigned char TWI_Get_Data_From_Transceiver( unsigned char *, unsigned char );
+
+TWI_MASTER_STATIC void TWI_Master_Initialise( void );
+TWI_MASTER_STATIC unsigned char TWI_Transceiver_Busy( void );
+TWI_MASTER_STATIC unsigned char TWI_Get_State_Info( void );
+TWI_MASTER_STATIC void TWI_Start_Transceiver_With_Data( unsigned char * , unsigned char );
+TWI_MASTER_STATIC void TWI_Start_Transceiver( void );
+TWI_MASTER_STATIC unsigned char TWI_Get_Data_From_Transceiver( unsigned char *, unsigned char );
 
 /****************************************************************************
   Bit and byte definitions
@@ -93,7 +104,7 @@ unsigned char TWI_Get_Data_From_Transceiver( unsigned char *, unsigned char );
 #define TWI_STX_ADR_ACK_M_ARB_LOST 0xB0  // Arbitration lost in SLA+R/W as Master; own SLA+R has been received; ACK has been returned
 #define TWI_STX_DATA_ACK           0xB8  // Data byte in TWDR has been transmitted; ACK has been received
 #define TWI_STX_DATA_NACK          0xC0  // Data byte in TWDR has been transmitted; NOT ACK has been received
-#define TWI_STX_DATA_ACK_LAST_BYTE 0xC8  // Last data byte in TWDR has been transmitted (TWEA = “0”); ACK has been received
+#define TWI_STX_DATA_ACK_LAST_BYTE 0xC8  // Last data byte in TWDR has been transmitted (TWEA = "0"); ACK has been received
 
 // TWI Slave Receiver staus codes
 #define TWI_SRX_ADR_ACK            0x60  // Own SLA+W has been received ACK has been returned
@@ -107,6 +118,8 @@ unsigned char TWI_Get_Data_From_Transceiver( unsigned char *, unsigned char );
 #define TWI_SRX_STOP_RESTART       0xA0  // A STOP condition or repeated START condition has been received while still addressed as Slave
 
 // TWI Miscellaneous status codes
-#define TWI_NO_STATE               0xF8  // No relevant state information available; TWINT = “0”
+#define TWI_NO_STATE               0xF8  // No relevant state information available; TWINT = "0"
 #define TWI_BUS_ERROR              0x00  // Bus error due to an illegal START or STOP condition
 
+
+#endif  // __TWI_Master_h_included__

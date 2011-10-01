@@ -46,7 +46,7 @@ union TWI_statusReg TWI_statusReg = {0};            // TWI_statusReg is defined 
 Call this function to set up the TWI master to its initial standby state.
 Remember to enable interrupts from the main application after initializing the TWI.
 ****************************************************************************/
-void TWI_Master_Initialise(void)
+TWI_MASTER_STATIC void TWI_Master_Initialise(void)
 {
   TWBR = TWI_TWBR;                                  // Set bit rate register (Baudrate). Defined in header file.
 // TWSR = TWI_TWPS;                                  // Not used. Driver presumes prescaler to be 00.
@@ -60,7 +60,7 @@ void TWI_Master_Initialise(void)
 /****************************************************************************
 Call this function to test if the TWI_ISR is busy transmitting.
 ****************************************************************************/
-unsigned char TWI_Transceiver_Busy( void )
+TWI_MASTER_STATIC unsigned char TWI_Transceiver_Busy( void )
 {
   return ( TWCR & (1<<TWIE) );                  // IF TWI Interrupt is enabled then the Transceiver is busy
 }
@@ -70,7 +70,7 @@ Call this function to fetch the state information of the previous operation. The
 until the TWI_ISR has completed with the previous operation. If there was an error, then the function
 will return the TWI State code.
 ****************************************************************************/
-unsigned char TWI_Get_State_Info( void )
+TWI_MASTER_STATIC unsigned char TWI_Get_State_Info( void )
 {
   while ( TWI_Transceiver_Busy() );             // Wait until TWI has completed the transmission.
   return ( TWI_state );                         // Return error state.
@@ -83,7 +83,7 @@ from the slave. Also include how many bytes that should be sent/read including t
 The function will hold execution (loop) until the TWI_ISR has completed with the previous operation,
 then initialize the next operation and return.
 ****************************************************************************/
-void TWI_Start_Transceiver_With_Data( unsigned char *msg, unsigned char msgSize )
+TWI_MASTER_STATIC void TWI_Start_Transceiver_With_Data( unsigned char *msg, unsigned char msgSize )
 {
   unsigned char temp;
 
@@ -109,7 +109,7 @@ Call this function to resend the last message. The driver will reuse the data pr
 The function will hold execution (loop) until the TWI_ISR has completed with the previous operation,
 then initialize the next operation and return.
 ****************************************************************************/
-void TWI_Start_Transceiver( void )
+TWI_MASTER_STATIC void TWI_Start_Transceiver( void )
 {
   while ( TWI_Transceiver_Busy() );             // Wait until TWI is ready for next transmission.
   TWI_statusReg.all = 0;
@@ -128,7 +128,7 @@ requested (including the address field) in the function call. The function will 
 until the TWI_ISR has completed with the previous operation, before reading out the data and returning.
 If there was an error in the previous transmission the function will return the TWI error code.
 ****************************************************************************/
-unsigned char TWI_Get_Data_From_Transceiver( unsigned char *msg, unsigned char msgSize )
+TWI_MASTER_STATIC unsigned char TWI_Get_Data_From_Transceiver( unsigned char *msg, unsigned char msgSize )
 {
   unsigned char i;
 
