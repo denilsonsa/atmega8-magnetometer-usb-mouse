@@ -414,18 +414,14 @@ static void ui_main_code() {  // {{{
 
 			////////////////////
 			case UI_ZERO_TOGGLE_WIDGET:  // {{{
-				if (string_output_pointer != NULL) {
-					// Do nothing, let's wait the previous output...
-				} else {
-					// Toggling current state
-					sensor_zero_compensation = !sensor_zero_compensation;
+				// Toggling current state
+				sensor_zero_compensation = !sensor_zero_compensation;
 
-					// Saving to EEPROM
-					eeprom_write_block_int(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
+				// Saving to EEPROM
+				eeprom_write_block_int(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
-					ui_pop_state();
-					ui_enter_widget(UI_ZERO_PRINT_WIDGET);
-				}
+				ui_pop_state();
+				ui_enter_widget(UI_ZERO_PRINT_WIDGET);
 				break;  // }}}
 
 
