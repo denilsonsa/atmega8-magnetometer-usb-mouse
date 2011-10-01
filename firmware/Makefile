@@ -97,11 +97,24 @@ CFLAGS  += -Wno-pointer-sign
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 # -fms-extensions is required in order to accept anonymous structures and unions
 CFLAGS  += -fms-extensions
+
+CFLAGS  += -ffunction-sections -fdata-sections
+
+# Supposedly, -ffreestanding together with a non-returning main would save a
+# few bytes. But in fact this flag increases the firmware by 8 bytes, even with
+# a non-returning main.
+#CFLAGS  += -ffreestanding
+
 CFLAGS  += -I./ -I$(VUSBDIR)
 CXXFLAGS = $(CFLAGS)
 ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
 LDFLAGS  = -Wl,-Map=$(PROGNAME).map
-#LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections -Wl,--relax
+
+# Replace CALL statements with RCALL where possible to save a few bytes.
+LDFLAGS += -Wl,--relax
+
+LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections
+# http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
 
 ifdef BUILDING_BOOTLOADER
 LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDRESS)

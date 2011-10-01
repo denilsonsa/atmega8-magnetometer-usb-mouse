@@ -644,7 +644,10 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 }  // }}}
 
 
-int	main(void) {  // {{{
+// The following line saves 32 bytes.
+void main() __attribute__ ((noreturn));
+
+void main(void) {  // {{{
 	uchar should_send_report = 1;
 	int idle_counter = 0;
 
@@ -774,7 +777,6 @@ int	main(void) {  // {{{
 			usbSetInterrupt(report_buffer, sizeof(report_buffer));
 		}
 	}
-	return 0;
 }  // }}}
 
 // }}}
