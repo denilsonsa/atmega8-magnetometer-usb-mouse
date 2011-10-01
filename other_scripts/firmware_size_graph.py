@@ -36,16 +36,36 @@ def main():
     with open('size_vs_commit.txt', 'r') as f:
         data = load_data(f)
 
+    max_rev = max(row.rev for row in data)
+    flash_size = 8*1024
+    bootloader_limit = 6*1024
+
     pyplot.plot(
         [row.rev for row in data],
         [row.size for row in data],
     )
 
     pyplot.grid(True)
-    #pyplo.xlim(0, max_rev)
-    #pyplo.ylim(0, 8*1024)
+
+    pyplot.xlim(0, max_rev)
+    pyplot.xticks(range(0, max_rev+1, 10))
+    pyplot.xlabel('Revision number')
+
+    pyplot.ylim(0, flash_size)
+    pyplot.yticks(range(0, flash_size+1, 512))
+    pyplot.ylabel('Size (bytes)')
+
+    # Bootloader limit
+    pyplot.axhline(y=bootloader_limit, color='r')
+    pyplot.annotate(
+        u'Bootloader', xy=(0, bootloader_limit),
+        xytext=(5, 5), textcoords='offset points',
+        ha='left', va='bottom',
+        color='r'
+    )
+
 
     pyplot.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

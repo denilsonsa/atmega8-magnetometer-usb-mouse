@@ -8,7 +8,7 @@
 # INSTRUCTIONS:
 #
 # 1. Make a second copy of the repository. How? Like this:
-#    $ hg clone . repo_clone
+#    $ hg clone .. repo_clone
 #    This will create a new directory called "repo_clone" that will contain a
 #    new, independent copy of the repository.
 #    This is important because this script will work inside that copy.
