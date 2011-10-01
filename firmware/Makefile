@@ -91,10 +91,26 @@ endif
 CFLAGS   = -mmcu=$(GCC_MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -DBOOTLOADER_ENABLED=$(BOOTLOADER_ENABLED)
 CFLAGS  += -std=c99 -pipe -Os -Wall
-# -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless
+
+# From GCC manpage:
+#   -mcall-prologues
+#      Functions prologues/epilogues expanded as call to appropriate subroutines.
+#      Code size will be smaller.
+# However, in my experiment it actually increased the code size by 54 bytes.
+#CFLAGS  += -mcall-prologues
+
+# From GCC manpage:
+#   -mtiny-stack
+#     Change only the low 8 bits of the stack pointer.
+# This saves only 10 bytes.
+#CFLAGS  += -mtiny-stack
+
+# -Wno-pointer-sign because those "char*" and "uchar*" warnings are useless.
 CFLAGS  += -Wno-pointer-sign
+
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+
 # -fms-extensions is required in order to accept anonymous structures and unions
 CFLAGS  += -fms-extensions
 
