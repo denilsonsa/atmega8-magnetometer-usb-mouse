@@ -445,7 +445,12 @@ static void ui_main_code() {  // {{{
 				return_code = sensor_read_identification_string(string_output_buffer);
 
 				if (return_code == SENSOR_FUNC_DONE) {
-					append_newline_to_str(string_output_buffer);
+					string_output_buffer[3] = '\n';
+					string_output_buffer[4] = '\0';
+					// I could have used this function:
+					//append_newline_to_str(string_output_buffer);
+					// But it adds 18 bytes to the firmware
+
 					string_output_pointer = string_output_buffer;
 					ui_pop_state();
 				} else if (return_code == SENSOR_FUNC_ERROR) {
