@@ -102,7 +102,7 @@ CFLAGS  += -std=c99 -pipe -Os -Wall
 # From GCC manpage:
 #   -mtiny-stack
 #     Change only the low 8 bits of the stack pointer.
-# This saved 10 bytes.
+# This saves only 10 bytes.
 #CFLAGS  += -mtiny-stack
 
 # -Wno-ponter-sign because those "char*" and "uchar*" warnings are useless.
