@@ -153,7 +153,6 @@ clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
 ifndef BUILDING_BOOTLOADER
 	rm -f $(VUSBDIR)/{oddebug,usbdrv,usbdrvasm}.{o,s,lst,map}
-	rm -f avr104/eeprom.{o,s,lst,map}
 	rm -f avr315/TWI_Master.{o,s,lst,map}
 	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 clean
 endif
@@ -206,9 +205,9 @@ $(PROGNAME).s: $(PROGNAME).c usbconfig.h
 $(PROGNAME).o: $(PROGNAME).c usbconfig.h
 $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 else
-$(PROGNAME).s: $(PROGNAME).c usbconfig.h menu.inc.c sensor.inc.c
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h menu.inc.c sensor.inc.c
-$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o avr104/eeprom.o avr315/TWI_Master.o
+$(PROGNAME).s: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
+$(PROGNAME).o: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
+$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o avr315/TWI_Master.o
 endif
 
 

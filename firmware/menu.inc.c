@@ -361,8 +361,7 @@ static void ui_main_code() {  // {{{
 					if (sensor_new_data_available) {
 						sensor_new_data_available = 0;
 
-						// XXX: remove the zero from the conditional!
-						if (0 && !sensor_overflow) {
+						if (!sensor_overflow) {
 							// The code inside this if costs 172 bytes :(
 							if (sensor_data.x < zerocal_min.x) zerocal_min.x = sensor_data.x;
 							if (sensor_data.y < zerocal_min.y) zerocal_min.y = sensor_data.y;
@@ -381,13 +380,8 @@ static void ui_main_code() {  // {{{
 						sensor_zero.y = (zerocal_min.y + zerocal_max.y) / 2;
 						sensor_zero.z = (zerocal_min.z + zerocal_max.z) / 2;
 
-						// TODO: store this to EEPROM
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+0,   sensor_zero.x      & 0xFF);
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+1, ((sensor_zero.x)>>8) & 0xFF);
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+2,   sensor_zero.y      & 0xFF);
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+3, ((sensor_zero.y)>>8) & 0xFF);
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+4,   sensor_zero.z      & 0xFF);
-						EEPROM_PutChar(EEPROM_SENSOR_ZERO_VECTOR+5, ((sensor_zero.z)>>8) & 0xFF);
+						// Saving to EEPROM
+						eeprom_write_block_int(&sensor_zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor_zero));
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -403,7 +397,8 @@ static void ui_main_code() {  // {{{
 					// Toggling current state
 					sensor_zero_compensation = !sensor_zero_compensation;
 
-					// TODO: store this to EEPROM
+					// Saving to EEPROM
+					eeprom_write_block_int(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
 					// Printing the current state
 					output_pgm_string(zero_compensation_prefix);

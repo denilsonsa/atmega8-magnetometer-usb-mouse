@@ -13,10 +13,6 @@
  * - USBaspLoader from OBJECTIVE DEVELOPMENT Software GmbH
  *   http://www.obdev.at/products/vusb/usbasploader.html
  *
- * - AVR104 Buffered Interrupt Controlled EEPROM Writes on tinyAVR and megaAVR devices
- *   (but the code has been heavily modified to better suit my needs)
- *   http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
- *
  * - AVR315 TWI Master Implementation from Atmel
  *   http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
  */
@@ -24,6 +20,7 @@
 // Headers from AVR-Libc
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
@@ -41,12 +38,16 @@
 // I'm not using serial-line debugging
 //#include "oddebug.h"
 
-// AVR104 Buffered Interrupt Controlled EEPROM Writes on tinyAVR and megaAVR devices
-#include "avr104/eeprom.h"
-
 // AVR315 Using the TWI module as I2C master
 #include "avr315/TWI_Master.h"
 
+
+////////////////////////////////////////////////////////////
+// EEPROM writing code                                   {{{
+
+#include "eeprom.inc.c"
+
+// }}}
 
 ////////////////////////////////////////////////////////////
 // Sensor communication over I2C (TWI)                   {{{
@@ -659,6 +660,7 @@ int	main(void) {  // {{{
 	hardware_init();
 	TWI_Master_Initialise();
 	usbInit();
+	init_eeprom_handling();
 
 	wdt_reset();
 	sei();
@@ -666,6 +668,7 @@ int	main(void) {  // {{{
 	init_key_state();
 	init_keyboard_emulation();
 	init_ui_system();
+
 	// Sensor initialization must be done with interrupts enabled!
 	init_sensor_configuration();
 
