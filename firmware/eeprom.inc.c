@@ -19,6 +19,7 @@
 
 
 // Maximum block that can be written to the EEPROM
+// TODO?: move this to another header file (just to keep all constants into one place)
 #define EEPROM_BUFFER_SIZE   25
 
 // EEPROM destination address

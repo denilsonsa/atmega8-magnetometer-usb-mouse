@@ -88,7 +88,7 @@
  *
  * If you change the ports, remember to update these functions:
  * - hardware_init()
- * - update_key_state()
+ * - update_button_state()
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
@@ -102,7 +102,7 @@
 #define ALL_LEDS   (GREEN_LED | YELLOW_LED | RED_LED)
 
 // Bit masks for each button (in PORTC and PINC)
-// (also used in key_state and key_changed vars)
+// (also used in button.state and button.changed vars)
 #define BUTTON_1      (1 << 0)
 #define BUTTON_2      (1 << 1)
 #define BUTTON_3      (1 << 2)
@@ -114,35 +114,32 @@
 ////////////////////////////////////////////////////////////
 // Button handling code                                  {{{
 
-// "Public" vars, already filtered for debouncing
-static uchar key_state = 0;
-static uchar key_changed = 0;
+static struct ButtonState {
+	// "Public" vars, already filtered for debouncing
+	uchar state;
+	uchar changed;
 
-// "Private" button debouncing state
-static uchar button_debouncing[4];  // We have 4 buttons/switches
+	// "Private" button debouncing state
+	uchar debouncing[4];  // We have 4 buttons/switches
+} button;
 
 // Handy macros!
 // These have the same name/meaning of JavaScript events
-#define ON_KEY_DOWN(button_mask) ((key_changed & (button_mask)) &&  (key_state & (button_mask)))
-#define ON_KEY_UP(button_mask)   ((key_changed & (button_mask)) && !(key_state & (button_mask)))
+#define ON_KEY_DOWN(button_mask) ((button.changed & (button_mask)) &&  (button.state & (button_mask)))
+#define ON_KEY_UP(button_mask)   ((button.changed & (button_mask)) && !(button.state & (button_mask)))
 
-static void init_key_state() {  // {{{
-	key_state = 0;
-	key_changed = 0;
-	button_debouncing[0] = 0;
-	button_debouncing[1] = 0;
-	button_debouncing[2] = 0;
-	button_debouncing[3] = 0;
+static void init_button_state() {  // {{{
+	memset(&button, 0, sizeof(button));
 }  // }}}
 
-static void update_key_state() { // {{{
+static void update_button_state() { // {{{
 	// This function implements debouncing code.
 	// It should be called at every iteration of the main loop.
 	// It reads the TOV0 flag status, but does not clear it.
 
 	uchar filtered_state;
 
-	filtered_state = key_state;
+	filtered_state = button.state;
 
 	// Timer is set to 1.365ms
 	if (TIFR & (1<<TOV0)) {
@@ -167,14 +164,14 @@ static void update_key_state() { // {{{
 		//
 		// 8 * 1.365ms = ~11ms without interruption
 		for (i=0; i<4; i++) {
-			button_debouncing[i] =
-				(button_debouncing[i]<<1)
+			button.debouncing[i] =
+				(button.debouncing[i]<<1)
 				| ( ((raw_state & (1<<i)))? 1 : 0 );
 
-			if (button_debouncing[i] == 0) {
+			if (button.debouncing[i] == 0) {
 				// Releasing this button
 				filtered_state &= ~(1<<i);
-			} else if (button_debouncing[i] == 0xFF) {
+			} else if (button.debouncing[i] == 0xFF) {
 				// Pressing this button
 				filtered_state |=  (1<<i);
 			}
@@ -182,8 +179,8 @@ static void update_key_state() { // {{{
 	}
 
 	// Storing the final, filtered, updated state
-	key_changed = key_state ^ filtered_state;
-	key_state = filtered_state;
+	button.changed = button.state ^ filtered_state;
+	button.state = filtered_state;
 }  // }}}
 
 // }}}
@@ -537,8 +534,6 @@ static uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  //
 
 static const char hello_world[] PROGMEM = "Hello, !@#$%&*() -_ =+ ,< .> ;: /?\n";
 
-static const char twi_error_string[] PROGMEM = "TWI_statusReg.lastTransOK was FALSE.\n";
-
 // As defined in section 7.2.4 Set_Idle Request
 // of Device Class Definition for Human Interface Devices (HID) version 1.11
 // pages 52 and 53 (or 62 and 63) of HID1_11.pdf
@@ -665,7 +660,7 @@ int	main(void) {  // {{{
 	wdt_reset();
 	sei();
 
-	init_key_state();
+	init_button_state();
 	init_keyboard_emulation();
 	init_ui_system();
 
@@ -678,7 +673,7 @@ int	main(void) {  // {{{
 		wdt_reset();
 		usbPoll();
 
-		update_key_state();
+		update_button_state();
 
 		// Red LED lights up if there is any kind of error in I2C communication
 		if ( TWI_statusReg.lastTransOK ) {
@@ -688,7 +683,7 @@ int	main(void) {  // {{{
 		}
 
 		// Handling of the main switch
-		if (key_changed & BUTTON_SWITCH) {
+		if (button.changed & BUTTON_SWITCH) {
 			// When the switch changes state, it's better to reset this
 			// variable, in order to avoid bugs.
 			sensor_func_step = 0;
@@ -697,11 +692,13 @@ int	main(void) {  // {{{
 		if (ON_KEY_UP(BUTTON_SWITCH)) {
 			// Upon releasing the switch, stop the continuous reading.
 			sensor_continuous_reading = 0;
+			//sensor_stop_continuous_reading();
+
 			// And also reset the menu system.
 			init_ui_system();
 		}
 
-		if (key_state & BUTTON_SWITCH) {
+		if (button.state & BUTTON_SWITCH) {
 			sensor_continuous_reading = 1;
 		} else {
 			ui_main_code();
