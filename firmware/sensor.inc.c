@@ -149,6 +149,10 @@ XYZVector sensor_zero;
 // Boolean to enable Zero compensation
 uchar sensor_zero_compensation;
 
+// EEPROM addresses
+#define EEPROM_SENSOR_ZERO_ENABLE 1
+#define EEPROM_SENSOR_ZERO_VECTOR 2
+
 
 static void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
@@ -310,15 +314,19 @@ static void init_sensor_configuration() {  // {{{
 	sensor_new_data_available = 0;
 	sensor_error_while_reading = 0;
 
-	// TODO: read zero values from EEPROM
+	// TODO: read zero values from EEPROM (well... refactor this)
+	sensor_zero.x = EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+0) | (EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+1)<<8);
+	sensor_zero.y = EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+2) | (EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+3)<<8);
+	sensor_zero.z = EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+4) | (EEPROM_GetChar(EEPROM_SENSOR_ZERO_VECTOR+5)<<8);
 
 	//sensor_zero.x = 0;
 	//sensor_zero.y = 0;
 	//sensor_zero.z = 0;
 	// Using memset saves 10 bytes
 	// TODO: put all vars into a single struct, and use memset on that
-	memset(&sensor_zero, 0, sizeof(sensor_zero));
+	//memset(&sensor_zero, 0, sizeof(sensor_zero));
 
+	// TODO: read from EEPROM
 	sensor_zero_compensation = 0;
 
 	sensor_set_register_value(

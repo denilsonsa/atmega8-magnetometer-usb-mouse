@@ -6,10 +6,17 @@
  * License: GNU GPL v2 or GNU GPL v3
  *
  * Includes third-party code:
+ *
  * - V-USB from OBJECTIVE DEVELOPMENT Software GmbH
  *   http://www.obdev.at/products/vusb/index.html
+ *
  * - USBaspLoader from OBJECTIVE DEVELOPMENT Software GmbH
  *   http://www.obdev.at/products/vusb/usbasploader.html
+ *
+ * - AVR104 Buffered Interrupt Controlled EEPROM Writes on tinyAVR and megaAVR devices
+ *   (but the code has been heavily modified to better suit my needs)
+ *   http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
+ *
  * - AVR315 TWI Master Implementation from Atmel
  *   http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
  */
@@ -33,6 +40,9 @@
 
 // I'm not using serial-line debugging
 //#include "oddebug.h"
+
+// AVR104 Buffered Interrupt Controlled EEPROM Writes on tinyAVR and megaAVR devices
+#include "avr104/eeprom.h"
 
 // AVR315 Using the TWI module as I2C master
 #include "avr315/TWI_Master.h"
