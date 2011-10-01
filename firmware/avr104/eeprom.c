@@ -12,9 +12,17 @@
  *
  ********************************************************************/
 
-#include "defines.h"
+// IAR includes:
+// #include "ioavr.h"
+// #include "inavr.h"
+
+// AVR-GCC includes:
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
 #include "eeprom.h"
 
+// FIXME: No need to initialize this buffer this way. We can use memset() instead.
 static unsigned int  aBuffer [BUFFER_SIZE] =  //EEPROM Address Buffer
   {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,
   0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};   
@@ -28,17 +36,20 @@ unsigned char EEPROM_GetChar (unsigned int address)
   unsigned char temp,temp2;             //For the return value etc
   do
   {
-    __disable_interrupt();              //Interrupt disabled to ensure that buffer 
+	// XXX: Not needed
+    //__disable_interrupt();              //Interrupt disabled to ensure that buffer 
                                         // is not accessed prior to returning the buffer 
                                         // contents in case of a hit. 
     if (aBuffer[bIndex] == address)     //Is Address Currently in Buffer?
     { 
       temp = dBuffer[bIndex];
-      __enable_interrupt();
+	  // XXX: Not needed
+      //__enable_interrupt();
       return (temp);                    //Return Data Buffer Contents to main()
     }
     else bIndex++;                      //Increment Buffer Index Counter
-    __enable_interrupt();
+	// XXX: Not needed
+    //__enable_interrupt();
   } while (bIndex < bCount);            //Loop Until Entire Buffer Contents Parsed
 
   temp2 = EECR & (1<<EERIE);            //Back-up EERIE bit
@@ -60,23 +71,27 @@ void EEPROM_PutChar (unsigned int address, unsigned char data)
 {
   unsigned char bIndex = 0;             //Initialize Buffer Index Counter
 
-  __disable_interrupt();                //Disable Global Interrupts
+  //__disable_interrupt();                //Disable Global Interrupts
+  cli();                //Disable Global Interrupts
 
   do
   {
     if (aBuffer[bIndex] == address)     //Is Address Currently in Buffer?
     {
       dBuffer[bIndex] = data;           //Update Data in EEPROM Data Buffer
-      __enable_interrupt();             //Enable Global Interrupts
+      //__enable_interrupt();             //Enable Global Interrupts
+      sei();             //Enable Global Interrupts
       return;                           //Return to main()
     }
     else bIndex++;                      //Increment Buffer Index Counter
   } while (bIndex < bCount);            //Loop Until Entire Buffer Parsed
 
   while ( !(bCount < BUFFER_SIZE) )     //Loop Until Buffer Space Available
-    __enable_interrupt();               //Enable Global Interrupts
+    //__enable_interrupt();               //Enable Global Interrupts
+    sei();               //Enable Global Interrupts
 
-  __disable_interrupt();                //Disable Global Interrupts
+  //__disable_interrupt();                //Disable Global Interrupts
+  cli();                //Disable Global Interrupts
   aBuffer[bCount] = address;            //Place Address in EEPROM Address Buffer
   dBuffer[bCount] = data;               //Place Data in EEPROM Data Buffer
   bCount++;                             //Increment Buffer Counter
@@ -91,13 +106,26 @@ void EEPROM_PutChar (unsigned int address, unsigned char data)
   }
 
   EECR |= (1 << EERIE);                 // Enable EE_RDY Interrupt
-  __enable_interrupt();                 // Enable Global Interrupts
+  //__enable_interrupt();                 // Enable Global Interrupts
+  sei();                 // Enable Global Interrupts
   return;                               // Return to main()
 }
 
 
-#pragma vector = EE_RDY_vect
-__interrupt void EE_RDY_ISR (void)
+// IAR syntax for interrupts:
+// #pragma vector = EE_RDY_vect
+// __interrupt void EE_RDY_ISR (void)
+// {
+//   ...
+// }
+//
+// AVR-GCC syntax for interrupts:
+// ISR(EE_RDY_vect)
+// {
+//   ...
+// }
+
+ISR(EE_RDY_vect)
 {
   if ( SPMCR & (1 << SPMEN) )           // Is Self-Programming Currently Active?
     return;                             // Yes, Return to main()
