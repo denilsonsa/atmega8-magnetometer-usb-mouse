@@ -38,7 +38,7 @@ BOOTLOADER_ADDRESS = 1800
 # If you prefer, avrdude also supports binary (0b prefix), hexadecimal
 # (0x prefix), octal (0 prefix) and decimal (no prefix)
 
-ifeq (BOOTLOADER_ENABLED, 1)
+ifeq ($(BOOTLOADER_ENABLED), 1)
 AVRDUDE_PARAMS_FUSE = -U hfuse:w:0xC0:m -U lfuse:w:0x9F:m
 else
 AVRDUDE_PARAMS_FUSE = -U hfuse:w:0xC1:m -U lfuse:w:0x9F:m
@@ -50,7 +50,7 @@ endif
 ifdef BUILDING_BOOTLOADER
  CHECKSIZE_CODELIMIT = 2048
 else
- ifeq (BOOTLOADER_ENABLED, 1)
+ ifeq ($(BOOTLOADER_ENABLED), 1)
   CHECKSIZE_CODELIMIT = 6144
  else
   CHECKSIZE_CODELIMIT = 8192
@@ -73,7 +73,7 @@ AVRDUDE = avrdude
 
 AVRDUDE_PARAMS += -p $(AVRDUDE_MCU)
 
-ifeq (BOOTLOADER_ENABLED, 1)
+ifeq ($(BOOTLOADER_ENABLED), 1)
 # -D  = Disable auto erase for flash memory
 #       This is required in order to write main firmware to flash without
 #       erasing the bootloader.
