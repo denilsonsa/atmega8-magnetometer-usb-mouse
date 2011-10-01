@@ -350,6 +350,10 @@ static void ui_main_code() {  // {{{
 						if (!sensor_overflow) {
 							zerocal_min = sensor_data;
 							zerocal_max = sensor_data;
+							// Using memcpy or simple attribution cost the same amount of bytes
+							//memcpy(&zerocal_min, &sensor_data, sizeof(sensor_data));
+							//memcpy(&zerocal_max, &sensor_data, sizeof(sensor_data));
+
 							ui.menu_item = 2;
 						}
 					}
@@ -358,6 +362,7 @@ static void ui_main_code() {  // {{{
 						sensor_new_data_available = 0;
 
 						if (!sensor_overflow) {
+							// The code inside this if costs 172 bytes :(
 							if (sensor_data.x < zerocal_min.x) zerocal_min.x = sensor_data.x;
 							if (sensor_data.y < zerocal_min.y) zerocal_min.y = sensor_data.y;
 							if (sensor_data.z < zerocal_min.z) zerocal_min.z = sensor_data.z;

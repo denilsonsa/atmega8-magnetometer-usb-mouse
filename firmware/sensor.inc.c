@@ -311,9 +311,14 @@ static void init_sensor_configuration() {  // {{{
 	sensor_error_while_reading = 0;
 
 	// TODO: read zero values from EEPROM
-	sensor_zero.x = 0;
-	sensor_zero.y = 0;
-	sensor_zero.z = 0;
+
+	//sensor_zero.x = 0;
+	//sensor_zero.y = 0;
+	//sensor_zero.z = 0;
+	// Using memset saves 10 bytes
+	// TODO: put all vars into a single struct, and use memset on that
+	memset(&sensor_zero, 0, sizeof(sensor_zero));
+
 	sensor_zero_compensation = 0;
 
 	sensor_set_register_value(

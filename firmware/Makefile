@@ -165,7 +165,7 @@ comments:
 
 # Dependencies
 $(PROGNAME).s: $(PROGNAME).c usbconfig.h
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h menu.inc.c
+$(PROGNAME).o: $(PROGNAME).c usbconfig.h menu.inc.c sensor.inc.c
 ifdef BUILDING_BOOTLOADER
 $(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 else

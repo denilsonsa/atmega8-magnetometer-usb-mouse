@@ -20,6 +20,7 @@
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include <util/delay.h>
+#include <string.h>
 #include <stdlib.h>
 
 // V-USB driver from http://www.obdev.at/products/vusb/
