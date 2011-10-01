@@ -325,21 +325,19 @@ static void ui_main_code() {  // {{{
 				if (string_output_pointer != NULL) {
 					// Do nothing, let's wait the previous output...
 				} else {
-					if (ui.menu_item == 0) {
-						// Printing X,Y,Z zero
-						debug_print_X_Y_Z_to_string_output_buffer(&sensor_zero);
-						string_output_pointer = string_output_buffer;
-						ui.menu_item = 1;
+					// Printing X,Y,Z zero...
+					debug_print_X_Y_Z_to_string_output_buffer(&sensor_zero);
+
+					// ...and the boolean value
+					strcat_P(string_output_buffer, zero_compensation_prefix);
+					if (sensor_zero_compensation) {
+						strcat_P(string_output_buffer, zero_compensation_suffix_on);
 					} else {
-						// Printing current compensation setting
-						output_pgm_string(zero_compensation_prefix);
-						if (sensor_zero_compensation) {
-							strcat_P(string_output_buffer, zero_compensation_suffix_on);
-						} else {
-							strcat_P(string_output_buffer, zero_compensation_suffix_off);
-						}
-						ui_pop_state();
+						strcat_P(string_output_buffer, zero_compensation_suffix_off);
 					}
+
+					string_output_pointer = string_output_buffer;
+					ui_pop_state();
 				}
 				break;  // }}}
 
