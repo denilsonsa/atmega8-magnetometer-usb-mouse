@@ -95,7 +95,7 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 
 // Other messages:
 static const char zero_calibration[] PROGMEM = "Move the sensor in all possible directions, then press the button to finish\n";
-static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is now ";
+static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is ";
 static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
 // }}}
@@ -325,9 +325,21 @@ static void ui_main_code() {  // {{{
 				if (string_output_pointer != NULL) {
 					// Do nothing, let's wait the previous output...
 				} else {
-					debug_print_X_Y_Z_to_string_output_buffer(&sensor_zero);
-					string_output_pointer = string_output_buffer;
-					ui_pop_state();
+					if (ui.menu_item == 0) {
+						// Printing X,Y,Z zero
+						debug_print_X_Y_Z_to_string_output_buffer(&sensor_zero);
+						string_output_pointer = string_output_buffer;
+						ui.menu_item = 1;
+					} else {
+						// Printing current compensation setting
+						output_pgm_string(zero_compensation_prefix);
+						if (sensor_zero_compensation) {
+							strcat_P(string_output_buffer, zero_compensation_suffix_on);
+						} else {
+							strcat_P(string_output_buffer, zero_compensation_suffix_off);
+						}
+						ui_pop_state();
+					}
 				}
 				break;  // }}}
 
@@ -339,7 +351,12 @@ static void ui_main_code() {  // {{{
 						break;
 					}
 
+					// Print instructions
 					output_pgm_string(zero_calibration);
+
+					// Must disable zero compensation before calibration
+					sensor_zero_compensation = 0;
+
 					sensor_start_continuous_reading();
 					ui.menu_item = 1;
 				} else if(ui.menu_item == 1) {
@@ -371,6 +388,11 @@ static void ui_main_code() {  // {{{
 							if (sensor_data.y > zerocal_max.y) zerocal_max.y = sensor_data.y;
 							if (sensor_data.z > zerocal_max.z) zerocal_max.z = sensor_data.z;
 						}
+
+						if (string_output_pointer == NULL) {
+							debug_print_X_Y_Z_to_string_output_buffer(&sensor_data);
+							string_output_pointer = string_output_buffer;
+						}
 					}
 
 					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
@@ -382,6 +404,9 @@ static void ui_main_code() {  // {{{
 
 						// Saving to EEPROM
 						eeprom_write_block_int(&sensor_zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor_zero));
+
+						// FIXME: must save this together with the zero...
+						sensor_zero_compensation = 1;
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -400,15 +425,8 @@ static void ui_main_code() {  // {{{
 					// Saving to EEPROM
 					eeprom_write_block_int(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
-					// Printing the current state
-					output_pgm_string(zero_compensation_prefix);
-					if (sensor_zero_compensation) {
-						strcat_P(string_output_buffer, zero_compensation_suffix_on);
-					} else {
-						strcat_P(string_output_buffer, zero_compensation_suffix_off);
-					}
-
 					ui_pop_state();
+					ui_enter_widget(UI_ZERO_PRINT_WIDGET);
 				}
 				break;  // }}}
 
