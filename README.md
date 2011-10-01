@@ -33,10 +33,12 @@ project.
     1. Set `AVRDUDE_PARAMS` according to your AVR programmer, if you use
        something other than USBasp.
     2. If you use a clock other than 12MHz, update `F_CPU` setting.
-    3. If you use a microcontroller other than ATmega8, update `MCU`,
-       `PROGRAMMER_MCU`, `BOOTLOADER_ADDRESS` and `CHECKSIZE_CODELIMIT`.
-    4. Also look at the `writefuse` target. Check if the value of those fuse
-       bits make sense for you (and for your hardware).
+    3. If you use a microcontroller other than ATmega8, update `GCC_MCU`,
+       `AVRDUDE_MCU`, `BOOTLOADER_ADDRESS` and `CHECKSIZE_CODELIMIT`.
+    4. Also check if the fuse bits from `AVRDUDE_PARAMS_FUSE` are correct.
+    5. If you want to use a bootloader, set `BOOTLOADER_ENABLED` to `1`. Make
+       sure your device has enough space to hold the main firmware together
+       with the bootloader.
 
 5. Run `make writefuse` to write the fuse bits.
 

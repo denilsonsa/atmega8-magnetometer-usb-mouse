@@ -187,6 +187,8 @@ dump:
 		-U lfuse:r:lfuse.dump:b \
 		-U lock:r:lock.dump:b \
 		-U signature:r:signature.dump:h
+# efuse is available on newer AVR microcontrollers
+#		-U efuse:r:efuse.dump:b
 
 comments:
 	ack --nomake 'TODO|FIXME|XXX'
