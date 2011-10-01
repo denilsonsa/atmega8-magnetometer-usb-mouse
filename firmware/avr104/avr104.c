@@ -18,7 +18,7 @@
 void main (void)
 {
   unsigned char index;
-  
+
   __disable_interrupt();                //Disable Global Interrupts
   MCUCR |= (2 << SM0);                  //Initialize Power-Down Sleep Mode
   DDRD = 0xFF;                          //Configure PORTD as Output

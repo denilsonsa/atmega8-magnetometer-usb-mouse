@@ -16,7 +16,7 @@
 #define __DEFINES_H
 
 #include <inavr.h>                      // Include Intrinsic Functions
-#include <ioavr.h>                      // Include device definitions according 
+#include <ioavr.h>                      // Include device definitions according
                                         //  to the device selected in project options
 
 #ifdef __AT90Mega128__                  //Since some devices use the register name SPMCSR rather than SPMCR

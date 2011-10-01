@@ -25,7 +25,7 @@
 // FIXME: No need to initialize this buffer this way. We can use memset() instead.
 static unsigned int  aBuffer [BUFFER_SIZE] =  //EEPROM Address Buffer
   {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,
-  0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};   
+  0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 static unsigned char dBuffer [BUFFER_SIZE];   //EEPROM Data Buffer
 static unsigned char bCount = 0;              //EEPROM Buffer Locations in Use
 static unsigned char rSleep = 0;              //Sleep Register Backup
@@ -37,11 +37,11 @@ unsigned char EEPROM_GetChar (unsigned int address)
   do
   {
 	// XXX: Not needed
-    //__disable_interrupt();              //Interrupt disabled to ensure that buffer 
-                                        // is not accessed prior to returning the buffer 
-                                        // contents in case of a hit. 
+    //__disable_interrupt();              //Interrupt disabled to ensure that buffer
+                                        // is not accessed prior to returning the buffer
+                                        // contents in case of a hit.
     if (aBuffer[bIndex] == address)     //Is Address Currently in Buffer?
-    { 
+    {
       temp = dBuffer[bIndex];
 	  // XXX: Not needed
       //__enable_interrupt();
@@ -54,15 +54,15 @@ unsigned char EEPROM_GetChar (unsigned int address)
 
   temp2 = EECR & (1<<EERIE);            //Back-up EERIE bit
   EECR &= ~(1<<EERIE);                  //Disable EEPROM interrupt to let the EEPROM read in
-  
+
   while ( EECR & (1 << EEWE));          //Is EEPROM Currently Being Accessed?  Yes, Loop
   EEAR = address;                       //Place Address in EEPROM Address Register
   EECR |= (1 << EERE);                  //Assert EEPROM Read Enable
   EEAR |= 0x0000;                       //Clear EEPROM Address Register
   temp = EEDR;                          //Snatch data from EEPROM data register
-  
+
   EECR |= temp2;                        //Restore EERIE bit
-  
+
   return (temp);                        //Return EEPROM Data Contents to main()
 }
 
