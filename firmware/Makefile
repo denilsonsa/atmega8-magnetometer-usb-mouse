@@ -80,23 +80,51 @@ ifeq ($(BOOTLOADER_ENABLED), 1)
 AVRDUDE_PARAMS += -D
 endif
 
+# PROGNAME is the main project file (without extension)
+# VUSBDIR is the V-USB driver source-code directory
+# CHECKSIZE is the path to the checksize script
 ifdef BUILDING_BOOTLOADER
+PROGNAME = bootloader
 VUSBDIR   = ../vusb-20100715/usbdrv
 CHECKSIZE = ../checksize
 else
+PROGNAME = main
 VUSBDIR   = ./vusb-20100715/usbdrv
 CHECKSIZE = ./checksize
 endif
 
+# Starting with simple, straight-forward CFLAGS:
 CFLAGS   = -mmcu=$(GCC_MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -DBOOTLOADER_ENABLED=$(BOOTLOADER_ENABLED)
 CFLAGS  += -std=c99 -pipe -Os -Wall
+CFLAGS  += -I./ -I$(VUSBDIR)
+
+# And other FLAGs as well
+CXXFLAGS = $(CFLAGS)
+ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
+LDFLAGS  = -Wl,-Map=$(PROGNAME).map
+
+ifdef BUILDING_BOOTLOADER
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDRESS)
+endif
+
+
+### Compiler fine-tuning ###
+
+# -Wno-pointer-sign because those "char*" and "uchar*" warnings are useless.
+CFLAGS  += -Wno-pointer-sign
+
+# People say these are good flags:
+CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+
+# And I'm not very sure about enabling these:
+#CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 
 # From GCC manpage:
 #   -mcall-prologues
 #      Functions prologues/epilogues expanded as call to appropriate subroutines.
 #      Code size will be smaller.
-# However, in my experiment it actually increased the code size by 54 bytes.
+# However, in my experiment it actually increased the code size by 54~86 bytes.
 #CFLAGS  += -mcall-prologues
 
 # From GCC manpage:
@@ -105,54 +133,41 @@ CFLAGS  += -std=c99 -pipe -Os -Wall
 # This saves only 10 bytes.
 #CFLAGS  += -mtiny-stack
 
-# -Wno-pointer-sign because those "char*" and "uchar*" warnings are useless.
-CFLAGS  += -Wno-pointer-sign
-
-#CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
-CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
-
-# -fms-extensions is required in order to accept anonymous structures and unions
+# -fms-extensions is required to accept anonymous structures and unions.
 CFLAGS  += -fms-extensions
-
-CFLAGS  += -ffunction-sections -fdata-sections
 
 # Supposedly, -ffreestanding together with a non-returning main would save a
 # few bytes. But in fact this flag increases the firmware by 8 bytes, even with
 # a non-returning main.
 #CFLAGS  += -ffreestanding
 
-CFLAGS  += -I./ -I$(VUSBDIR)
-CXXFLAGS = $(CFLAGS)
-ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
-LDFLAGS  = -Wl,-Map=$(PROGNAME).map
+# Setting the cost of inlining small functions.
+# My gcc 4.5.2 doesn't support inline-call-cost, maybe it was removed in newer
+# GCC versions?
+# Also, enabling those other options increased the firmware size.
+#CFLAGS  += --param inline-call-cost=2 -finline-limit=3 -fno-inline-small-functions
+#CFLAGS  += -finline-limit=3 -fno-inline-small-functions
 
 # Replace CALL statements with RCALL where possible to save a few bytes.
 LDFLAGS += -Wl,--relax
 
+# Don't include unused functions and data.
+CFLAGS  += -ffunction-sections -fdata-sections
 LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections
+
+# See this page for more compiler optimisation suggestions:
 # http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
 
-ifdef BUILDING_BOOTLOADER
-LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDRESS)
-endif
-
-# See:
-# http://bugs.gentoo.org/show_bug.cgi?id=147155
-# http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=336170
 
 #LDFLAGS += $(GENTOO_LD_PATH_WORKAROUND)
 #GENTOO_LD_PATH_WORKAROUND = -L/usr/i686-pc-linux-gnu/avr/lib
 #GENTOO_LD_PATH_WORKAROUND = -L/usr/x86_64-pc-linux-gnu/avr/lib
-
+#
+# See:
+# http://bugs.gentoo.org/show_bug.cgi?id=147155
+# http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=336170
+#
 # ln -snf ../../lib/binutils/avr/2.*/ldscripts/ /usr/avr/lib/ldscripts
-
-
-# The main project file (without extension)
-ifdef BUILDING_BOOTLOADER
-PROGNAME = bootloader
-else
-PROGNAME = main
-endif
 
 
 ### Make targets ###
