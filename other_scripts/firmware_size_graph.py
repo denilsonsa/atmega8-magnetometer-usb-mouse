@@ -17,6 +17,9 @@ class Row(object):
         self.date = date
         self.desc = desc
 
+    def __repr__(self):
+        return 'Row({rev}, {node}, {size}, {date}, {desc})'.format(**self.__dict__)
+
 def load_data(f):
     data = []
 
