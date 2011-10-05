@@ -84,11 +84,11 @@ endif
 # VUSBDIR is the V-USB driver source-code directory
 # CHECKSIZE is the path to the checksize script
 ifdef BUILDING_BOOTLOADER
-PROGNAME = bootloader
+PROGNAME  = bootloader
 VUSBDIR   = ../vusb-20100715/usbdrv
 CHECKSIZE = ../checksize
 else
-PROGNAME = main
+PROGNAME  = main
 VUSBDIR   = ./vusb-20100715/usbdrv
 CHECKSIZE = ./checksize
 endif
@@ -114,6 +114,9 @@ endif
 # -Wno-pointer-sign because those "char*" and "uchar*" warnings are useless.
 CFLAGS  += -Wno-pointer-sign
 
+# With a non-returning void main, we can safely ignore this warning.
+CFLAGS  += -Wno-main
+
 # People say these are good flags:
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 
@@ -137,8 +140,8 @@ CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CFLAGS  += -fms-extensions
 
 # Supposedly, -ffreestanding together with a non-returning main would save a
-# few bytes. But in fact this flag increases the firmware by 8 bytes, even with
-# a non-returning main.
+# few bytes. But in fact this flag increases the firmware by 8 or 14 bytes,
+# even with a non-returning main.
 #CFLAGS  += -ffreestanding
 
 # Setting the cost of inlining small functions.
@@ -196,8 +199,10 @@ help:
 clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
 ifndef BUILDING_BOOTLOADER
-	rm -f $(VUSBDIR)/{oddebug,usbdrv,usbdrvasm}.{o,s,lst,map}
-	rm -f avr315/TWI_Master.{o,s,lst,map}
+	rm -f $(ALLOBJS)
+	rm -f $(ALLOBJS:.o=.s)
+	rm -f $(ALLOBJS:.o=.lst)
+	rm -f $(ALLOBJS:.o=.map)
 	cd bootloader && $(MAKE) -f ../Makefile BUILDING_BOOTLOADER=1 clean
 endif
 
@@ -243,16 +248,24 @@ comments:
 # Note: Debian (and Ubuntu?) users have this tool installed as "ack-grep"
 
 
-# Dependencies
+# List of objects
 ifdef BUILDING_BOOTLOADER
-$(PROGNAME).s: $(PROGNAME).c usbconfig.h
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h
-$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
+VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
+MYOBJS = 
 else
-$(PROGNAME).s: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
-$(PROGNAME).o: $(PROGNAME).c usbconfig.h eeprom.inc.c menu.inc.c sensor.inc.c
-$(PROGNAME).elf: $(PROGNAME).o $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o avr315/TWI_Master.o
+VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
+MYOBJS = int_eeprom.o avr315/TWI_Master.o
+# TODO Later: add menu.inc.c sensor.inc.c
 endif
+
+ALLOBJS = $(PROGNAME).o $(VUSBOBJS) $(MYOBJS)
+
+# Dependencies
+# Note: Header dependencies for individual objects are not listed here.
+#       Please run "make clean" after you edit any header.
+$(PROGNAME).s: $(PROGNAME).c usbconfig.h $(MYOBJS:.o=.h)
+$(PROGNAME).o: $(PROGNAME).c usbconfig.h $(MYOBJS:.o=.h)
+$(PROGNAME).elf: $(ALLOBJS)
 
 
 # The variables:

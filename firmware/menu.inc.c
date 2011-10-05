@@ -401,7 +401,7 @@ static void ui_main_code() {  // {{{
 						sensor_zero.z = (zerocal_min.z + zerocal_max.z) / 2;
 
 						// Saving to EEPROM
-						eeprom_write_block_int(&sensor_zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor_zero));
+						int_eeprom_write_block(&sensor_zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor_zero));
 
 						// FIXME: must save this together with the zero...
 						sensor_zero_compensation = 1;
@@ -418,7 +418,7 @@ static void ui_main_code() {  // {{{
 				sensor_zero_compensation = !sensor_zero_compensation;
 
 				// Saving to EEPROM
-				eeprom_write_block_int(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
+				int_eeprom_write_block(&sensor_zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);

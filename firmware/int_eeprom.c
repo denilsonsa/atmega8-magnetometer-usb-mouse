@@ -1,26 +1,29 @@
-/* Name: eeprom.inc.c
+/* Name: int_eeprom.c
  * Project: atmega8-magnetometer-usb-mouse
  * Author: Denilson Figueiredo de Sa
- * Creation Date: 2011-10-01
+ * Creation Date: 2011-10-05
  * Tabsize: 4
  * License: GNU GPL v2 or GNU GPL v3
  *
- * Non-blocking EEPROM writing code.
+ * Non-blocking interrupt-based EEPROM writing code.
  * For reading from the EEPROM, use the avr-libc functions.
  *
  * The interrupt handler code is loosely based on "AVR104 Buffered Interrupt
  * Controlled EEPROM Writes on tinyAVR and megaAVR devices".
  */
 
-// AVR-GCC includes:
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
+
+#include "int_eeprom.h"
 
 
 // Maximum block that can be written to the EEPROM
 // TODO?: move this to another header file (just to keep all constants into one place)
 #define EEPROM_BUFFER_SIZE   25
+
 
 // EEPROM destination address
 static void* eeprom_address;
@@ -36,12 +39,20 @@ static unsigned char eeprom_next_byte;
 #define DISABLE_EE_RDY_INTERRUPT()  do { EECR &= ~(1 << EERIE); } while(0)
 
 
-static void init_eeprom_handling() {  // {{{
+/*
+static void init_int_eeprom() {  // {{{
+	// According to avr-libc FAQ, the compiler automatically initializes all
+	// variables with zero. Also, the EE_RDY interrupt is disabled by default
+	// in ATmega8.
+	// Conclusion: this function is redundant.
+
 	DISABLE_EE_RDY_INTERRUPT();
 	eeprom_block_size = 0;
 }  // }}}
+*/
 
-static void eeprom_write_block_int(
+
+void int_eeprom_write_block(
 		const void * src,
 		void* address,
 		unsigned char size) {  // {{{
@@ -53,6 +64,7 @@ static void eeprom_write_block_int(
 
 	ENABLE_EE_RDY_INTERRUPT();
 }  // }}}
+
 
 ISR(EE_RDY_vect) {  // {{{
 	//if ( SPMCR & (1 << SPMEN) ) // Is Self-Programming Currently Active?
@@ -73,5 +85,6 @@ ISR(EE_RDY_vect) {  // {{{
 		DISABLE_EE_RDY_INTERRUPT();
 	}
 }  // }}}
+
 
 // vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}

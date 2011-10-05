@@ -41,13 +41,9 @@
 // AVR315 Using the TWI module as I2C master
 #include "avr315/TWI_Master.h"
 
+// Non-blocking interrupt-based EEPROM writing.
+#include "int_eeprom.h"
 
-////////////////////////////////////////////////////////////
-// EEPROM writing code                                   {{{
-
-#include "eeprom.inc.c"
-
-// }}}
 
 ////////////////////////////////////////////////////////////
 // Sensor communication over I2C (TWI)                   {{{
@@ -658,7 +654,7 @@ void main(void) {  // {{{
 	hardware_init();
 	TWI_Master_Initialise();
 	usbInit();
-	init_eeprom_handling();
+	init_int_eeprom();
 
 	wdt_reset();
 	sei();
