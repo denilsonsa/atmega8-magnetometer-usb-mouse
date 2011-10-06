@@ -206,17 +206,21 @@ uchar sensor_read_data_registers() {  // {{{
 }  // }}}
 
 void sensor_start_continuous_reading() {  // {{{
-	sensor.func_step = 0;
-	sensor.new_data_available = 0;
-	sensor.error_while_reading = 0;
-	sensor.continuous_reading = 1;
+	DECLARE_SENSOR_POINTER(sens);
+
+	sens->func_step = 0;
+	sens->new_data_available = 0;
+	sens->error_while_reading = 0;
+	sens->continuous_reading = 1;
 }  // }}}
 
 void sensor_stop_continuous_reading() {  // {{{
-	sensor.func_step = 0;
-	//sensor.new_data_available = 0;
-	//sensor.error_while_reading = 0;
-	sensor.continuous_reading = 0;
+	DECLARE_SENSOR_POINTER(sens);
+
+	sens->func_step = 0;
+	//sens->new_data_available = 0;
+	//sens->error_while_reading = 0;
+	sens->continuous_reading = 0;
 }  // }}}
 
 

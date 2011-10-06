@@ -76,6 +76,14 @@ extern SensorData sensor;
 #define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
 
 
+// http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
+#define FIX_POINTER(_ptr) __asm__ __volatile__("" : "=b" (_ptr) : "0" (_ptr))
+
+#define DECLARE_SENSOR_POINTER(name) \
+	SensorData *name = &sensor; \
+	FIX_POINTER(name);
+
+
 void sensor_set_address_pointer(uchar reg);
 void sensor_set_register_value(uchar reg, uchar value);
 

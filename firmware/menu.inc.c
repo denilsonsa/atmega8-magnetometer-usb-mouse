@@ -179,10 +179,6 @@ static uchar ui_menu_total_items;
 // and the current menu item will be printed whenever it is appropriate.
 uchar ui_should_print_menu_item;
 
-// Used by Zero Calibration routine
-XYZVector zerocal_min;
-XYZVector zerocal_max;
-
 // }}}
 
 ////////////////////////////////////////////////////////////
@@ -316,6 +312,8 @@ static void ui_main_code() {  // {{{
 
 	uchar return_code;
 
+	DECLARE_SENSOR_POINTER(sens);
+
 	if (UI_IS_MENU(ui.widget_id)) {
 		ui_menu_code();
 	} else {
@@ -326,11 +324,11 @@ static void ui_main_code() {  // {{{
 					// Do nothing, let's wait the previous output...
 				} else {
 					// Printing X,Y,Z zero...
-					debug_print_X_Y_Z_to_string_output_buffer(&sensor.zero);
+					debug_print_X_Y_Z_to_string_output_buffer(&sens->zero);
 
 					// ...and the boolean value
 					strcat_P(string_output_buffer, zero_compensation_prefix);
-					if (sensor.zero_compensation) {
+					if (sens->zero_compensation) {
 						strcat_P(string_output_buffer, zero_compensation_suffix_on);
 					} else {
 						strcat_P(string_output_buffer, zero_compensation_suffix_off);
@@ -353,42 +351,42 @@ static void ui_main_code() {  // {{{
 					output_pgm_string(zero_calibration);
 
 					// Must disable zero compensation before calibration
-					sensor.zero_compensation = 0;
+					sens->zero_compensation = 0;
 
 					sensor_start_continuous_reading();
 					ui.menu_item = 1;
 				} else if(ui.menu_item == 1) {
 					// The first reading
-					if (sensor.new_data_available) {
-						sensor.new_data_available = 0;
+					if (sens->new_data_available) {
+						sens->new_data_available = 0;
 
-						if (!sensor.overflow) {
-							zerocal_min = sensor.data;
-							zerocal_max = sensor.data;
+						if (!sens->overflow) {
+							sens->zero_min = sens->data;
+							sens->zero_max = sens->data;
 							// Using memcpy or simple attribution cost the same amount of bytes
-							//memcpy(&zerocal_min, &sensor.data, sizeof(sensor.data));
-							//memcpy(&zerocal_max, &sensor.data, sizeof(sensor.data));
+							//memcpy(&sens->zero_min, &sens->data, sizeof(sens->data));
+							//memcpy(&sens->zero_max, &sens->data, sizeof(sens->data));
 
 							ui.menu_item = 2;
 						}
 					}
 				} else {
-					if (sensor.new_data_available) {
-						sensor.new_data_available = 0;
+					if (sens->new_data_available) {
+						sens->new_data_available = 0;
 
-						if (!sensor.overflow) {
+						if (!sens->overflow) {
 							// The code inside this if costs 172 bytes :(
-							if (sensor.data.x < zerocal_min.x) zerocal_min.x = sensor.data.x;
-							if (sensor.data.y < zerocal_min.y) zerocal_min.y = sensor.data.y;
-							if (sensor.data.z < zerocal_min.z) zerocal_min.z = sensor.data.z;
+							if (sens->data.x < sens->zero_min.x) sens->zero_min.x = sens->data.x;
+							if (sens->data.y < sens->zero_min.y) sens->zero_min.y = sens->data.y;
+							if (sens->data.z < sens->zero_min.z) sens->zero_min.z = sens->data.z;
 
-							if (sensor.data.x > zerocal_max.x) zerocal_max.x = sensor.data.x;
-							if (sensor.data.y > zerocal_max.y) zerocal_max.y = sensor.data.y;
-							if (sensor.data.z > zerocal_max.z) zerocal_max.z = sensor.data.z;
+							if (sens->data.x > sens->zero_max.x) sens->zero_max.x = sens->data.x;
+							if (sens->data.y > sens->zero_max.y) sens->zero_max.y = sens->data.y;
+							if (sens->data.z > sens->zero_max.z) sens->zero_max.z = sens->data.z;
 						}
 
 						if (string_output_pointer == NULL) {
-							debug_print_X_Y_Z_to_string_output_buffer(&sensor.data);
+							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
 							string_output_pointer = string_output_buffer;
 						}
 					}
@@ -396,15 +394,15 @@ static void ui_main_code() {  // {{{
 					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
 						sensor_stop_continuous_reading();
 
-						sensor.zero.x = (zerocal_min.x + zerocal_max.x) / 2;
-						sensor.zero.y = (zerocal_min.y + zerocal_max.y) / 2;
-						sensor.zero.z = (zerocal_min.z + zerocal_max.z) / 2;
+						sens->zero.x = (sens->zero_min.x + sens->zero_max.x) / 2;
+						sens->zero.y = (sens->zero_min.y + sens->zero_max.y) / 2;
+						sens->zero.z = (sens->zero_min.z + sens->zero_max.z) / 2;
 
 						// Saving to EEPROM
-						int_eeprom_write_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
+						int_eeprom_write_block(&sens->zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sens->zero));
 
 						// FIXME: must save this together with the zero...
-						sensor.zero_compensation = 1;
+						sens->zero_compensation = 1;
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -415,13 +413,13 @@ static void ui_main_code() {  // {{{
 			////////////////////
 			case UI_ZERO_TOGGLE_WIDGET:  // {{{
 				// Toggling current state
-				sensor.zero_compensation = !sensor.zero_compensation;
+				sens->zero_compensation = !sens->zero_compensation;
 
 				// Saving to EEPROM
 				// Note: I can't get the address of a bit-field
-				//int_eeprom_write_block(&sensor.zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
+				//int_eeprom_write_block(&sens->zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 				// using "return_code" as a temporary var. Ugly, I know.
-				return_code = sensor.zero_compensation;
+				return_code = sens->zero_compensation;
 				int_eeprom_write_block(&return_code, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
 				ui_pop_state();
@@ -436,7 +434,7 @@ static void ui_main_code() {  // {{{
 					break;
 				}
 				if (ui.menu_item == 0) {
-					sensor.func_step = 0;
+					sens->func_step = 0;
 					ui.menu_item = 1;
 				}
 
@@ -468,13 +466,13 @@ static void ui_main_code() {  // {{{
 					ui.menu_item = 1;
 				} else {
 					if (string_output_pointer == NULL) {
-						if (sensor.new_data_available) {
-							sensor.new_data_available = 0;
+						if (sens->new_data_available) {
+							sens->new_data_available = 0;
 							sensor_stop_continuous_reading();
-							debug_print_X_Y_Z_to_string_output_buffer(&sensor.data);
+							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
 							string_output_pointer = string_output_buffer;
 							ui_pop_state();
-						} else if (sensor.error_while_reading) {
+						} else if (sens->error_while_reading) {
 							sensor_stop_continuous_reading();
 							output_pgm_string(error_sensor_string);
 							ui_pop_state();
@@ -494,11 +492,11 @@ static void ui_main_code() {  // {{{
 					ui.menu_item = 1;
 				} else {
 					if (string_output_pointer == NULL) {
-						if (sensor.new_data_available) {
-							sensor.new_data_available = 0;
-							debug_print_X_Y_Z_to_string_output_buffer(&sensor.data);
+						if (sens->new_data_available) {
+							sens->new_data_available = 0;
+							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
 							string_output_pointer = string_output_buffer;
-						} else if (sensor.error_while_reading) {
+						} else if (sens->error_while_reading) {
 							sensor_stop_continuous_reading();
 							output_pgm_string(error_sensor_string);
 							ui_pop_state();
