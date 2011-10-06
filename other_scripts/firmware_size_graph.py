@@ -5,20 +5,22 @@
 from __future__ import division
 from __future__ import print_function
 
+from itertools import izip
 import matplotlib.pyplot as pyplot
 
 
 class Row(object):
-    def __init__(self, rev, node, size, date, desc):
+    def __init__(self, rev, node, size1, size2, date, desc):
         self.rev = int(rev)
         self.node = node
-        self.size = int(size)
+        self.size1 = int(size1)
+        self.size2 = int(size2)
         # Might be a great idea to convert this to a datetime object
         self.date = date
         self.desc = desc
 
     def __repr__(self):
-        return 'Row({rev}, {node}, {size}, {date}, {desc})'.format(**self.__dict__)
+        return 'Row({rev}, {node}, {size1}, {size2}, {date}, {desc})'.format(**self.__dict__)
 
 def load_data(f):
     data = []
@@ -29,11 +31,32 @@ def load_data(f):
         if line.startswith('#') or line == '':
             continue
 
-        fields=line.split('\t', 4)
+        fields=line.split('\t', 5)
         row = Row(*fields)
         data.append(row)
 
     return data
+
+def show_legend():
+    l = pyplot.legend(loc='upper left', fancybox=True, shadow=True)
+    #l = pyplot.legend(loc='best', fancybox=True, shadow=True)
+
+    # Gray background
+    l.get_frame().set_facecolor('0.90')
+
+    for t in l.get_texts():
+        t.set_fontsize('x-small')
+
+def plot_but_skip_zeros(revs, sizes, *args, **kwargs):
+    data = [
+        x for x in izip(revs, sizes)
+        if x[1] > 0
+    ]
+    pyplot.plot(
+        [x[0] for x in data],
+        [x[1] for x in data],
+        *args, **kwargs
+    )
 
 def main():
     with open('size_vs_commit.txt', 'r') as f:
@@ -43,12 +66,19 @@ def main():
     flash_size = 8*1024
     bootloader_limit = 6*1024
 
-    pyplot.plot(
-        [row.rev for row in data],
-        [row.size for row in data],
+    plot_but_skip_zeros(
+        (row.rev for row in data),
+        (row.size1 for row in data),
+        label='make all'
+    )
+    plot_but_skip_zeros(
+        (row.rev for row in data),
+        (row.size2 for row in data),
+        label='make combine'
     )
 
     pyplot.grid(True)
+    show_legend()
 
     pyplot.xlim(0, max_rev)
     pyplot.xticks(range(0, max_rev+1, 10))

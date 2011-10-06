@@ -59,7 +59,9 @@ fi
 if [ ! -f "${DATABASE_FILE}" ] ; then
 	{
 		echo $'# The values are separated by tab'
-		echo $'# rev\thash\tsize\tdate\tdescription' 
+		echo $'# size1 = make all'
+		echo $'# size2 = make combine'
+		echo $'# rev\thash\tsize1\tsize2\tdate\tdescription'
 	} > "${DATABASE_FILE}"
 fi
 
@@ -81,17 +83,20 @@ for REV in `seq ${REV_BEGIN} ${REV_END}` ; do
 	if [ -d "${FIRMWARE_DIR}" ] ; then
 		# Try compiling the firmware, this may fail
 		cd "${FIRMWARE_DIR}"
-		SIZE=`make | sed -n 's/^ROM: \([0-9]\+\) bytes.*/\1/p'`
+		SIZE1=`make all | sed -n 's/^ROM: \([0-9]\+\) bytes.*/\1/p'`
+		make clean
+
+		SIZE2=`make combine | sed -n 's/^ROM: \([0-9]\+\) bytes.*/\1/p'`
 		make clean
 
 		# If it fails, then the size is zero
-		if [ -z "${SIZE}" ] ; then
-			SIZE=0
-		fi
+		[ -z "${SIZE1}" ] && SIZE1=0
+		[ -z "${SIZE2}" ] && SIZE2=0
 	else
-		SIZE=0
+		SIZE1=0
+		SIZE2=0
 	fi
 
 	# Writing to the database file
-	hg log -r . --template '{rev}\t{node|short}\t'"${SIZE}"'\t{date|isodate}\t{desc|firstline}\n' >> "${DATABASE_FILE}"
+	hg log -r . --template "{rev}\\t{node|short}\\t${SIZE1}\\t${SIZE2}\\t{date|isodate}\\t{desc|firstline}\\n" >> "${DATABASE_FILE}"
 done
