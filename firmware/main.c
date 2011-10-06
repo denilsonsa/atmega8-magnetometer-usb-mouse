@@ -44,13 +44,8 @@
 // Non-blocking interrupt-based EEPROM writing.
 #include "int_eeprom.h"
 
-
-////////////////////////////////////////////////////////////
-// Sensor communication over I2C (TWI)                   {{{
-
-#include "sensor.inc.c"
-
-// }}}
+// Sensor communication over I2C (TWI)
+#include "sensor.h"
 
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
@@ -664,7 +659,7 @@ void main(void) {  // {{{
 	init_ui_system();
 
 	// Sensor initialization must be done with interrupts enabled!
-	init_sensor_configuration();
+	sensor_init_configuration();
 
 	LED_TURN_ON(GREEN_LED);
 

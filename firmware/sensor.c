@@ -1,14 +1,21 @@
-/* Name: sensor.inc.c
+/* Name: sensor.c
  * Project: atmega8-magnetometer-usb-mouse
  * Author: Denilson Figueiredo de Sa
  * Creation Date: 2011-09-28
  * Tabsize: 4
  * License: GNU GPL v2 or GNU GPL v3
+ *
+ * Communication with HMC5883L or HMC5883 from Honeywell.
+ * This sensor has "L883 2105" written on the chip.
+ * This sensor is a 3-axis magnetometer with I2C interface.
  */
 
 
-// This sensor has "L883 2105" written on the chip.
-// It is known as HMC5883L or HMC5883.
+#include <avr/eeprom.h>
+
+#include "avr315/TWI_Master.h"
+#include "sensor.h"
+
 
 ////////////////////////////////////////////////////////////
 // Constant definitions                                  {{{
@@ -104,19 +111,8 @@
 
 // }}}
 
-// Return codes for the non-blocking functions  {{{
-
-#define SENSOR_FUNC_STILL_WORKING 0
-#define SENSOR_FUNC_DONE          1
-#define SENSOR_FUNC_ERROR         2
-
 // }}}
 
-// }}}
-
-typedef struct XYZVector {
-	int x, y, z;
-} XYZVector;
 
 // The X,Y,Z data from the sensor
 XYZVector sensor_data;
@@ -154,7 +150,7 @@ uchar sensor_zero_compensation;
 #define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
 
 
-static void sensor_set_address_pointer(uchar reg) {  // {{{
+void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
 	// This is required before reading registers.
 	//
@@ -166,7 +162,7 @@ static void sensor_set_address_pointer(uchar reg) {  // {{{
 	TWI_Start_Transceiver_With_Data(msg, 2);
 }  // }}}
 
-static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
+void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	// Sets one of those 3 writable registers to a value.
 	// Only useful for configuration.
 	//
@@ -180,7 +176,7 @@ static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 }  // }}}
 
 
-static uchar sensor_read_data_registers() {  // {{{
+uchar sensor_read_data_registers() {  // {{{
 	// Reads the X,Y,Z data registers and store them at global vars.
 	// In case of a transmission error, the previous values are not changed.
 	//
@@ -242,14 +238,14 @@ static uchar sensor_read_data_registers() {  // {{{
 	}
 }  // }}}
 
-static void sensor_start_continuous_reading() {  // {{{
+void sensor_start_continuous_reading() {  // {{{
 	sensor_func_step = 0;
 	sensor_new_data_available = 0;
 	sensor_error_while_reading = 0;
 	sensor_continuous_reading = 1;
 }  // }}}
 
-static void sensor_stop_continuous_reading() {  // {{{
+void sensor_stop_continuous_reading() {  // {{{
 	sensor_func_step = 0;
 	//sensor_new_data_available = 0;
 	//sensor_error_while_reading = 0;
@@ -257,7 +253,7 @@ static void sensor_stop_continuous_reading() {  // {{{
 }  // }}}
 
 
-static uchar sensor_read_identification_string(uchar *s) {  // {{{
+uchar sensor_read_identification_string(uchar *s) {  // {{{
 	// Reads the 3 identification registers from the sensor.
 	// They should read as ASCII "H43".
 	//
@@ -309,7 +305,10 @@ static uchar sensor_read_identification_string(uchar *s) {  // {{{
 }  // }}}
 
 
-static void init_sensor_configuration() {  // {{{
+void sensor_init_configuration() {  // {{{
+	// This must be called AFTER interrupts were enabled and AFTER
+	// TWI_Master has been initialized.
+
 	sensor_func_step = 0;
 	sensor_new_data_available = 0;
 	sensor_error_while_reading = 0;
