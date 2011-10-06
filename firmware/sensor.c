@@ -154,53 +154,55 @@ uchar sensor_read_data_registers() {  // {{{
 
 	uchar lastTransOK;
 
-	switch(sensor.func_step) {
+	DECLARE_SENSOR_POINTER(sens);
+
+	switch(sens->func_step) {
 		case 0:  // Set address pointer
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			sensor_set_address_pointer(SENSOR_REG_DATA_START);
-			sensor.func_step = 1;
+			sens->func_step = 1;
 		case 1:  // Start reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			msg[0] = SENSOR_I2C_READ_ADDRESS;
 			TWI_Start_Transceiver_With_Data(msg, 7);
 
-			sensor.func_step = 2;
+			sens->func_step = 2;
 		case 2:  // Finished reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
-			sensor.func_step = 0;
+			sens->func_step = 0;
 
 			if (lastTransOK) {
 				#define OFFSET (1 - SENSOR_REG_DATA_START)
-				sensor.data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
-				sensor.data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
-				sensor.data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+				sens->data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
+				sens->data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
+				sens->data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
 				#undef OFFSET
 
-				sensor.overflow =
-					(sensor.data.x == SENSOR_DATA_OVERFLOW)
-					|| (sensor.data.y == SENSOR_DATA_OVERFLOW)
-					|| (sensor.data.z == SENSOR_DATA_OVERFLOW);
+				sens->overflow =
+					(sens->data.x == SENSOR_DATA_OVERFLOW)
+					|| (sens->data.y == SENSOR_DATA_OVERFLOW)
+					|| (sens->data.z == SENSOR_DATA_OVERFLOW);
 
-				sensor.new_data_available = 1;
+				sens->new_data_available = 1;
 
-				if (sensor.zero_compensation && !sensor.overflow) {
-					sensor.data.x -= sensor.zero.x;
-					sensor.data.y -= sensor.zero.y;
-					sensor.data.z -= sensor.zero.z;
+				if (sens->zero_compensation && !sens->overflow) {
+					sens->data.x -= sens->zero.x;
+					sens->data.y -= sens->zero.y;
+					sens->data.z -= sens->zero.z;
 				}
 
-				sensor.error_while_reading = 0;
+				sens->error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
-				sensor.error_while_reading = 1;
+				sens->error_while_reading = 1;
 				return SENSOR_FUNC_ERROR;
 			}
 		default:
-			sensor.error_while_reading = 1;
+			sens->error_while_reading = 1;
 			return SENSOR_FUNC_ERROR;
 	}
 }  // }}}
