@@ -195,6 +195,7 @@ help:
 	@echo 'make dump        - Dumps all memory from the microcontroller'
 	@echo
 	@echo 'make comments    - Prints all TODO/FIXME/XXX comments'
+	@echo 'make size        - Prints the size of all functions/symbols'
 
 clean:
 	rm -f $(PROGNAME).{o,s,elf,hex,eep,lss,sym,lst,map}
@@ -246,6 +247,15 @@ comments:
 # http://search.cpan.org/dist/ack/
 #
 # Note: Debian (and Ubuntu?) users have this tool installed as "ack-grep"
+
+size:
+# -t d  =>  use decimal radix
+# -A    =>  also print the filename
+# Sample output:
+# main.o:00001546 T main
+	$(NM) -f bsd -t d -A --size-sort $(ALLOBJS) | \
+		sed 's/^\([^:]\+\):\([0-9a-fA-F]\+\) \(.\) \(.\+\)$$/\2 \3 \4 [\1]/' | \
+		sort -n
 
 
 # List of objects
