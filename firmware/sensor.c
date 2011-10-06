@@ -17,6 +17,9 @@
 #include "sensor.h"
 
 
+SensorData sensor;
+
+
 ////////////////////////////////////////////////////////////
 // Constant definitions                                  {{{
 
@@ -114,42 +117,6 @@
 // }}}
 
 
-// The X,Y,Z data from the sensor
-XYZVector sensor_data;
-
-// Boolean that detects if the sensor have reported an overflow
-uchar sensor_overflow;
-#define SENSOR_DATA_OVERFLOW -4096
-
-// Set to 1 whenever new sensor data has been read.
-uchar sensor_new_data_available;
-
-// Almost the same as TWI_statusReg.lastTransOK.
-// Gets set whenever a function returns with SENSOR_FUNC_ERROR.
-// Gets reset whenever a function returns with SENSOR_FUNC_DONE.
-uchar sensor_error_while_reading;
-
-
-// Used to determine the next step in non-blocking functions.
-// Must be set to zero to ensure each function starts from the beginning.
-uchar sensor_func_step;
-
-// Enable continuous reading of sensor values
-// This variable is used only in main() main loop. It's not used by the code in
-// this file.
-uchar sensor_continuous_reading;
-
-
-// Zero calibration
-XYZVector sensor_zero;
-// Boolean to enable Zero compensation
-uchar sensor_zero_compensation;
-
-// EEPROM addresses
-#define EEPROM_SENSOR_ZERO_ENABLE ((void*) 1)
-#define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
-
-
 void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
 	// This is required before reading registers.
@@ -187,69 +154,69 @@ uchar sensor_read_data_registers() {  // {{{
 
 	uchar lastTransOK;
 
-	switch(sensor_func_step) {
+	switch(sensor.func_step) {
 		case 0:  // Set address pointer
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			sensor_set_address_pointer(SENSOR_REG_DATA_START);
-			sensor_func_step = 1;
+			sensor.func_step = 1;
 		case 1:  // Start reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			msg[0] = SENSOR_I2C_READ_ADDRESS;
 			TWI_Start_Transceiver_With_Data(msg, 7);
 
-			sensor_func_step = 2;
+			sensor.func_step = 2;
 		case 2:  // Finished reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			lastTransOK = TWI_Get_Data_From_Transceiver(msg, 7);
-			sensor_func_step = 0;
+			sensor.func_step = 0;
 
 			if (lastTransOK) {
 				#define OFFSET (1 - SENSOR_REG_DATA_START)
-				sensor_data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
-				sensor_data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
-				sensor_data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+				sensor.data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
+				sensor.data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
+				sensor.data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
 				#undef OFFSET
 
-				sensor_overflow =
-					(sensor_data.x == SENSOR_DATA_OVERFLOW)
-					|| (sensor_data.y == SENSOR_DATA_OVERFLOW)
-					|| (sensor_data.z == SENSOR_DATA_OVERFLOW);
+				sensor.overflow =
+					(sensor.data.x == SENSOR_DATA_OVERFLOW)
+					|| (sensor.data.y == SENSOR_DATA_OVERFLOW)
+					|| (sensor.data.z == SENSOR_DATA_OVERFLOW);
 
-				sensor_new_data_available = 1;
+				sensor.new_data_available = 1;
 
-				if (sensor_zero_compensation && !sensor_overflow) {
-					sensor_data.x -= sensor_zero.x;
-					sensor_data.y -= sensor_zero.y;
-					sensor_data.z -= sensor_zero.z;
+				if (sensor.zero_compensation && !sensor.overflow) {
+					sensor.data.x -= sensor.zero.x;
+					sensor.data.y -= sensor.zero.y;
+					sensor.data.z -= sensor.zero.z;
 				}
 
-				sensor_error_while_reading = 0;
+				sensor.error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
-				sensor_error_while_reading = 1;
+				sensor.error_while_reading = 1;
 				return SENSOR_FUNC_ERROR;
 			}
 		default:
-			sensor_error_while_reading = 1;
+			sensor.error_while_reading = 1;
 			return SENSOR_FUNC_ERROR;
 	}
 }  // }}}
 
 void sensor_start_continuous_reading() {  // {{{
-	sensor_func_step = 0;
-	sensor_new_data_available = 0;
-	sensor_error_while_reading = 0;
-	sensor_continuous_reading = 1;
+	sensor.func_step = 0;
+	sensor.new_data_available = 0;
+	sensor.error_while_reading = 0;
+	sensor.continuous_reading = 1;
 }  // }}}
 
 void sensor_stop_continuous_reading() {  // {{{
-	sensor_func_step = 0;
-	//sensor_new_data_available = 0;
-	//sensor_error_while_reading = 0;
-	sensor_continuous_reading = 0;
+	sensor.func_step = 0;
+	//sensor.new_data_available = 0;
+	//sensor.error_while_reading = 0;
+	sensor.continuous_reading = 0;
 }  // }}}
 
 
@@ -268,38 +235,38 @@ uchar sensor_read_identification_string(uchar *s) {  // {{{
 
 	uchar lastTransOK;
 
-	switch(sensor_func_step) {
+	switch(sensor.func_step) {
 		case 0:  // Set address pointer
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			sensor_set_address_pointer(SENSOR_REG_ID_A);
-			sensor_func_step = 1;
+			sensor.func_step = 1;
 		case 1:  // Start reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			msg[0] = SENSOR_I2C_READ_ADDRESS;
 			TWI_Start_Transceiver_With_Data(msg, 4);
 
-			sensor_func_step = 2;
+			sensor.func_step = 2;
 		case 2:  // Finished reading operation
 			if (TWI_Transceiver_Busy()) return SENSOR_FUNC_STILL_WORKING;
 
 			lastTransOK = TWI_Get_Data_From_Transceiver(msg, 4);
-			sensor_func_step = 0;
+			sensor.func_step = 0;
 
 			if (lastTransOK) {
 				s[0] = msg[1];
 				s[1] = msg[2];
 				s[2] = msg[3];
 				s[3] = '\0';
-				sensor_error_while_reading = 0;
+				sensor.error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
-				sensor_error_while_reading = 1;
+				sensor.error_while_reading = 1;
 				return SENSOR_FUNC_ERROR;
 			}
 		default:
-			sensor_error_while_reading = 1;
+			sensor.error_while_reading = 1;
 			return SENSOR_FUNC_ERROR;
 	}
 }  // }}}
@@ -309,12 +276,12 @@ void sensor_init_configuration() {  // {{{
 	// This must be called AFTER interrupts were enabled and AFTER
 	// TWI_Master has been initialized.
 
-	sensor_func_step = 0;
-	sensor_new_data_available = 0;
-	sensor_error_while_reading = 0;
+	sensor.func_step = 0;
+	sensor.new_data_available = 0;
+	sensor.error_while_reading = 0;
 
-	eeprom_read_block(&sensor_zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor_zero));
-	sensor_zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
+	eeprom_read_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
+	sensor.zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,

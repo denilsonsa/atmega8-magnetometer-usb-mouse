@@ -17,23 +17,59 @@
 #define SENSOR_FUNC_DONE          1
 #define SENSOR_FUNC_ERROR         2
 
+// Value that means "overflow"
+#define SENSOR_DATA_OVERFLOW -4096
+
 
 typedef struct XYZVector {
 	int x, y, z;
 } XYZVector;
 
 
-// All vars...
-// TODO: refactor this, maybe
-extern XYZVector sensor_data;
-extern uchar sensor_overflow;
-#define SENSOR_DATA_OVERFLOW -4096
-extern uchar sensor_new_data_available;
-extern uchar sensor_error_while_reading;
-extern uchar sensor_func_step;
-extern uchar sensor_continuous_reading;
-extern XYZVector sensor_zero;
-extern uchar sensor_zero_compensation;
+typedef struct SensorData {
+	union {
+		uchar flags;
+		struct {
+			// Boolean that detects if the sensor have reported an overflow
+			uchar overflow:1;
+
+			// Set to 1 whenever new sensor data has been read.
+			uchar new_data_available:1;
+
+			// Almost the same as TWI_statusReg.lastTransOK.
+			// Gets set whenever a function returns with SENSOR_FUNC_ERROR.
+			// Gets reset whenever a function returns with SENSOR_FUNC_DONE.
+			uchar error_while_reading:1;
+
+			// Enable continuous reading of sensor values
+			// This variable should be used in main() main loop (together
+			// with a timer) to detect when sensor_read_data_registers()
+			// should be called.
+			uchar continuous_reading:1;
+
+			// Boolean to enable Zero compensation
+			uchar zero_compensation:1;
+		};
+	};
+
+	// The X,Y,Z data from the sensor
+	XYZVector data;
+
+	// Zero calibration value
+	XYZVector zero;
+
+	// Zero calibration temporary values
+	XYZVector zero_min;
+	XYZVector zero_max;
+
+	// Used to determine the next step in non-blocking functions.
+	// Must be set to zero to ensure each function starts from the beginning.
+	uchar func_step;
+
+} SensorData;
+
+extern SensorData sensor;
+
 
 // EEPROM addresses
 #define EEPROM_SENSOR_ZERO_ENABLE ((void*) 1)

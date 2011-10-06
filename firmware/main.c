@@ -680,12 +680,12 @@ void main(void) {  // {{{
 		if (button.changed & BUTTON_SWITCH) {
 			// When the switch changes state, it's better to reset this
 			// variable, in order to avoid bugs.
-			sensor_func_step = 0;
+			sensor.func_step = 0;
 		}
 
 		if (ON_KEY_UP(BUTTON_SWITCH)) {
 			// Upon releasing the switch, stop the continuous reading.
-			sensor_continuous_reading = 0;
+			sensor.continuous_reading = 0;
 			//sensor_stop_continuous_reading();
 
 			// And also reset the menu system.
@@ -693,13 +693,13 @@ void main(void) {  // {{{
 		}
 
 		if (button.state & BUTTON_SWITCH) {
-			sensor_continuous_reading = 1;
+			sensor.continuous_reading = 1;
 		} else {
 			ui_main_code();
 		}
 
 		// Continuous reading of sensor data
-		if (sensor_continuous_reading) {
+		if (sensor.continuous_reading) {
 			// Timer is set to 1.365ms
 			if (TIFR & (1<<TOV0)) {
 				// The sensor is configured for 75Hz measurements.
