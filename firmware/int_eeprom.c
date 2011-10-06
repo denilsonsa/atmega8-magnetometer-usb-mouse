@@ -20,15 +20,10 @@
 #include "int_eeprom.h"
 
 
-// Maximum block that can be written to the EEPROM
-// TODO?: move this to another header file (just to keep all constants into one place)
-#define EEPROM_BUFFER_SIZE   25
-
-
 // EEPROM destination address
 static void* eeprom_address;
 // Buffer for writing the EEPROM
-static unsigned char eeprom_buffer[EEPROM_BUFFER_SIZE];
+static unsigned char eeprom_buffer[INT_EEPROM_BUFFER_SIZE];
 // The size of the block currently in the buffer
 static unsigned char eeprom_block_size;
 // The index of the next byte to be written

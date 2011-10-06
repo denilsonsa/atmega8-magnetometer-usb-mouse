@@ -6,6 +6,12 @@
 #ifndef __int_eeprom_h_included__
 #define __int_eeprom_h_included__
 
+
+// Maximum block that can be written (at once) to the EEPROM
+// (measured in bytes)
+#define INT_EEPROM_BUFFER_SIZE   25
+
+
 // Init does nothing
 #define init_int_eeprom() do{ }while(0)
 
