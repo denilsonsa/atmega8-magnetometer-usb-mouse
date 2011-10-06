@@ -294,7 +294,7 @@ uchar   i = 0;
 	sei();
 }
 
-int __attribute__((noreturn)) main(void)
+void __attribute__((noreturn)) main(void)
 {
 	/* initialize  */
 	wdt_disable();      /* main app may have enabled watchdog */
