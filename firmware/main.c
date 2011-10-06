@@ -183,7 +183,9 @@ static uchar    report_buffer[2];    /* buffer for HID reports */
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
-PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH] = {
+PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
+__attribute__((externally_visible))
+= {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
     0xa1, 0x01,                    // COLLECTION (Application)
@@ -608,7 +610,9 @@ static void hardware_init(void) {  // {{{
 }  // }}}
 
 
-uchar usbFunctionSetup(uchar data[8]) {  // {{{
+uchar
+__attribute__((externally_visible))
+usbFunctionSetup(uchar data[8]) {  // {{{
 	usbRequest_t *rq = (void *)data;
 
 	usbMsgPtr = report_buffer;
@@ -635,10 +639,9 @@ uchar usbFunctionSetup(uchar data[8]) {  // {{{
 }  // }}}
 
 
-// The following line saves 32 bytes.
-void main() __attribute__ ((noreturn));
-
-void main(void) {  // {{{
+void
+__attribute__ ((noreturn))
+main(void) {  // {{{
 	uchar should_send_report = 1;
 	int idle_counter = 0;
 

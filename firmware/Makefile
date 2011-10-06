@@ -57,6 +57,18 @@ else
  endif
 endif
 
+# List of objects
+ifdef BUILDING_BOOTLOADER
+VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
+MYOBJS = 
+else
+VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
+MYOBJS = int_eeprom.o sensor.o avr315/TWI_Master.o
+# TODO Later: add menu.inc.c
+endif
+
+ALLOBJS = $(PROGNAME).o $(VUSBOBJS) $(MYOBJS)
+
 
 ### Compiling tools configuration ###
 
@@ -158,6 +170,12 @@ LDFLAGS += -Wl,--relax
 CFLAGS  += -ffunction-sections -fdata-sections
 LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections
 
+# Compile all *.c files at once, allowing for better optimizations.
+# Note: -combine has been removed in GCC 4.6, in favor of LTO
+#       http://gcc.gnu.org/bugzilla/show_bug.cgi?id=29171#c7
+#       http://gcc.gnu.org/wiki/LinkTimeOptimization
+COMBINE_FLAGS = -combine -fwhole-program
+
 # See this page for more compiler optimisation suggestions:
 # http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
 
@@ -176,13 +194,29 @@ LDFLAGS += -Wl,--gc-sections -Wl,--print-gc-sections
 ### Make targets ###
 
 #Basic rules
-.PHONY: all help clean boot writeboot writeflash writeeeprom writefuse erase dump comments
+.PHONY: all normal-build combine combine-build post-build help clean boot writeboot writeflash writeeeprom writefuse erase dump comments size
 
-all: $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
+all: normal-build post-build
+
+combine: combine-build post-build
+
+normal-build: $(ALLOBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $(PROGNAME).elf $^
+
+combine-build: $(VUSBOBJS)
+# Combined compiling does not work for VUSB source-code. Thus, we add VUSBOBJS
+# as dependencies of this target.
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(COMBINE_FLAGS) $(LDFLAGS) \
+		-o $(PROGNAME).elf \
+		$(PROGNAME).c $(MYOBJS:.o=.c) \
+		$(VUSBOBJS)
+
+post-build: $(PROGNAME).elf $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
 	$(CHECKSIZE) $(PROGNAME).elf $(CHECKSIZE_CODELIMIT)
 
 help:
 	@echo 'make all         - Builds the project'
+	@echo 'make combine     - Compiles all *.c at the same time, allowing some compiler optimizations'
 	@echo 'make clean       - Deletes all built files'
 	@echo
 	@echo 'make boot        - Builds the bootloader (please run "make clean" before)'
@@ -253,29 +287,21 @@ size:
 # -A    =>  also print the filename
 # Sample output:
 # main.o:00001546 T main
-	$(NM) -f bsd -t d -A --size-sort $(ALLOBJS) | \
+#
+# It's possible to either pass *.o or *.elf
+	$(NM) -f bsd -t d -A --size-sort $(PROGNAME).elf | \
 		sed 's/^\([^:]\+\):\([0-9a-fA-F]\+\) \(.\) \(.\+\)$$/\2 \3 \4 [\1]/' | \
 		sort -n
 
-
-# List of objects
-ifdef BUILDING_BOOTLOADER
-VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
-MYOBJS = 
-else
-VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
-MYOBJS = int_eeprom.o sensor.o avr315/TWI_Master.o
-# TODO Later: add menu.inc.c
-endif
-
-ALLOBJS = $(PROGNAME).o $(VUSBOBJS) $(MYOBJS)
 
 # Dependencies
 # Note: Header dependencies for individual objects are not listed here.
 #       Please run "make clean" after you edit any header.
 $(PROGNAME).s: $(PROGNAME).c usbconfig.h $(MYOBJS:.o=.h)
 $(PROGNAME).o: $(PROGNAME).c usbconfig.h $(MYOBJS:.o=.h)
-$(PROGNAME).elf: $(ALLOBJS)
+
+# This has been commented-out in order to support combined compiling.
+#$(PROGNAME).elf: $(ALLOBJS)
 
 
 # The variables:
@@ -297,9 +323,11 @@ $(PROGNAME).elf: $(ALLOBJS)
 # file type for the .S (with capital S) extension. However, upper case
 # characters are not always preserved on Windows. Add this flag to ensure
 # WinAVR compatibility.
+
 %.o: %.h
-%.elf: %.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+#%.elf: %.o
+#	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 # Create final output files (.hex, .eep) from ELF output file.
 # Use -O ihex for Intel Hex format
