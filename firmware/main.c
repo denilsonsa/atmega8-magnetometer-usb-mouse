@@ -85,8 +85,8 @@
  * PD7: green debug LED
  *
  * If you change the ports, remember to update these functions:
- * - hardware_init()
- * - update_button_state()
+ * - main.c: hardware_init()
+ * - buttons.c: update_button_state()
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
