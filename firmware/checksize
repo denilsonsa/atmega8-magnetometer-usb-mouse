@@ -39,6 +39,8 @@ fi
 # The total amount of data to Flash ROM is text+data.
 # The total amount of RAM is data+bss.
 #
+# Note: the EEPROM seems to get incorrectly counted into the data section.
+#
 #
 # See also: http://www.nongnu.org/avr-libc/user-manual/mem_sections.html
 

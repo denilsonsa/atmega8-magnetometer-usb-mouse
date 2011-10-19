@@ -33,7 +33,7 @@ typedef struct SensorEepromData {
 	// Zero calibration value
 	XYZVector zero;
 
-	// TODO: add here the 4 calibration corners
+	XYZVector corners[4];
 } SensorEepromData;
 
 typedef struct SensorData {

@@ -29,7 +29,13 @@ SensorData sensor;
 uchar X_EEMEM eeprom_sensor_unused = 0;
 SensorEepromData X_EEMEM eeprom_sensor = {
 	1,  // zero_compensation
-	{21, -108, 138}  // zero
+	{21, -108, 138},  // zero
+	{  // corners
+		{164, 63, 121},  // topleft
+		{-88, 94, 167},  // topright
+		{-56, -79, 337},  // bottomleft
+		{152, -114, 310}  // bottomright
+	}
 };
 
 
