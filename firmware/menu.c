@@ -14,6 +14,7 @@
 
 #include "buttons.h"
 #include "int_eeprom.h"
+#include "keyemu.h"
 #include "sensor.h"
 
 #include "menu.h"
@@ -25,13 +26,7 @@
 
 
 // Things that are currently declared at main.c:
-extern uchar *string_output_pointer;
-extern uchar string_output_buffer[80];
 uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector);
-#define output_pgm_string(str) do { \
-		strcpy_P(string_output_buffer, str); \
-		string_output_pointer = string_output_buffer; \
-	} while(0);
 
 
 ////////////////////////////////////////////////////////////
