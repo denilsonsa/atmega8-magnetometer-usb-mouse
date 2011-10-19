@@ -401,11 +401,11 @@ void ui_main_code() {  // {{{
 							if (sens->data.x > sens->zero_max.x) sens->zero_max.x = sens->data.x;
 							if (sens->data.y > sens->zero_max.y) sens->zero_max.y = sens->data.y;
 							if (sens->data.z > sens->zero_max.z) sens->zero_max.z = sens->data.z;
-						}
 
-						if (string_output_pointer == NULL) {
-							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
-							string_output_pointer = string_output_buffer;
+							if (string_output_pointer == NULL) {
+								debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
+								string_output_pointer = string_output_buffer;
+							}
 						}
 					}
 
