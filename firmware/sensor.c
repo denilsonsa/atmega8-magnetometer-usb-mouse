@@ -282,9 +282,11 @@ void sensor_init_configuration() {  // {{{
 	// This must be called AFTER interrupts were enabled and AFTER
 	// TWI_Master has been initialized.
 
-	sensor.func_step = 0;
-	sensor.new_data_available = 0;
-	sensor.error_while_reading = 0;
+	// According to avr-libc FAQ, the compiler automatically initializes all
+	// variables with zero.
+	//sensor.func_step = 0;
+	//sensor.new_data_available = 0;
+	//sensor.error_while_reading = 0;
 
 	eeprom_read_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
 	sensor.zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
