@@ -52,15 +52,16 @@ typedef struct SensorData {
 	XYZVector data;
 
 	// BEGIN EEPROM BLOCK  {{{
-	// This block can (and will) be directly saved/loaded from the EEPROM
-	// The compiler MUST NOT add padding to this struct, else the code will
-	// not load/save correctly.
+		// This block can (and will) be directly saved/loaded from the EEPROM
+		// The compiler MUST NOT add padding to this struct, else the code
+		// will not load/save correctly.
+		// Add "-Wpadded -fpack-struct" to CFLAGS.
 
-	// Boolean to enable Zero compensation
-	uchar zero_compensation;
+		// Boolean to enable Zero compensation
+		uchar zero_compensation;
 
-	// Zero calibration value
-	XYZVector zero;
+		// Zero calibration value
+		XYZVector zero;
 	// END EEPROM BLOCK  }}}
 
 	// Zero calibration temporary values
