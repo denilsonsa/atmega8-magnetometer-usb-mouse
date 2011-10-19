@@ -167,6 +167,7 @@ static const MenuLoadingInfo menu_loading[] PROGMEM = {
 
 // }}}
 
+
 ////////////////////////////////////////////////////////////
 // UI and Menu variables (state)                         {{{
 
@@ -194,6 +195,7 @@ static uchar ui_menu_total_items;
 uchar ui_should_print_menu_item;
 
 // }}}
+
 
 ////////////////////////////////////////////////////////////
 // UI and menu handling functions                        {{{
@@ -278,6 +280,7 @@ static void ui_enter_widget(uchar new_widget) {  // {{{
 }  // }}}
 
 // }}}
+
 
 ////////////////////////////////////////////////////////////
 // UI and menu public functions                          {{{
