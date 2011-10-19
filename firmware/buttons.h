@@ -6,10 +6,7 @@
 #ifndef __buttons_h_included__
 #define __buttons_h_included__
 
-
-#ifndef uchar
-#define uchar  unsigned char
-#endif
+#include "common.h"
 
 
 typedef struct ButtonState {

@@ -154,7 +154,8 @@ uchar sensor_read_data_registers() {  // {{{
 
 	uchar lastTransOK;
 
-	DECLARE_SENSOR_POINTER(sens);
+	SensorData *sens = &sensor;
+	FIX_POINTER(sens);
 
 	switch(sens->func_step) {
 		case 0:  // Set address pointer
@@ -208,7 +209,8 @@ uchar sensor_read_data_registers() {  // {{{
 }  // }}}
 
 void sensor_start_continuous_reading() {  // {{{
-	DECLARE_SENSOR_POINTER(sens);
+	SensorData *sens = &sensor;
+	FIX_POINTER(sens);
 
 	sens->func_step = 0;
 	sens->new_data_available = 0;
@@ -217,7 +219,8 @@ void sensor_start_continuous_reading() {  // {{{
 }  // }}}
 
 void sensor_stop_continuous_reading() {  // {{{
-	DECLARE_SENSOR_POINTER(sens);
+	SensorData *sens = &sensor;
+	FIX_POINTER(sens);
 
 	sens->func_step = 0;
 	//sens->new_data_available = 0;

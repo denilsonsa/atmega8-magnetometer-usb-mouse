@@ -12,6 +12,7 @@
 
 #include <avr/pgmspace.h>
 
+#include "common.h"
 #include "keyemu.h"
 
 // This is declared at main.c, but has no header to be included:
@@ -148,10 +149,6 @@ static KeyAndModifier char_to_key[] PROGMEM = {  // {{{
 };  // }}}
 
 // }}}
-
-
-// http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
-#define FIX_POINTER(_ptr) __asm__ __volatile__("" : "=b" (_ptr) : "0" (_ptr))
 
 
 /*

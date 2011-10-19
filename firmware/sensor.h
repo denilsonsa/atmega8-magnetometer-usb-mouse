@@ -6,10 +6,7 @@
 #ifndef __sensor_h_included__
 #define __sensor_h_included__
 
-
-#ifndef uchar
-#define uchar  unsigned char
-#endif
+#include "common.h"
 
 
 // Return codes for the non-blocking functions
@@ -74,14 +71,6 @@ extern SensorData sensor;
 // EEPROM addresses
 #define EEPROM_SENSOR_ZERO_ENABLE ((void*) 1)
 #define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
-
-
-// http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
-#define FIX_POINTER(_ptr) __asm__ __volatile__("" : "=b" (_ptr) : "0" (_ptr))
-
-#define DECLARE_SENSOR_POINTER(name) \
-	SensorData *name = &sensor; \
-	FIX_POINTER(name);
 
 
 void sensor_set_address_pointer(uchar reg);

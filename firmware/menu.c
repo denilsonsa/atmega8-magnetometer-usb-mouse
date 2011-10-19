@@ -13,6 +13,7 @@
 #include <avr/pgmspace.h>
 
 #include "buttons.h"
+#include "common.h"
 #include "int_eeprom.h"
 #include "keyemu.h"
 #include "sensor.h"
@@ -329,7 +330,8 @@ void ui_main_code() {  // {{{
 
 	uchar return_code;
 
-	DECLARE_SENSOR_POINTER(sens);
+	SensorData *sens = &sensor;
+	FIX_POINTER(sens);
 
 	if (UI_IS_MENU(ui.widget_id)) {
 		ui_menu_code();

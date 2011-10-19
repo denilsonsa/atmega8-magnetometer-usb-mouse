@@ -6,10 +6,7 @@
 #ifndef __keyemu_h_included__
 #define __keyemu_h_included__
 
-
-#ifndef uchar
-#define uchar  unsigned char
-#endif
+#include "common.h"
 
 
 // Copies a string from PGM to string_output_buffer and also sets
@@ -17,7 +14,7 @@
 #define output_pgm_string(str) do { \
 		strcpy_P(string_output_buffer, str); \
 		string_output_pointer = string_output_buffer; \
-	} while(0);
+	} while(0)
 
 
 extern uchar *string_output_pointer;
