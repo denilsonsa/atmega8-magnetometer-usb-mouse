@@ -40,8 +40,7 @@ extern ButtonState button;
 
 
 // Init does nothing
-//#defin e init_button_state() do{ }while(0)
-void init_button_state();
+#define init_button_state() do{ }while(0)
 
 void update_button_state();
 

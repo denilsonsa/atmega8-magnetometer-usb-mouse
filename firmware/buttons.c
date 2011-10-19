@@ -15,11 +15,13 @@
 ButtonState button;
 
 
+/*
 void init_button_state() {  // {{{
 	// According to avr-libc FAQ, the compiler automatically initializes
 	// all variables with zero.
 	memset(&button, 0, sizeof(button));
 }  // }}}
+*/
 
 void update_button_state() { // {{{
 	// This function implements debouncing code.
