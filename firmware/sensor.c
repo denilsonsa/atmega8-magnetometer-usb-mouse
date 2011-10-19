@@ -20,6 +20,14 @@
 SensorData sensor;
 
 
+// "Default" EEPROM values:
+uchar     EEMEM eeprom_sensor_unused = 0;
+uchar     EEMEM eeprom_sensor_zero_compensation = 1;
+XYZVector EEMEM eeprom_sensor_zero = {21, -108, 138};
+// See also:
+// http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=68621
+
+
 ////////////////////////////////////////////////////////////
 // Constant definitions                                  {{{
 
@@ -292,12 +300,13 @@ void sensor_init_configuration() {  // {{{
 	//sensor.error_while_reading = 0;
 
 	// Safer code for reading from the EEPROM:
-	//eeprom_read_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
-	//sensor.zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
+	//eeprom_read_block(&sensor.zero, &eeprom_sensor_zero, sizeof(sensor.zero));
+	//sensor.zero_compensation = eeprom_read_byte(&eeprom_sensor_zero_compensation);
 
 	// Smaller code for reading from the EEPROM:
 	// Assuming there is no padding in SensorData struct, we can do this:
-	eeprom_read_block(SENSOR_STRUCT_EEPROM_START, EEPROM_SENSOR_ZERO_ENABLE, SENSOR_STRUCT_EEPROM_SIZE);
+	eeprom_read_block(SENSOR_STRUCT_EEPROM_START, &eeprom_sensor_zero_compensation, SENSOR_STRUCT_EEPROM_SIZE);
+
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,

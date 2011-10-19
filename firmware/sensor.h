@@ -6,6 +6,7 @@
 #ifndef __sensor_h_included__
 #define __sensor_h_included__
 
+#include <avr/eeprom.h>
 #include "common.h"
 
 
@@ -81,10 +82,9 @@ extern SensorData sensor;
 
 
 // EEPROM addresses
-// Yes, I'm starting at the address 1.
-// I'm not using the EEPROM address 0.
-#define EEPROM_SENSOR_ZERO_ENABLE ((void*) 1)
-#define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
+extern uchar     EEMEM eeprom_sensor_unused;
+extern uchar     EEMEM eeprom_sensor_zero_compensation;
+extern XYZVector EEMEM eeprom_sensor_zero;
 
 
 void sensor_set_address_pointer(uchar reg);

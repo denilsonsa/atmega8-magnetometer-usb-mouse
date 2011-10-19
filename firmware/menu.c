@@ -419,7 +419,7 @@ void ui_main_code() {  // {{{
 						sens->zero_compensation = 1;
 
 						// Saving to EEPROM
-						int_eeprom_write_block(SENSOR_STRUCT_EEPROM_START, EEPROM_SENSOR_ZERO_ENABLE, SENSOR_STRUCT_EEPROM_SIZE);
+						int_eeprom_write_block(SENSOR_STRUCT_EEPROM_START, &eeprom_sensor_zero_compensation, SENSOR_STRUCT_EEPROM_SIZE);
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -433,7 +433,7 @@ void ui_main_code() {  // {{{
 				sens->zero_compensation = !sens->zero_compensation;
 
 				// Saving to EEPROM
-				int_eeprom_write_block(&sens->zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
+				int_eeprom_write_block(&sens->zero_compensation, &eeprom_sensor_zero_compensation, 1);
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);
