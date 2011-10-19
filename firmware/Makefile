@@ -131,6 +131,15 @@ CFLAGS  += -Wno-main
 # People say these are good flags:
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 
+# Warn if the compiler adds padding inside any struct. This will break some
+# code assumptions when loading/storing sensor data from EEPROM.
+# -Wpadded
+#   Warn if padding is included in a structure, either to align an element of
+#   the structure or to align the whole structure.  Sometimes when this
+#   happens it is possible to rearrange the fields of the structure to reduce
+#   the padding and so make the structure smaller.
+CFLAGS  += -Wpadded
+
 # And I'm not very sure about enabling these:
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 

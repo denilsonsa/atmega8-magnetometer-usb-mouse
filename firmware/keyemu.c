@@ -249,7 +249,7 @@ uchar nibble_to_hex(uchar n) {  // {{{
 }  // }}}
 
 void uchar_to_hex(uchar v, uchar *str) {  // {{{
-	// XXX: The NULL terminator is NOT added!
+	// NOTE: The NULL terminator is NOT added!
 	*str = nibble_to_hex(v >> 4);
 	str++;
 	*str = nibble_to_hex(v & 0x0F);
@@ -257,7 +257,7 @@ void uchar_to_hex(uchar v, uchar *str) {  // {{{
 
 void int_to_hex(int v, uchar *str) {  // {{{
 	// I'm supposing int is 16-bit
-	// XXX: The NULL terminator is NOT added!
+	// NOTE: The NULL terminator is NOT added!
 	uchar_to_hex((uchar)(v >> 8), str);
 	uchar_to_hex((uchar) v      , str+2);
 }  // }}}

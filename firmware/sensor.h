@@ -44,16 +44,24 @@ typedef struct SensorData {
 			// should be called.
 			uchar continuous_reading:1;
 
-			// Boolean to enable Zero compensation
-			uchar zero_compensation:1;
+			uchar unused_bits:4;
 		};
 	};
 
 	// The X,Y,Z data from the sensor
 	XYZVector data;
 
+	// BEGIN EEPROM BLOCK  {{{
+	// This block can (and will) be directly saved/loaded from the EEPROM
+	// The compiler MUST NOT add padding to this struct, else the code will
+	// not load/save correctly.
+
+	// Boolean to enable Zero compensation
+	uchar zero_compensation;
+
 	// Zero calibration value
 	XYZVector zero;
+	// END EEPROM BLOCK  }}}
 
 	// Zero calibration temporary values
 	XYZVector zero_min;
@@ -67,8 +75,13 @@ typedef struct SensorData {
 
 extern SensorData sensor;
 
+#define SENSOR_STRUCT_EEPROM_START &sensor.zero_compensation
+#define SENSOR_STRUCT_EEPROM_SIZE  (sizeof(uchar) + 1 * sizeof(XYZVector))
+
 
 // EEPROM addresses
+// Yes, I'm starting at the address 1.
+// I'm not using the EEPROM address 0.
 #define EEPROM_SENSOR_ZERO_ENABLE ((void*) 1)
 #define EEPROM_SENSOR_ZERO_VECTOR ((void*) 2)
 

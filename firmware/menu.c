@@ -121,9 +121,9 @@ static const char     corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm be
 static const char     corners_menu_4[] PROGMEM = "2.4. << main menu\n";
 #define               corners_menu_total_items 4
 static const MenuItem corners_menu_items[] PROGMEM = {
-	{corners_menu_1, UI_ROOT_MENU},
-	{corners_menu_2, UI_ROOT_MENU},
-	{corners_menu_3, UI_ROOT_MENU},
+	{corners_menu_1, UI_ROOT_MENU},  // TODO
+	{corners_menu_2, UI_ROOT_MENU},  // TODO
+	{corners_menu_3, UI_ROOT_MENU},  // TODO
 	{corners_menu_4, 0}
 };
 // }}}
@@ -416,11 +416,10 @@ void ui_main_code() {  // {{{
 						sens->zero.y = (sens->zero_min.y + sens->zero_max.y) / 2;
 						sens->zero.z = (sens->zero_min.z + sens->zero_max.z) / 2;
 
-						// Saving to EEPROM
-						int_eeprom_write_block(&sens->zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sens->zero));
-
-						// FIXME: must save this together with the zero...
 						sens->zero_compensation = 1;
+
+						// Saving to EEPROM
+						int_eeprom_write_block(SENSOR_STRUCT_EEPROM_START, EEPROM_SENSOR_ZERO_ENABLE, SENSOR_STRUCT_EEPROM_SIZE);
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -434,11 +433,7 @@ void ui_main_code() {  // {{{
 				sens->zero_compensation = !sens->zero_compensation;
 
 				// Saving to EEPROM
-				// Note: I can't get the address of a bit-field
-				//int_eeprom_write_block(&sens->zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
-				// using "return_code" as a temporary var. Ugly, I know.
-				return_code = sens->zero_compensation;
-				int_eeprom_write_block(&return_code, EEPROM_SENSOR_ZERO_ENABLE, 1);
+				int_eeprom_write_block(&sens->zero_compensation, EEPROM_SENSOR_ZERO_ENABLE, 1);
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);

@@ -291,8 +291,13 @@ void sensor_init_configuration() {  // {{{
 	//sensor.new_data_available = 0;
 	//sensor.error_while_reading = 0;
 
-	eeprom_read_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
-	sensor.zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
+	// Safer code for reading from the EEPROM:
+	//eeprom_read_block(&sensor.zero, EEPROM_SENSOR_ZERO_VECTOR, sizeof(sensor.zero));
+	//sensor.zero_compensation = eeprom_read_byte(EEPROM_SENSOR_ZERO_ENABLE);
+
+	// Smaller code for reading from the EEPROM:
+	// Assuming there is no padding in SensorData struct, we can do this:
+	eeprom_read_block(SENSOR_STRUCT_EEPROM_START, EEPROM_SENSOR_ZERO_ENABLE, SENSOR_STRUCT_EEPROM_SIZE);
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,
