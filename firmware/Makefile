@@ -140,6 +140,9 @@ CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #   the padding and so make the structure smaller.
 CFLAGS  += -Wpadded
 
+# This saved 24 bytes
+CFLAGS  += -fno-split-wide-types
+
 # And I'm not very sure about enabling these:
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
 
