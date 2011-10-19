@@ -20,12 +20,15 @@
 SensorData sensor;
 
 
-// "Default" EEPROM values:
-uchar     EEMEM eeprom_sensor_unused = 0;
-uchar     EEMEM eeprom_sensor_zero_compensation = 1;
-XYZVector EEMEM eeprom_sensor_zero = {21, -108, 138};
-// See also:
+// Avoiding GCC optimizing-out these EEPROM vars
+// Maybe I should put them inside a struct?
 // http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=68621
+#define X_EEMEM __attribute__((section(".eeprom"), used, externally_visible))
+
+// "Default" EEPROM values:
+uchar     X_EEMEM eeprom_sensor_unused = 0;
+uchar     X_EEMEM eeprom_sensor_zero_compensation = 1;
+XYZVector X_EEMEM eeprom_sensor_zero = {21, -108, 138};
 
 
 ////////////////////////////////////////////////////////////
