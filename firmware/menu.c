@@ -1,4 +1,4 @@
-/* Name: menu.inc.c
+/* Name: menu.c
  * Project: atmega8-magnetometer-usb-mouse
  * Author: Denilson Figueiredo de Sa
  * Creation Date: 2011-09-27
@@ -7,9 +7,31 @@
  */
 
 
+// For NULL definition
+#include <stddef.h>
+
+#include <avr/pgmspace.h>
+
+#include "buttons.h"
+#include "int_eeprom.h"
+#include "sensor.h"
+
+#include "menu.h"
+
+
 #define BUTTON_PREV    BUTTON_1
 #define BUTTON_NEXT    BUTTON_2
 #define BUTTON_CONFIRM BUTTON_3
+
+
+// Things that are currently declared at main.c:
+extern uchar *string_output_pointer;
+extern uchar string_output_buffer[80];
+uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector);
+#define output_pgm_string(str) do { \
+		strcpy_P(string_output_buffer, str); \
+		string_output_pointer = string_output_buffer; \
+	} while(0);
 
 
 ////////////////////////////////////////////////////////////
@@ -42,7 +64,7 @@
 // }}}
 
 typedef struct MenuItem {  // {{{
-	// The menu text string
+	// The menu text string pointer
 	PGM_P text;
 	// The widget that will be activated on this menu item
 	uchar action;
@@ -268,7 +290,7 @@ static void ui_enter_widget(uchar new_widget) {  // {{{
 ////////////////////////////////////////////////////////////
 // UI and menu public functions                          {{{
 
-static void init_ui_system() {   // {{{
+void init_ui_system() {   // {{{
 	// Must be called in the main initialization routine
 
 	// Emptying the stack
@@ -305,7 +327,7 @@ static void ui_menu_code() {  // {{{
 	}
 }  // }}}
 
-static void ui_main_code() {  // {{{
+void ui_main_code() {  // {{{
 	// This must be called in the main loop.
 	//
 	// This function handles the actions of all UI widgets.

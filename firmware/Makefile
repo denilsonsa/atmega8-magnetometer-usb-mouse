@@ -63,8 +63,7 @@ VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o
 MYOBJS = 
 else
 VUSBOBJS = $(VUSBDIR)/usbdrvasm.o $(VUSBDIR)/oddebug.o $(VUSBDIR)/usbdrv.o
-MYOBJS = int_eeprom.o sensor.o avr315/TWI_Master.o
-# TODO Later: add menu.inc.c
+MYOBJS = buttons.o int_eeprom.o menu.o sensor.o avr315/TWI_Master.o
 endif
 
 ALLOBJS = $(PROGNAME).o $(VUSBOBJS) $(MYOBJS)

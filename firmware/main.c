@@ -47,6 +47,12 @@
 // Sensor communication over I2C (TWI)
 #include "sensor.h"
 
+// Menu user interface for configuring the device
+#include "menu.h"
+
+// Button handling code
+#include "buttons.h"
+
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
 
@@ -91,88 +97,6 @@
 #define YELLOW_LED (1 << 6)
 #define GREEN_LED  (1 << 7)
 #define ALL_LEDS   (GREEN_LED | YELLOW_LED | RED_LED)
-
-// Bit masks for each button (in PORTC and PINC)
-// (also used in button.state and button.changed vars)
-#define BUTTON_1      (1 << 0)
-#define BUTTON_2      (1 << 1)
-#define BUTTON_3      (1 << 2)
-#define BUTTON_SWITCH (1 << 3)
-#define ALL_BUTTONS   (BUTTON_1 | BUTTON_2 | BUTTON_3 | BUTTON_SWITCH)
-
-// }}}
-
-////////////////////////////////////////////////////////////
-// Button handling code                                  {{{
-
-static struct ButtonState {
-	// "Public" vars, already filtered for debouncing
-	uchar state;
-	uchar changed;
-
-	// "Private" button debouncing state
-	uchar debouncing[4];  // We have 4 buttons/switches
-} button;
-
-// Handy macros!
-// These have the same name/meaning of JavaScript events
-#define ON_KEY_DOWN(button_mask) ((button.changed & (button_mask)) &&  (button.state & (button_mask)))
-#define ON_KEY_UP(button_mask)   ((button.changed & (button_mask)) && !(button.state & (button_mask)))
-
-static void init_button_state() {  // {{{
-	memset(&button, 0, sizeof(button));
-}  // }}}
-
-static void update_button_state() { // {{{
-	// This function implements debouncing code.
-	// It should be called at every iteration of the main loop.
-	// It reads the TOV0 flag status, but does not clear it.
-
-	uchar filtered_state;
-
-	filtered_state = button.state;
-
-	// Timer is set to 1.365ms
-	if (TIFR & (1<<TOV0)) {
-		uchar raw_state;
-		uchar i;
-
-		// Buttons are on PC0, PC1, PC2, PC3
-		// Buttons are ON when connected to GND, and read as zero
-		// Buttons are OFF when open, internal pull-ups make them read as one
-
-		// The low nibble of PINC maps to the 4 buttons
-		raw_state = (~PINC) & 0x0F;
-		// "raw_state" has the button state, with 1 for pressed and 0 for released.
-		// Still needs debouncing...
-
-		// This debouncing solution is inspired by tiltstick-20080207 firmware.
-		//
-		// Poll the buttons into a shift register for de-bouncing.
-		// A button is considered pressed when the register reaches 0xFF.
-		// A button is considered released when the register reaches 0x00.
-		// Any intermediate value does not change the button state.
-		//
-		// 8 * 1.365ms = ~11ms without interruption
-		for (i=0; i<4; i++) {
-			button.debouncing[i] =
-				(button.debouncing[i]<<1)
-				| ( ((raw_state & (1<<i)))? 1 : 0 );
-
-			if (button.debouncing[i] == 0) {
-				// Releasing this button
-				filtered_state &= ~(1<<i);
-			} else if (button.debouncing[i] == 0xFF) {
-				// Pressing this button
-				filtered_state |=  (1<<i);
-			}
-		}
-	}
-
-	// Storing the final, filtered, updated state
-	button.changed = button.state ^ filtered_state;
-	button.state = filtered_state;
-}  // }}}
 
 // }}}
 
@@ -294,10 +218,10 @@ __attribute__((externally_visible))
 // }}}
 
 // Pointer to RAM for the string being typed.
-static uchar *string_output_pointer = NULL;
+uchar *string_output_pointer = NULL;
 
 // Shared output buffer, other functions are free to use this as needed.
-static uchar string_output_buffer[80];
+uchar string_output_buffer[80];
 
 // Copies a string from PGM to string_output_buffer and also sets
 // string_output_pointer.
@@ -491,7 +415,7 @@ static uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 	return str+2;
 }  // }}}
 
-static uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  // {{{
+uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  // {{{
 	// "-1234\t1234\t-1234\n"
 
 	uchar *str = string_output_buffer;
@@ -512,13 +436,6 @@ static uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  //
 
 	return str;
 }  // }}}
-
-// }}}
-
-////////////////////////////////////////////////////////////
-// Menu user interface for configuring the device        {{{
-
-#include "menu.inc.c"
 
 // }}}
 
