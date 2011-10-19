@@ -9,7 +9,11 @@
 
 // Maximum block that can be written (at once) to the EEPROM
 // (measured in bytes)
-#define INT_EEPROM_BUFFER_SIZE   25
+// 1 boolean zero_compensation (1 bytes)
+// 1 XYZVector for the zero value (6 bytes)
+// 4 XYZVectors for the calibration corners (6 bytes each)
+// Total of 31
+#define INT_EEPROM_BUFFER_SIZE   32
 
 
 // Init does nothing

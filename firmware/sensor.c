@@ -26,9 +26,11 @@ SensorData sensor;
 #define X_EEMEM __attribute__((section(".eeprom"), used, externally_visible))
 
 // "Default" EEPROM values:
-uchar     X_EEMEM eeprom_sensor_unused = 0;
-uchar     X_EEMEM eeprom_sensor_zero_compensation = 1;
-XYZVector X_EEMEM eeprom_sensor_zero = {21, -108, 138};
+uchar X_EEMEM eeprom_sensor_unused = 0;
+SensorEepromData X_EEMEM eeprom_sensor = {
+	1,  // zero_compensation
+	{21, -108, 138}  // zero
+};
 
 
 ////////////////////////////////////////////////////////////
@@ -201,10 +203,10 @@ uchar sensor_read_data_registers() {  // {{{
 
 				sens->new_data_available = 1;
 
-				if (sens->zero_compensation && !sens->overflow) {
-					sens->data.x -= sens->zero.x;
-					sens->data.y -= sens->zero.y;
-					sens->data.z -= sens->zero.z;
+				if (sens->e.zero_compensation && !sens->overflow) {
+					sens->data.x -= sens->e.zero.x;
+					sens->data.y -= sens->e.zero.y;
+					sens->data.z -= sens->e.zero.z;
 				}
 
 				sens->error_while_reading = 0;
@@ -302,13 +304,8 @@ void sensor_init_configuration() {  // {{{
 	//sensor.new_data_available = 0;
 	//sensor.error_while_reading = 0;
 
-	// Safer code for reading from the EEPROM:
-	//eeprom_read_block(&sensor.zero, &eeprom_sensor_zero, sizeof(sensor.zero));
-	//sensor.zero_compensation = eeprom_read_byte(&eeprom_sensor_zero_compensation);
-
-	// Smaller code for reading from the EEPROM:
-	// Assuming there is no padding in SensorData struct, we can do this:
-	eeprom_read_block(SENSOR_STRUCT_EEPROM_START, &eeprom_sensor_zero_compensation, SENSOR_STRUCT_EEPROM_SIZE);
+	// Reading from the EEPROM:
+	eeprom_read_block(&sensor.e, &eeprom_sensor, sizeof(SensorEepromData));
 
 
 	sensor_set_register_value(

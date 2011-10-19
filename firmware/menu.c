@@ -342,11 +342,11 @@ void ui_main_code() {  // {{{
 					// Do nothing, let's wait the previous output...
 				} else {
 					// Printing X,Y,Z zero...
-					debug_print_X_Y_Z_to_string_output_buffer(&sens->zero);
+					debug_print_X_Y_Z_to_string_output_buffer(&sens->e.zero);
 
 					// ...and the boolean value
 					strcat_P(string_output_buffer, zero_compensation_prefix);
-					if (sens->zero_compensation) {
+					if (sens->e.zero_compensation) {
 						strcat_P(string_output_buffer, zero_compensation_suffix_on);
 					} else {
 						strcat_P(string_output_buffer, zero_compensation_suffix_off);
@@ -369,7 +369,7 @@ void ui_main_code() {  // {{{
 					output_pgm_string(zero_calibration);
 
 					// Must disable zero compensation before calibration
-					sens->zero_compensation = 0;
+					sens->e.zero_compensation = 0;
 
 					sensor_start_continuous_reading();
 					ui.menu_item = 1;
@@ -412,14 +412,17 @@ void ui_main_code() {  // {{{
 					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
 						sensor_stop_continuous_reading();
 
-						sens->zero.x = (sens->zero_min.x + sens->zero_max.x) / 2;
-						sens->zero.y = (sens->zero_min.y + sens->zero_max.y) / 2;
-						sens->zero.z = (sens->zero_min.z + sens->zero_max.z) / 2;
+						sens->e.zero.x = (sens->zero_min.x + sens->zero_max.x) / 2;
+						sens->e.zero.y = (sens->zero_min.y + sens->zero_max.y) / 2;
+						sens->e.zero.z = (sens->zero_min.z + sens->zero_max.z) / 2;
 
-						sens->zero_compensation = 1;
+						sens->e.zero_compensation = 1;
 
 						// Saving to EEPROM
-						int_eeprom_write_block(SENSOR_STRUCT_EEPROM_START, &eeprom_sensor_zero_compensation, SENSOR_STRUCT_EEPROM_SIZE);
+						// I could save the entire EEPROM block, but instead
+						// I'm saving only the boolean zero_compensation and
+						// the XYZVector zero.
+						int_eeprom_write_block(&sens->e.zero_compensation, &eeprom_sensor.zero_compensation, (1 + sizeof(XYZVector)));
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -430,10 +433,10 @@ void ui_main_code() {  // {{{
 			////////////////////
 			case UI_ZERO_TOGGLE_WIDGET:  // {{{
 				// Toggling current state
-				sens->zero_compensation = !sens->zero_compensation;
+				sens->e.zero_compensation = !sens->e.zero_compensation;
 
 				// Saving to EEPROM
-				int_eeprom_write_block(&sens->zero_compensation, &eeprom_sensor_zero_compensation, 1);
+				int_eeprom_write_block(&sens->e.zero_compensation, &eeprom_sensor.zero_compensation, 1);
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);

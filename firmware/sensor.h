@@ -19,10 +19,22 @@
 #define SENSOR_DATA_OVERFLOW -4096
 
 
+// Definitions
 typedef struct XYZVector {
 	int x, y, z;
 } XYZVector;
 
+typedef struct SensorEepromData {
+	// This struct is used for data at EEPROM and at SRAM
+
+	// Boolean to enable Zero compensation
+	uchar zero_compensation;
+
+	// Zero calibration value
+	XYZVector zero;
+
+	// TODO: add here the 4 calibration corners
+} SensorEepromData;
 
 typedef struct SensorData {
 	union {
@@ -52,18 +64,7 @@ typedef struct SensorData {
 	// The X,Y,Z data from the sensor
 	XYZVector data;
 
-	// BEGIN EEPROM BLOCK  {{{
-		// This block can (and will) be directly saved/loaded from the EEPROM
-		// The compiler MUST NOT add padding to this struct, else the code
-		// will not load/save correctly.
-		// Add "-Wpadded -fpack-struct" to CFLAGS.
-
-		// Boolean to enable Zero compensation
-		uchar zero_compensation;
-
-		// Zero calibration value
-		XYZVector zero;
-	// END EEPROM BLOCK  }}}
+	SensorEepromData e;
 
 	// Zero calibration temporary values
 	XYZVector zero_min;
@@ -75,18 +76,17 @@ typedef struct SensorData {
 
 } SensorData;
 
-extern SensorData sensor;
 
-#define SENSOR_STRUCT_EEPROM_START &sensor.zero_compensation
-#define SENSOR_STRUCT_EEPROM_SIZE  (sizeof(uchar) + 1 * sizeof(XYZVector))
+// Variable
+extern SensorData sensor;
 
 
 // EEPROM addresses
-extern uchar     EEMEM eeprom_sensor_unused;
-extern uchar     EEMEM eeprom_sensor_zero_compensation;
-extern XYZVector EEMEM eeprom_sensor_zero;
+extern uchar EEMEM eeprom_sensor_unused;
+extern SensorEepromData EEMEM eeprom_sensor;
 
 
+// Functions
 void sensor_set_address_pointer(uchar reg);
 void sensor_set_register_value(uchar reg, uchar value);
 

@@ -132,7 +132,7 @@ CFLAGS  += -Wno-main
 CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 
 # Warn if the compiler adds padding inside any struct. This will break some
-# code assumptions when loading/storing sensor data from EEPROM.
+# code assumptions when loading/storing partial sensor data from EEPROM.
 # -Wpadded
 #   Warn if padding is included in a structure, either to align an element of
 #   the structure or to align the whole structure.  Sometimes when this
