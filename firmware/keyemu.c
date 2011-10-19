@@ -150,6 +150,10 @@ static KeyAndModifier char_to_key[] PROGMEM = {  // {{{
 // }}}
 
 
+// http://www.tty1.net/blog/2008-04-29-avr-gcc-optimisations_en.html
+#define FIX_POINTER(_ptr) __asm__ __volatile__("" : "=b" (_ptr) : "0" (_ptr))
+
+
 /*
 void init_keyboard_emulation() {  // {{{
 	// According to avr-libc FAQ, the compiler automatically initializes
@@ -160,33 +164,37 @@ void init_keyboard_emulation() {  // {{{
 
 
 void build_report_from_char(uchar c) {  // {{{
+	// Using a local pointer saves around 6 bytes
+	uchar *repbuf = report_buffer;
+	FIX_POINTER(repbuf);
+
 	if (c >= ' ' && c <= '@') {
-		report_buffer[0] = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
-		report_buffer[1] = pgm_read_byte_near(&char_to_key[c - ' '].key);
+		repbuf[0] = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
+		repbuf[1] = pgm_read_byte_near(&char_to_key[c - ' '].key);
 	} else if (c >= 'A' && c <= 'Z') {
-		report_buffer[0] = MOD_SHIFT_LEFT;
-		report_buffer[1] = KEY_A + c - 'A';
+		repbuf[0] = MOD_SHIFT_LEFT;
+		repbuf[1] = KEY_A + c - 'A';
 	} else if (c >= 'a' && c <= 'z') {
-		report_buffer[0] = 0;
-		report_buffer[1] = KEY_A + c - 'a';
+		repbuf[0] = 0;
+		repbuf[1] = KEY_A + c - 'a';
 	} else {
 		switch (c) {
 			case '\n':
-				report_buffer[0] = 0;
-				report_buffer[1] = KEY_ENTER;
+				repbuf[0] = 0;
+				repbuf[1] = KEY_ENTER;
 				break;
 			case '\t':
-				report_buffer[0] = 0;
-				report_buffer[1] = KEY_TAB;
+				repbuf[0] = 0;
+				repbuf[1] = KEY_TAB;
 				break;
 			case '_':
-				report_buffer[0] = MOD_SHIFT_LEFT;
-				report_buffer[1] = KEY_MINUS;
+				repbuf[0] = MOD_SHIFT_LEFT;
+				repbuf[1] = KEY_MINUS;
 				break;
 
 			default:
-				report_buffer[0] = 0;
-				report_buffer[1] = 0;
+				repbuf[0] = 0;
+				repbuf[1] = 0;
 		}
 	}
 }  // }}}
@@ -202,23 +210,27 @@ uchar send_next_char() {  // {{{
 	// If the next char uses the same key as the previous one, then sends a
 	// "no key" before sending the char.
 
+	// Using a local pointer saves around 2 bytes
+	uchar *repbuf = report_buffer;
+	FIX_POINTER(repbuf);
+
 	if (string_output_pointer != NULL && *string_output_pointer != '\0') {
 		uchar old_report_buffer_key;
 
-		old_report_buffer_key = report_buffer[1];
+		old_report_buffer_key = repbuf[1];
 		build_report_from_char(*string_output_pointer);
 
-		if (old_report_buffer_key == report_buffer[1] && report_buffer[1] != 0) {
-			report_buffer[0] = 0;
-			report_buffer[1] = 0;
+		if (old_report_buffer_key == repbuf[1] && repbuf[1] != 0) {
+			repbuf[0] = 0;
+			repbuf[1] = 0;
 		} else {
 			string_output_pointer++;
 		}
 
 		return 1;
 	} else {
-		report_buffer[0] = 0;
-		report_buffer[1] = 0;
+		repbuf[0] = 0;
+		repbuf[1] = 0;
 		string_output_pointer = NULL;
 		return 0;
 	}
