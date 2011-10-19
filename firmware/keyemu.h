@@ -7,6 +7,7 @@
 #define __keyemu_h_included__
 
 #include "common.h"
+#include "sensor.h"
 
 
 // Copies a string from PGM to string_output_buffer and also sets
@@ -26,6 +27,15 @@ extern uchar string_output_buffer[80];
 
 void build_report_from_char(uchar c);
 uchar send_next_char();
+
+uchar nibble_to_hex(uchar n);
+void uchar_to_hex(uchar v, uchar *str);
+void int_to_hex(int v, uchar *str);
+uchar* int_to_dec(int v, uchar *str);
+uchar* append_newline_to_str(uchar *str);
+uchar* array_to_hexdump(uchar *data, uchar len, uchar *str);
+uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector);
+
 
 #endif  // __keyemu_h_included____
 

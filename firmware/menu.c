@@ -26,10 +26,6 @@
 #define BUTTON_CONFIRM BUTTON_3
 
 
-// Things that are currently declared at main.c:
-uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector);
-
-
 ////////////////////////////////////////////////////////////
 // Menu definitions (constants in progmem)               {{{
 

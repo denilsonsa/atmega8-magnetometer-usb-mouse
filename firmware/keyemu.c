@@ -11,6 +11,8 @@
 #include <stddef.h>
 
 #include <avr/pgmspace.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "keyemu.h"
@@ -231,6 +233,100 @@ uchar send_next_char() {  // {{{
 		string_output_pointer = NULL;
 		return 0;
 	}
+}  // }}}
+
+
+////////////////////////////////////////////////////////////
+// String utilities
+// Not exactly part of keyboard emulation, but useless outside it.
+
+uchar nibble_to_hex(uchar n) {  // {{{
+	// I'm supposing n is already in range 0x00..0x0F
+	if (n < 10)
+		return '0' + n;
+	else
+		return 'A' + n - 10;
+}  // }}}
+
+void uchar_to_hex(uchar v, uchar *str) {  // {{{
+	// XXX: The NULL terminator is NOT added!
+	*str = nibble_to_hex(v >> 4);
+	str++;
+	*str = nibble_to_hex(v & 0x0F);
+}  // }}}
+
+void int_to_hex(int v, uchar *str) {  // {{{
+	// I'm supposing int is 16-bit
+	// XXX: The NULL terminator is NOT added!
+	uchar_to_hex((uchar)(v >> 8), str);
+	uchar_to_hex((uchar) v      , str+2);
+}  // }}}
+
+uchar* int_to_dec(int v, uchar *str) {  // {{{
+	// Returns a pointer to the '\0' char
+
+	itoa(v, (char*)str, 10);
+	while (*str != '\0') {
+		str++;
+	}
+	return str;
+}  // }}}
+
+uchar* append_newline_to_str(uchar *str) {  // {{{
+	// Returns a pointer to the '\0' char
+
+	while (*str != '\0') {
+		str++;
+	}
+	*str     = '\n';
+	*(str+1) = '\0';
+
+	return str+1;
+}  // }}}
+
+uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
+	// Builds a string of this form:
+	// "DE AD F0 0D"
+	// One space between each byte, ending the string with '\0'
+	//
+	// Returns a pointer to the '\0' char
+
+	// I'm supposing that len > 0
+	uchar_to_hex(*data, str);
+
+	while (--len) {
+		data++;
+		// str[0] and str[1] are the hex digits
+		str[2] = ' ';
+		str += 3;
+		uchar_to_hex(*data, str);
+	}
+
+	str[2] = '\0';
+
+	return str+2;
+}  // }}}
+
+uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  // {{{
+	// "-1234\t1234\t-1234\n"
+
+	uchar *str = string_output_buffer;
+
+	str = int_to_dec(vector->x, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(vector->y, str);
+	*str = '\t';
+	str++;
+
+	str = int_to_dec(vector->z, str);
+	*str = '\n';
+	str++;
+
+	*str = '\0';
+
+	return str;
 }  // }}}
 
 
