@@ -23,6 +23,7 @@ void init_button_state() {  // {{{
 }  // }}}
 */
 
+
 void update_button_state() { // {{{
 	// This function implements debouncing code.
 	// It should be called at every iteration of the main loop.
@@ -73,3 +74,6 @@ void update_button_state() { // {{{
 	button.changed = button.state ^ filtered_state;
 	button.state = filtered_state;
 }  // }}}
+
+
+// vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}

@@ -46,3 +46,5 @@ void update_button_state();
 
 
 #endif  // __buttons_h_included____
+
+// vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}
