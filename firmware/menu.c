@@ -79,7 +79,7 @@ static const MenuItem empty_menu_items[] PROGMEM = {
 // }}}
 
 // Error menu, for when something goes wrong  {{{
-static const char     error_menu_1[] PROGMEM = "Error in menu system!\n";
+static const char     error_menu_1[] PROGMEM = "Menu system error!\n";
 #define               error_menu_total_items 1
 static const MenuItem error_menu_items[] PROGMEM = {
 	{error_menu_1, 0}
@@ -101,7 +101,7 @@ static const MenuItem main_menu_items[] PROGMEM = {
 // }}}
 
 // Zero calibration menu  {{{
-static const char     zero_menu_1[] PROGMEM = "1.1. Print calibrated zero\n";
+static const char     zero_menu_1[] PROGMEM = "1.1. Print zero\n";
 static const char     zero_menu_2[] PROGMEM = "1.2. Recalibrate zero\n";
 static const char     zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
 static const char     zero_menu_4[] PROGMEM = "1.4. << main menu\n";
@@ -121,7 +121,7 @@ static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
 // }}}
 
 // Corner calibration menu  {{{
-static const char     corners_menu_1[] PROGMEM = "2.1. Print saved corners\n";
+static const char     corners_menu_1[] PROGMEM = "2.1. Print corners\n";
 static const char     corners_menu_2[] PROGMEM = "2.2. Set topleft\n";
 static const char     corners_menu_3[] PROGMEM = "2.3. Set topright\n";
 static const char     corners_menu_4[] PROGMEM = "2.4. Set bottomleft\n";
@@ -146,12 +146,10 @@ static const PGM_P corners_names[4] PROGMEM = {
 	corners_menu_4 + 17,
 	corners_menu_5 + 17
 };
-
-static const char corners_calibration[] PROGMEM = "Point to the indicated corner and press the button\n";
 // }}}
 
 // Sensor data menu  {{{
-static const char     sensor_menu_1[] PROGMEM = "3.1. Print sensor identification string\n";
+static const char     sensor_menu_1[] PROGMEM = "3.1. Print sensor identification\n";
 static const char     sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
 static const char     sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
 static const char     sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
