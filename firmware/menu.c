@@ -503,7 +503,7 @@ void ui_main_code() {  // {{{
 
 			////////////////////
 			case UI_CORNERS_SET_ANYTHING_WIDGET:  // {{{
-				if (string_output_pointer != NULL
+				if (string_output_pointer == NULL
 					&& button.state & BUTTON_CONFIRM
 					&& sens->new_data_available
 					&& !sens->overflow
