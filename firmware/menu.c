@@ -50,9 +50,10 @@
 #define UI_ZERO_PRINT_WIDGET       0x10
 #define UI_ZERO_CAL_WIDGET         0x11
 #define UI_ZERO_TOGGLE_WIDGET      0x12
-#define UI_SENSOR_ID_WIDGET        0x13
-#define UI_SENSOR_XYZ_ONCE_WIDGET  0x14
-#define UI_SENSOR_XYZ_CONT_WIDGET  0x15
+#define UI_CORNERS_PRINT_WIDGET    0x13
+#define UI_SENSOR_ID_WIDGET        0x14
+#define UI_SENSOR_XYZ_ONCE_WIDGET  0x15
+#define UI_SENSOR_XYZ_CONT_WIDGET  0x16
 // }}}
 
 typedef struct MenuItem {  // {{{
@@ -121,11 +122,25 @@ static const char     corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm be
 static const char     corners_menu_4[] PROGMEM = "2.4. << main menu\n";
 #define               corners_menu_total_items 4
 static const MenuItem corners_menu_items[] PROGMEM = {
-	{corners_menu_1, UI_ROOT_MENU},  // TODO
+	{corners_menu_1, UI_CORNERS_PRINT_WIDGET},
 	{corners_menu_2, UI_ROOT_MENU},  // TODO
 	{corners_menu_3, UI_ROOT_MENU},  // TODO
 	{corners_menu_4, 0}
 };
+
+// Other messages:
+static const char corners_names_1[] PROGMEM = "topleft\n";
+static const char corners_names_2[] PROGMEM = "topright\n";
+static const char corners_names_3[] PROGMEM = "bottomleft\n";
+static const char corners_names_4[] PROGMEM = "bottomright\n";
+static const PGM_P corners_names[4] PROGMEM = {
+	corners_names_1,
+	corners_names_2,
+	corners_names_3,
+	corners_names_4
+};
+
+static const char corners_calibration[] PROGMEM = "Point to the indicated corner and press the button\n";
 // }}}
 
 // Sensor data menu  {{{
@@ -440,6 +455,27 @@ void ui_main_code() {  // {{{
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);
+				break;  // }}}
+
+
+			////////////////////
+			case UI_CORNERS_PRINT_WIDGET:  // {{{
+				if (string_output_pointer != NULL) {
+					// Do nothing, let's wait the previous output...
+				} else {
+					if (ui.menu_item % 2 == 0) {
+						// Print the corner name
+						output_pgm_string(corners_names[ui.menu_item]);
+					} else {
+						// Print the corner value
+						XYZVector_to_string(&sens->e.corners[ui.menu_item / 2], string_output_buffer);
+						string_output_pointer = string_output_buffer;
+					}
+					ui.menu_item++;
+					if (ui.menu_item >= 4 * 2) {
+						ui_pop_state();
+					}
+				}
 				break;  // }}}
 
 
