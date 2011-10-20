@@ -140,11 +140,11 @@ static const MenuItem corners_menu_items[] PROGMEM = {
 // Corner names:
 // Slightly hacked from the menu strings. Saves about 100 bytes this way!
 static const PGM_P corners_names[4] PROGMEM = {
-	// 17 = number of characters in "2.x. Set corner: "
-	corners_menu_2 + 17,
-	corners_menu_3 + 17,
-	corners_menu_4 + 17,
-	corners_menu_5 + 17
+	// 17 = number of characters in "2.x. Set "
+	corners_menu_2 + 9,
+	corners_menu_3 + 9,
+	corners_menu_4 + 9,
+	corners_menu_5 + 9
 };
 // }}}
 
