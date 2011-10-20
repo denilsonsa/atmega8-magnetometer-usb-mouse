@@ -465,7 +465,11 @@ void ui_main_code() {  // {{{
 				} else {
 					if (ui.menu_item % 2 == 0) {
 						// Print the corner name
-						output_pgm_string(corners_names[ui.menu_item]);
+						output_pgm_string(
+							(PGM_VOID_P) pgm_read_word_near(
+								&corners_names[ui.menu_item / 2]
+							)
+						);
 					} else {
 						// Print the corner value
 						XYZVector_to_string(&sens->e.corners[ui.menu_item / 2], string_output_buffer);
