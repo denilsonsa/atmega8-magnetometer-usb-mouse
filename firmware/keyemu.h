@@ -18,8 +18,9 @@
 	} while(0)
 
 
+#define STRING_OUTPUT_BUFFER_SIZE 100
 extern uchar *string_output_pointer;
-extern uchar string_output_buffer[80];
+extern uchar string_output_buffer[STRING_OUTPUT_BUFFER_SIZE];
 
 
 // Init does nothing

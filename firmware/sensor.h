@@ -43,7 +43,9 @@ typedef struct SensorData {
 			// Boolean that detects if the sensor have reported an overflow
 			uchar overflow:1;
 
-			// Set to 1 whenever new sensor data has been read.
+			// Set to 1 whenever new sensor data has been read and hasn't
+			// been used yet. This flag should be cleared elsewhere, after
+			// using the data.
 			uchar new_data_available:1;
 
 			// Almost the same as TWI_statusReg.lastTransOK.

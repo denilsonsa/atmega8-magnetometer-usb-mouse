@@ -47,13 +47,18 @@
 #define UI_IS_MENU(id) ((id) >= UI_MIN_MENU_ID && (id) <= UI_MAX_MENU_ID)
 
 // Other widgets
-#define UI_ZERO_PRINT_WIDGET       0x10
-#define UI_ZERO_CAL_WIDGET         0x11
-#define UI_ZERO_TOGGLE_WIDGET      0x12
-#define UI_CORNERS_PRINT_WIDGET    0x13
-#define UI_SENSOR_ID_WIDGET        0x14
-#define UI_SENSOR_XYZ_ONCE_WIDGET  0x15
-#define UI_SENSOR_XYZ_CONT_WIDGET  0x16
+#define UI_ZERO_PRINT_WIDGET              0x10
+#define UI_ZERO_CAL_WIDGET                0x11
+#define UI_ZERO_TOGGLE_WIDGET             0x12
+#define UI_CORNERS_PRINT_WIDGET           0x13
+#define UI_CORNERS_SET_TOPLEFT_WIDGET     0x14
+#define UI_CORNERS_SET_TOPRIGHT_WIDGET    0x15
+#define UI_CORNERS_SET_BOTTOMLEFT_WIDGET  0x16
+#define UI_CORNERS_SET_BOTTOMRIGHT_WIDGET 0x17
+#define UI_CORNERS_SET_ANYTHING_WIDGET    0x18
+#define UI_SENSOR_ID_WIDGET               0x19
+#define UI_SENSOR_XYZ_ONCE_WIDGET         0x1A
+#define UI_SENSOR_XYZ_CONT_WIDGET         0x1B
 // }}}
 
 typedef struct MenuItem {  // {{{
@@ -109,35 +114,37 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 };
 
 // Other messages:
-static const char zero_calibration[] PROGMEM = "Move the sensor in all possible directions, then press the button to finish\n";
+static const char zero_calibration[] PROGMEM = "Move the sensor to get the maximum and minimum value of each axis. Press the button to finish.\n";
 static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is ";
 static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
 // }}}
 
 // Corner calibration menu  {{{
-static const char     corners_menu_1[] PROGMEM = "2.1. Print calibrated corners\n";
-static const char     corners_menu_2[] PROGMEM = "2.2. Recalibrate corners\n";
-static const char     corners_menu_3[] PROGMEM = "2.3. TODO: toggle algorithm being used, but here?\n";
-static const char     corners_menu_4[] PROGMEM = "2.4. << main menu\n";
-#define               corners_menu_total_items 4
+static const char     corners_menu_1[] PROGMEM = "2.1. Print saved corners\n";
+static const char     corners_menu_2[] PROGMEM = "2.2. Set topleft\n";
+static const char     corners_menu_3[] PROGMEM = "2.3. Set topright\n";
+static const char     corners_menu_4[] PROGMEM = "2.4. Set bottomleft\n";
+static const char     corners_menu_5[] PROGMEM = "2.5. Set bottomright\n";
+static const char     corners_menu_6[] PROGMEM = "2.6. << main menu\n";
+#define               corners_menu_total_items 6
 static const MenuItem corners_menu_items[] PROGMEM = {
 	{corners_menu_1, UI_CORNERS_PRINT_WIDGET},
-	{corners_menu_2, UI_ROOT_MENU},  // TODO
-	{corners_menu_3, UI_ROOT_MENU},  // TODO
-	{corners_menu_4, 0}
+	{corners_menu_2, UI_CORNERS_SET_TOPLEFT_WIDGET},
+	{corners_menu_3, UI_CORNERS_SET_TOPRIGHT_WIDGET},
+	{corners_menu_4, UI_CORNERS_SET_BOTTOMLEFT_WIDGET},
+	{corners_menu_5, UI_CORNERS_SET_BOTTOMRIGHT_WIDGET},
+	{corners_menu_6, 0}
 };
 
-// Other messages:
-static const char corners_names_1[] PROGMEM = "topleft\n";
-static const char corners_names_2[] PROGMEM = "topright\n";
-static const char corners_names_3[] PROGMEM = "bottomleft\n";
-static const char corners_names_4[] PROGMEM = "bottomright\n";
+// Corner names:
+// Slightly hacked from the menu strings. Saves about 100 bytes this way!
 static const PGM_P corners_names[4] PROGMEM = {
-	corners_names_1,
-	corners_names_2,
-	corners_names_3,
-	corners_names_4
+	// 17 = number of characters in "2.x. Set corner: "
+	corners_menu_2 + 17,
+	corners_menu_3 + 17,
+	corners_menu_4 + 17,
+	corners_menu_5 + 17
 };
 
 static const char corners_calibration[] PROGMEM = "Point to the indicated corner and press the button\n";
@@ -479,6 +486,42 @@ void ui_main_code() {  // {{{
 					if (ui.menu_item >= 4 * 2) {
 						ui_pop_state();
 					}
+				}
+				break;  // }}}
+
+			////////////////////
+			case UI_CORNERS_SET_TOPLEFT_WIDGET:  // {{{
+			case UI_CORNERS_SET_TOPRIGHT_WIDGET:
+			case UI_CORNERS_SET_BOTTOMLEFT_WIDGET:
+			case UI_CORNERS_SET_BOTTOMRIGHT_WIDGET:
+				// Setting the ui.menu_item value to {0,1,2,3}, according to
+				// the selected corner
+				ui.menu_item = ui.widget_id - UI_CORNERS_SET_TOPLEFT_WIDGET;
+
+				// Switching to the generic corner-saving code
+				ui.widget_id = UI_CORNERS_SET_ANYTHING_WIDGET;
+				sensor_start_continuous_reading();
+				break;  // }}}
+
+			////////////////////
+			case UI_CORNERS_SET_ANYTHING_WIDGET:  // {{{
+				if (string_output_pointer != NULL
+					&& button.state & BUTTON_CONFIRM
+					&& sens->new_data_available
+					&& !sens->overflow
+				) {
+					sensor_stop_continuous_reading();
+					sens->new_data_available = 0;
+
+					// Saving
+					sens->e.corners[ui.menu_item] = sens->data;
+					int_eeprom_write_block(&sens->e.corners[ui.menu_item], &eeprom_sensor.corners[ui.menu_item], sizeof(XYZVector));
+
+					// Printing
+					XYZVector_to_string(&sens->data, string_output_buffer);
+					string_output_pointer = string_output_buffer;
+
+					ui_pop_state();
 				}
 				break;  // }}}
 

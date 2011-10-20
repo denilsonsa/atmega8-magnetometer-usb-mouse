@@ -25,7 +25,7 @@ extern uchar report_buffer[];
 uchar *string_output_pointer = NULL;
 
 // Shared output buffer, other functions are free to use this as needed.
-uchar string_output_buffer[80];
+uchar string_output_buffer[STRING_OUTPUT_BUFFER_SIZE];
 
 
 // Keyboard usage values  {{{
