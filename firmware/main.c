@@ -129,6 +129,7 @@ __attribute__((externally_visible))
 	0x95, 0x01,                    //   REPORT_COUNT (1)
 	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
 	// Modifier keys
+//	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
 	0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
 	0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
 //	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
@@ -138,7 +139,7 @@ __attribute__((externally_visible))
 	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
 	0xc0,                          // END_COLLECTION
 	// Mouse
-//	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
 	0x09, 0x02,                    // USAGE (Mouse)
 	0xa1, 0x01,                    // COLLECTION (Application)
 	// Buttons
