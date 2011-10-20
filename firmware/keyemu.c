@@ -207,6 +207,7 @@ uchar send_next_char() {  // {{{
 	// If a valid char is found, builds the report and returns 1.
 	// If the pointer is NULL or the char is '\0', builds a "no key being
 	// pressed" report and returns 0.
+	// (note: the return value is being ignored by main())
 	//
 	// If the next char uses the same key as the previous one, then sends a
 	// "no key" before sending the char.

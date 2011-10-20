@@ -322,6 +322,7 @@ main(void) {  // {{{
 	cli();
 
 	hardware_init();
+	clear_report_buffer();
 	TWI_Master_Initialise();
 	usbInit();
 	init_int_eeprom();
@@ -428,19 +429,24 @@ main(void) {  // {{{
 			TIFR = 1<<TOV0;
 		}
 
-		// Automatically send report if there is something in the buffer.
-		if (string_output_pointer != NULL) {
-			// TODO: refactor this "should_send_report" var. Currently, its
-			// meaning is the same as comparing string_output_buffer to NULL.
-			// So, it's redundant.
-			should_send_report = 1;
-		}
-
 		// Sending USB Interrupt-in report
-		if(should_send_report && usbInterruptIsReady()){
-			// TODO: no need to return a value here...
-			should_send_report = send_next_char();
-			usbSetInterrupt(report_buffer, sizeof(report_buffer));
+		if(usbInterruptIsReady()) {
+			if(string_output_pointer != NULL){
+				// Automatically send keyboard report if there is something in
+				// the buffer
+				send_next_char();
+				usbSetInterrupt(report_buffer, sizeof(report_buffer));
+			} else if(button.state & BUTTON_SWITCH) {
+				// Sending mouse clicks...
+				clear_report_buffer();
+				if (button.state & BUTTON_1){
+					report_buffer[2] |= 1;
+				}
+				if (button.state & BUTTON_2){
+					report_buffer[2] |= 2;
+				}
+				usbSetInterrupt(report_buffer, sizeof(report_buffer));
+			}
 		}
 	}
 }  // }}}
