@@ -140,6 +140,10 @@ CFLAGS  += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #   the padding and so make the structure smaller.
 CFLAGS  += -Wpadded
 
+# -Wmissing-field-initializers
+#     Warn if a structure's initializer has some fields missing.
+CFLAGS  += -Wmissing-field-initializers
+
 # This saved 24 bytes
 CFLAGS  += -fno-split-wide-types
 

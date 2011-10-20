@@ -18,3 +18,4 @@
 
 #endif  // __common_h_included__
 
+// vim:noexpandtab tabstop=4 shiftwidth=4 foldmethod=marker foldmarker={{{,}}}

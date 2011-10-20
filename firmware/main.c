@@ -54,6 +54,9 @@
 // Keyboard emulation code
 #include "keyemu.h"
 
+// USB-HID things also used by other files
+#include "main.h"
+
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
 
@@ -104,33 +107,67 @@
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
 
-uchar report_buffer[2];    /* buffer for HID reports */
+// Buffer for HID reports
+uchar report_buffer[REPORT_BUFFER_SIZE];
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
 PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
 __attribute__((externally_visible))
 = {
-    0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x06,                    // USAGE (Keyboard)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
-    0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
-    0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-    0x75, 0x01,                    //   REPORT_SIZE (1)
-    0x95, 0x08,                    //   REPORT_COUNT (8)
-    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-    0x95, 0x01,                    //   REPORT_COUNT (1)
-    0x75, 0x08,                    //   REPORT_SIZE (8)
-    0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
-    0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
-    0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
-    0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
-    0xc0                           // END_COLLECTION
+	// Keyboard
+	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,                    // USAGE (Keyboard)
+	0xa1, 0x01,                    // COLLECTION (Application)
+	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
+	// Normal keys
+	0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
+	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+	0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
+	0x75, 0x08,                    //   REPORT_SIZE (8)
+	0x95, 0x01,                    //   REPORT_COUNT (1)
+	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
+	// Modifier keys
+	0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
+//	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,                    //   REPORT_SIZE (1)
+	0x95, 0x08,                    //   REPORT_COUNT (8)
+	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	0xc0,                          // END_COLLECTION
+	// Mouse
+//	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+	0x09, 0x02,                    // USAGE (Mouse)
+	0xa1, 0x01,                    // COLLECTION (Application)
+	// Buttons
+	0x05, 0x09,                    //   USAGE_PAGE (Button)
+	0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+	0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
+//	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+//	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+//	0x75, 0x01,                    //   REPORT_SIZE (1)
+	0x95, 0x02,                    //   REPORT_COUNT (2)
+	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	// X, Y movement
+	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
+	0x09, 0x01,                    //   USAGE (Pointer)
+	0xa1, 0x00,                    //   COLLECTION (Physical)
+	0x09, 0x30,                    //     USAGE (X)
+	0x09, 0x31,                    //     USAGE (Y)
+//	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x7e,              //     LOGICAL_MAXIMUM (32766)
+	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
+	0x46, 0xff, 0x7e,              //     PHYSICAL_MAXIMUM (32766)
+	0x75, 0x0f,                    //     REPORT_SIZE (15)
+//	0x95, 0x02,                    //     REPORT_COUNT (2)
+	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
+	0xc0,                          //   END_COLLECTION
+	0xc0                           // END_COLLECTION
 };
-/* We use a simplifed keyboard report descriptor which does not support the
+/* TODO: update this comment
+ * We use a simplifed keyboard report descriptor which does not support the
  * boot protocol. We don't allow setting status LEDs and we only allow one
  * simultaneous key press (except modifiers). We can therefore use short
  * 2 byte input reports.
@@ -139,6 +176,20 @@ __attribute__((externally_visible))
  * Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been omitted
  * for the second INPUT item.
  */
+
+void clear_report_buffer() {  // {{{
+	uchar *repbuf = report_buffer;
+	FIX_POINTER(repbuf);
+
+	// Keyboard
+	repbuf[0] = 0;
+	repbuf[1] = 0;
+	// Mouse
+	repbuf[2] = 0xFF ^ 0x03;  // The buttons should be zero
+	repbuf[3] = 0xFF;
+	repbuf[4] = 0xFF;
+	repbuf[5] = 0xFF;
+}  // }}}
 
 // }}}
 

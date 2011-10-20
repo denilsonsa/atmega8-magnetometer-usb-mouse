@@ -15,10 +15,8 @@
 #include <stdlib.h>
 
 #include "common.h"
+#include "main.h"
 #include "keyemu.h"
-
-// This is declared at main.c, but has no header to be included:
-extern uchar report_buffer[];
 
 
 // Pointer to RAM for the string being typed.
@@ -161,39 +159,43 @@ void init_keyboard_emulation() {  // {{{
 }  // }}}
 */
 
-
 void build_report_from_char(uchar c) {  // {{{
 	// Using a local pointer saves around 6 bytes
 	uchar *repbuf = report_buffer;
 	FIX_POINTER(repbuf);
 
+	// For most cases, modifier is zero
+	//repbuf[1] = 0;
+
+	clear_report_buffer();
+
 	if (c >= ' ' && c <= '@') {
-		repbuf[0] = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
-		repbuf[1] = pgm_read_byte_near(&char_to_key[c - ' '].key);
+		repbuf[0] = pgm_read_byte_near(&char_to_key[c - ' '].key);
+		repbuf[1] = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
 	} else if (c >= 'A' && c <= 'Z') {
-		repbuf[0] = MOD_SHIFT_LEFT;
-		repbuf[1] = KEY_A + c - 'A';
+		repbuf[0] = KEY_A + c - 'A';
+		repbuf[1] = MOD_SHIFT_LEFT;
 	} else if (c >= 'a' && c <= 'z') {
-		repbuf[0] = 0;
-		repbuf[1] = KEY_A + c - 'a';
+		repbuf[0] = KEY_A + c - 'a';
+		//repbuf[1] = 0;
 	} else {
 		switch (c) {
 			case '\n':
-				repbuf[0] = 0;
-				repbuf[1] = KEY_ENTER;
+				repbuf[0] = KEY_ENTER;
+				//repbuf[1] = 0;
 				break;
 			case '\t':
-				repbuf[0] = 0;
-				repbuf[1] = KEY_TAB;
+				repbuf[0] = KEY_TAB;
+				//repbuf[1] = 0;
 				break;
 			case '_':
-				repbuf[0] = MOD_SHIFT_LEFT;
-				repbuf[1] = KEY_MINUS;
+				repbuf[0] = KEY_MINUS;
+				repbuf[1] = MOD_SHIFT_LEFT;
 				break;
 
 			default:
 				repbuf[0] = 0;
-				repbuf[1] = 0;
+				//repbuf[1] = 0;
 		}
 	}
 }  // }}}
@@ -216,10 +218,12 @@ uchar send_next_char() {  // {{{
 	if (string_output_pointer != NULL && *string_output_pointer != '\0') {
 		uchar old_report_buffer_key;
 
-		old_report_buffer_key = repbuf[1];
+		old_report_buffer_key = repbuf[0];
 		build_report_from_char(*string_output_pointer);
 
-		if (old_report_buffer_key == repbuf[1] && repbuf[1] != 0) {
+		if (old_report_buffer_key == repbuf[0] && repbuf[0] != 0) {
+			// Inserting a key release if the next key would be the same as
+			// the previous one
 			repbuf[0] = 0;
 			repbuf[1] = 0;
 		} else {
@@ -228,8 +232,7 @@ uchar send_next_char() {  // {{{
 
 		return 1;
 	} else {
-		repbuf[0] = 0;
-		repbuf[1] = 0;
+		clear_report_buffer();
 		string_output_pointer = NULL;
 		return 0;
 	}
