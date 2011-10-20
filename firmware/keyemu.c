@@ -307,10 +307,8 @@ uchar* array_to_hexdump(uchar *data, uchar len, uchar *str) {  // {{{
 	return str+2;
 }  // }}}
 
-uchar* debug_print_X_Y_Z_to_string_output_buffer(XYZVector* vector) {  // {{{
+uchar* XYZVector_to_string(XYZVector* vector, uchar *str) {  // {{{
 	// "-1234\t1234\t-1234\n"
-
-	uchar *str = string_output_buffer;
 
 	str = int_to_dec(vector->x, str);
 	*str = '\t';

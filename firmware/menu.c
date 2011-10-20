@@ -342,7 +342,7 @@ void ui_main_code() {  // {{{
 					// Do nothing, let's wait the previous output...
 				} else {
 					// Printing X,Y,Z zero...
-					debug_print_X_Y_Z_to_string_output_buffer(&sens->e.zero);
+					XYZVector_to_string(&sens->e.zero, string_output_buffer);
 
 					// ...and the boolean value
 					strcat_P(string_output_buffer, zero_compensation_prefix);
@@ -403,7 +403,7 @@ void ui_main_code() {  // {{{
 							if (sens->data.z > sens->zero_max.z) sens->zero_max.z = sens->data.z;
 
 							if (string_output_pointer == NULL) {
-								debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
+								XYZVector_to_string(&sens->data, string_output_buffer);
 								string_output_pointer = string_output_buffer;
 							}
 						}
@@ -485,7 +485,7 @@ void ui_main_code() {  // {{{
 						if (sens->new_data_available) {
 							sens->new_data_available = 0;
 							sensor_stop_continuous_reading();
-							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
+							XYZVector_to_string(&sens->data, string_output_buffer);
 							string_output_pointer = string_output_buffer;
 							ui_pop_state();
 						} else if (sens->error_while_reading) {
@@ -510,7 +510,7 @@ void ui_main_code() {  // {{{
 					if (string_output_pointer == NULL) {
 						if (sens->new_data_available) {
 							sens->new_data_available = 0;
-							debug_print_X_Y_Z_to_string_output_buffer(&sens->data);
+							XYZVector_to_string(&sens->data, string_output_buffer);
 							string_output_pointer = string_output_buffer;
 						} else if (sens->error_while_reading) {
 							sensor_stop_continuous_reading();
