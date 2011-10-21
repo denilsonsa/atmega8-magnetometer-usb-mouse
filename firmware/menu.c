@@ -251,12 +251,12 @@ static void ui_load_menu_items() {  // {{{
 	memcpy_P(ui_menu_items, menu_items, ui_menu_total_items * sizeof(*ui_menu_items));
 }  // }}}
 
-void ui_push_state() {  // {{{
+static void ui_push_state() {  // {{{
 	ui_stack[ui_stack_top] = ui;
 	ui_stack_top++;
 }  // }}}
 
-void ui_pop_state() {  // {{{
+static void ui_pop_state() {  // {{{
 	if (ui_stack_top > 0) {
 		ui_stack_top--;
 		ui = ui_stack[ui_stack_top];
@@ -494,6 +494,7 @@ void ui_main_code() {  // {{{
 						XYZVector_to_string(&sens->e.corners[ui.menu_item / 2], string_output_buffer);
 						string_output_pointer = string_output_buffer;
 					}
+
 					ui.menu_item++;
 					if (ui.menu_item >= 4 * 2) {
 						ui_pop_state();
