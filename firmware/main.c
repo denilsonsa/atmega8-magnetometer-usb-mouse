@@ -203,9 +203,6 @@ __attribute__((externally_visible))
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
-// TODO: move this to menu.c
-static const char hello_world[] PROGMEM = "Hello, !@#$%&*() -_ =+ ,< .> ;: /?\n";
-
 // As defined in section 7.2.4 Set_Idle Request
 // of Device Class Definition for Human Interface Devices (HID) version 1.11
 // pages 52 and 53 (or 62 and 63) of HID1_11.pdf
