@@ -59,6 +59,7 @@
 #define UI_SENSOR_ID_WIDGET               0x19
 #define UI_SENSOR_XYZ_ONCE_WIDGET         0x1A
 #define UI_SENSOR_XYZ_CONT_WIDGET         0x1B
+#define UI_KEYBOARD_TEST_WIDGET           0x1C
 // }}}
 
 typedef struct MenuItem {  // {{{
@@ -90,13 +91,15 @@ static const MenuItem error_menu_items[] PROGMEM = {
 static const char     main_menu_1[] PROGMEM = "1. Calibrate zero\n";
 static const char     main_menu_2[] PROGMEM = "2. Calibrate corners\n";
 static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
-static const char     main_menu_4[] PROGMEM = "4. << quit menu\n";
-#define               main_menu_total_items 4
+static const char     main_menu_4[] PROGMEM = "4. Keyboard test\n";
+static const char     main_menu_5[] PROGMEM = "5. << quit menu\n";
+#define               main_menu_total_items 5
 static const MenuItem main_menu_items[] PROGMEM = {
 	{main_menu_1, UI_ZERO_MENU},
 	{main_menu_2, UI_CORNERS_MENU},
 	{main_menu_3, UI_SENSOR_MENU},
-	{main_menu_4, 0}
+	{main_menu_4, UI_KEYBOARD_TEST_WIDGET},
+	{main_menu_5, 0}
 };
 // }}}
 
@@ -138,9 +141,9 @@ static const MenuItem corners_menu_items[] PROGMEM = {
 };
 
 // Corner names:
-// Slightly hacked from the menu strings. Saves about 100 bytes this way!
+// Slightly hacked from the menu strings. Saves about 40 bytes this way.
 static const PGM_P corners_names[4] PROGMEM = {
-	// 17 = number of characters in "2.x. Set "
+	// +offset = number of characters in "2.x. Set "
 	corners_menu_2 + 9,
 	corners_menu_3 + 9,
 	corners_menu_4 + 9,
@@ -164,6 +167,8 @@ static const MenuItem sensor_menu_items[] PROGMEM = {
 // Error message:
 static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
 // }}}
+
+static const char keyboard_test_string[] PROGMEM = "AAaaAAaaZz 0123456789 !@#$%&*() -_ =+ ,< .> ;: /?\n";
 
 // Data used by ui_load_menu_items()  {{{
 typedef struct MenuLoadingInfo {
@@ -603,6 +608,14 @@ void ui_main_code() {  // {{{
 						sensor_stop_continuous_reading();
 						ui_pop_state();
 					}
+				}
+				break;  // }}}
+
+			////////////////////
+			case UI_KEYBOARD_TEST_WIDGET:  // {{{
+				if (string_output_pointer == NULL) {
+					output_pgm_string(keyboard_test_string);
+					ui_pop_state();
 				}
 				break;  // }}}
 
