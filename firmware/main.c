@@ -146,6 +146,7 @@ __attribute__((externally_visible))
 	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
 	0x09, 0x01,                    //   USAGE (Pointer)
 	0xa1, 0x00,                    //   COLLECTION (Physical)
+//	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
 	0x09, 0x30,                    //     USAGE (X)
 	0x09, 0x31,                    //     USAGE (Y)
 //	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
@@ -167,7 +168,7 @@ __attribute__((externally_visible))
 	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
 	// Padding for the buttons
 //	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x75, 0x05,                    //   REPORT_SIZE (5)
+	0x95, 0x02,                    //   REPORT_COUNT (5)
 	0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
 	0xc0                           // END_COLLECTION
 };
@@ -278,6 +279,7 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 
 	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {
 		// class request type
+
 		if (rq->bRequest == USBRQ_HID_GET_REPORT){
 			// wValue: ReportType (highbyte), ReportID (lowbyte)
 			// we only have one report type, so don't look at wValue
@@ -286,7 +288,18 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			// dispositivo. Na verdade, uma das etapas finais da
 			// inicialização, depois que o ReportDescriptor já foi enviado.
 			// Retorna o estado inicial do dispositivo.
-			LED_TOGGLE(GREEN_LED);
+			//LED_TOGGLE(GREEN_LED);
+			// Turning off because this will be called at least twice.
+			LED_TURN_OFF(GREEN_LED);
+
+			/*
+			if (
+					rq->wLength.word != sizeof(keyboard_report)
+					&& rq->wLength.word != sizeof(keyboard_report)
+			) {
+				LED_TURN_ON(RED_LED);
+			}
+			*/
 
 			if (rq->wValue.bytes[0] == 1) {
 				// Keyboard report
@@ -301,9 +314,11 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 				usbMsgPtr = (void*) &mouse_report;
 				return sizeof(mouse_report);
 			}
+
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
 			return 1;
+
 		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
 			idle_rate = rq->wValue.bytes[1];
 		}
@@ -442,8 +457,24 @@ main(void) {  // {{{
 			} else if(button.state & BUTTON_SWITCH) {
 				// Sending mouse clicks...
 
+				// LED_TOGGLE(RED_LED);
+				if (button.state & 0x07) {
+					LED_TURN_ON(GREEN_LED);
+				} else {
+					LED_TURN_OFF(GREEN_LED);
+				}
+
 				// Getting the 3 buttons at once
 				mouse_report.buttons = button.state & 0x07;
+
+				if (sensor.new_data_available) {
+					mouse_report.x = sensor.data.x + 2048;
+					mouse_report.y = sensor.data.y + 2048;
+					sensor.new_data_available = 0;
+				} else {
+					mouse_report.x = -1;
+					mouse_report.y = -1;
+				}
 
 				usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 			}

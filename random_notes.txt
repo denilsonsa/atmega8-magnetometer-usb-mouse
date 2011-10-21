@@ -31,3 +31,9 @@ Unnamed unions and structs:
 Using EEPROM on AVR:
 	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=38417
 	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=68621
+
+HID Report Constraints:
+	Each top level collection must be an application collection and reports may not
+	span more than one top level collection.
+	Page 57/67 of HID1_11.pdf
+
