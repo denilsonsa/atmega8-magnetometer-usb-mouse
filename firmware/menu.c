@@ -80,7 +80,7 @@ static const MenuItem empty_menu_items[] PROGMEM = {
 // }}}
 
 // Error menu, for when something goes wrong  {{{
-static const char     error_menu_1[] PROGMEM = "Menu system error!\n";
+static const char     error_menu_1[] PROGMEM = "Menu error\n";
 #define               error_menu_total_items 1
 static const MenuItem error_menu_items[] PROGMEM = {
 	{error_menu_1, 0}
@@ -165,7 +165,7 @@ static const MenuItem sensor_menu_items[] PROGMEM = {
 };
 
 // Error message:
-static const char  error_sensor_string[] PROGMEM = "Error while reading the sensor!\n";
+static const char  error_sensor_string[] PROGMEM = "Error reading the sensor!\n";
 // }}}
 
 static const char keyboard_test_string[] PROGMEM = "AAaaAAaaZz 0123456789 !@#$%&*() -_ =+ ,< .> ;: /?\n";
@@ -261,6 +261,7 @@ void ui_pop_state() {  // {{{
 		ui_stack_top--;
 		ui = ui_stack[ui_stack_top];
 	} else {
+		// If the stack is empty, just reload the root menu
 		ui.widget_id = UI_ROOT_MENU;
 		ui.menu_item = 0;
 	}
@@ -406,7 +407,7 @@ void ui_main_code() {  // {{{
 						if (!sens->overflow) {
 							sens->zero_min = sens->data;
 							sens->zero_max = sens->data;
-							// Using memcpy or simple attribution cost the same amount of bytes
+							// Using memcpy costs a few more bytes than simple attribution
 							//memcpy(&sens->zero_min, &sens->data, sizeof(sens->data));
 							//memcpy(&sens->zero_max, &sens->data, sizeof(sens->data));
 
@@ -418,7 +419,7 @@ void ui_main_code() {  // {{{
 						sens->new_data_available = 0;
 
 						if (!sens->overflow) {
-							// The code inside this if costs 172 bytes :(
+							// The following 6 if statements cost 96 bytes
 							if (sens->data.x < sens->zero_min.x) sens->zero_min.x = sens->data.x;
 							if (sens->data.y < sens->zero_min.y) sens->zero_min.y = sens->data.y;
 							if (sens->data.z < sens->zero_min.z) sens->zero_min.z = sens->data.z;
@@ -447,7 +448,11 @@ void ui_main_code() {  // {{{
 						// I could save the entire EEPROM block, but instead
 						// I'm saving only the boolean zero_compensation and
 						// the XYZVector zero.
-						int_eeprom_write_block(&sens->e.zero_compensation, &eeprom_sensor.zero_compensation, (1 + sizeof(XYZVector)));
+						int_eeprom_write_block(
+							&sens->e.zero_compensation,
+							&eeprom_sensor.zero_compensation,
+							(1 + sizeof(XYZVector))
+						);
 
 						ui_pop_state();
 						ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -461,7 +466,11 @@ void ui_main_code() {  // {{{
 				sens->e.zero_compensation = !sens->e.zero_compensation;
 
 				// Saving to EEPROM
-				int_eeprom_write_block(&sens->e.zero_compensation, &eeprom_sensor.zero_compensation, 1);
+				int_eeprom_write_block(
+					&sens->e.zero_compensation,
+					&eeprom_sensor.zero_compensation,
+					1
+				);
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);
@@ -518,7 +527,11 @@ void ui_main_code() {  // {{{
 
 					// Saving
 					sens->e.corners[ui.menu_item] = sens->data;
-					int_eeprom_write_block(&sens->e.corners[ui.menu_item], &eeprom_sensor.corners[ui.menu_item], sizeof(XYZVector));
+					int_eeprom_write_block(
+						&sens->e.corners[ui.menu_item],
+						&eeprom_sensor.corners[ui.menu_item],
+						sizeof(XYZVector)
+					);
 
 					// Printing
 					XYZVector_to_string(&sens->data, string_output_buffer);
