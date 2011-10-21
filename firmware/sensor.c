@@ -196,10 +196,10 @@ uchar sensor_read_data_registers() {  // {{{
 			sens->func_step = 0;
 
 			if (lastTransOK) {
-				#define OFFSET (1 - SENSOR_REG_DATA_START)
-				sens->data.x = (msg[OFFSET+SENSOR_REG_DATA_X_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_X_LSB]);
-				sens->data.y = (msg[OFFSET+SENSOR_REG_DATA_Y_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Y_LSB]);
-				sens->data.z = (msg[OFFSET+SENSOR_REG_DATA_Z_MSB] << 8) | (msg[OFFSET+SENSOR_REG_DATA_Z_LSB]);
+				#define OFFSET(suffix) (1 + SENSOR_REG_DATA_##suffix - SENSOR_REG_DATA_START)
+				sens->data.x = (msg[OFFSET(X_MSB)] << 8) | (msg[OFFSET(X_LSB)]);
+				sens->data.y = (msg[OFFSET(Y_MSB)] << 8) | (msg[OFFSET(Y_LSB)]);
+				sens->data.z = (msg[OFFSET(Z_MSB)] << 8) | (msg[OFFSET(Z_LSB)]);
 				#undef OFFSET
 
 				sens->overflow =
