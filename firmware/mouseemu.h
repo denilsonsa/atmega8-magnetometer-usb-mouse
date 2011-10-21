@@ -12,9 +12,9 @@
 
 typedef struct MouseReport {
 	uchar report_id;
+	int x; // 0..32767
+	int y; // 0..32767
 	uchar buttons;
-	int x; // 0..32766
-	int y; // 0..32766
 } MouseReport;
 
 extern MouseReport mouse_report;

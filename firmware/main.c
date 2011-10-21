@@ -142,49 +142,62 @@ __attribute__((externally_visible))
 	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
 	0x09, 0x02,                    // USAGE (Mouse)
 	0xa1, 0x01,                    // COLLECTION (Application)
+	0x85, 0x02,	                   //   REPORT_ID (2)
 //	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
 	0x09, 0x01,                    //   USAGE (Pointer)
 	0xa1, 0x00,                    //   COLLECTION (Physical)
-	0x85, 0x02,	                   //     REPORT_ID (2)
-	// Buttons
-	0x05, 0x09,                    //     USAGE_PAGE (Button)
-	0x19, 0x01,                    //     USAGE_MINIMUM (Button 1)
-	0x29, 0x03,                    //     USAGE_MAXIMUM (Button 3)
-	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-	0x25, 0x01,                    //     LOGICAL_MAXIMUM (1)
-	0x75, 0x01,                    //     REPORT_SIZE (1)
-	0x95, 0x03,                    //     REPORT_COUNT (3)
-	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-	// Padding for the buttons
-	0x75, 0x05,                    //     REPORT_SIZE (5)
-	0x95, 0x01,                    //     REPORT_COUNT (1)
-	0x81, 0x03,                    //     INPUT (Cnst,Var,Abs)
 	// X, Y movement
-	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
+//	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
 	0x09, 0x30,                    //     USAGE (X)
 	0x09, 0x31,                    //     USAGE (Y)
-	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-//	0x26, 0xfe, 0x7f,              //     LOGICAL_MAXIMUM (32766)
+//	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
 	0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
 	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
-//	0x46, 0xfe, 0x7f,              //     PHYSICAL_MAXIMUM (32766)
 	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 	0x75, 0x10,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
 	0xc0,                          //   END_COLLECTION
+	// Buttons
+	0x05, 0x09,                    //   USAGE_PAGE (Button)
+	0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+	0x29, 0x03,                    //   USAGE_MAXIMUM (Button 3)
+//	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,                    //   REPORT_SIZE (1)
+	0x95, 0x03,                    //   REPORT_COUNT (3)
+	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	// Padding for the buttons
+//	0x75, 0x01,                    //   REPORT_SIZE (1)
+	0x95, 0x05,                    //   REPORT_COUNT (5)
+	0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
 	0xc0                           // END_COLLECTION
 };
-/* TODO: update this comment
- * We use a simplifed keyboard report descriptor which does not support the
- * boot protocol. We don't allow setting status LEDs and we only allow one
- * simultaneous key press (except modifiers). We can therefore use short
- * 2 byte input reports.
- * The report descriptor has been created with usb.org's "HID Descriptor Tool"
- * which can be downloaded from http://www.usb.org/developers/hidpage/.
- * Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been omitted
- * for the second INPUT item.
- */
+
+// This device does not support BOOT protocol from HID specification.
+//
+// The keyboard portion is very limited, when compared to actual keyboards,
+// but it's perfect for a simple communication from the firmware to the user.
+// It supports the common keyboard modifiers (although the firmware only uses
+// the left shift), and supports only one key at time. This is enough for
+// writing the "menu" interface, and uses only 2 bytes (plus the report ID).
+//
+// The mouse portion is actually an absolute pointing device, and not a
+// standard mouse (that instead sends relative movements). It supports 2 axes
+// (X and Y) with 16-bit for each one, although it doesn't use the full 16-bit
+// range. It also has 3 buttons. That means 2+2+1=5 bytes for the report (plus
+// 1 byte for the report ID).
+//
+// Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been
+// commented out when possible, in order to save a few bytes.
+//
+// Note about where the buttons are located in the Report Descriptor:
+// The buttons are placed outside the "Physical" collection just because in
+// this project the buttons are on the breadboard, while the sensor is more
+// than one meter away from the buttons.
+// However, putting these buttons inside or outside that collection makes
+// no difference at all for the software, feel free to move them around.
+
 // }}}
 
 ////////////////////////////////////////////////////////////
