@@ -179,9 +179,10 @@
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
-//#de fine  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
-#define  USB_CFG_DEVICE_ID       0xda, 0x27 /* = 0x27da = 10202 = For USB Mice */
-//#de fine  USB_CFG_DEVICE_ID       0xd9, 0x27 /* = 0x27d9 = 10201 = For generic HID class devices */
+//#d efine  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
+//#d efine  USB_CFG_DEVICE_ID       0xda, 0x27 /* = 0x27da = 10202 = For USB Mice */
+//#d efine  USB_CFG_DEVICE_ID       0xd9, 0x27 /* = 0x27d9 = 10201 = For generic HID class devices */
+#define  USB_CFG_DEVICE_ID       0xdf, 0x17 /* From USBWiiComboDev */
 /* This is the ID of the product, low byte first. It is interpreted in the
  * scope of the vendor ID. If you have registered your own VID with usb.org
  * or if you have licensed a PID from somebody else, define it here. Otherwise
@@ -195,8 +196,8 @@
 #define USB_CFG_DEVICE_VERSION  0x00, 0x01
 /* Version number of the device: Minor number first, then major number.
  */
-//#define USB_CFG_VENDOR_NAME     'o', 'b', 'd', 'e', 'v', '.', 'a', 't'
-//#define USB_CFG_VENDOR_NAME_LEN 8
+//#d efine USB_CFG_VENDOR_NAME     'o', 'b', 'd', 'e', 'v', '.', 'a', 't'
+//#d efine USB_CFG_VENDOR_NAME_LEN 8
 #define USB_CFG_VENDOR_NAME     'd', 'e', 'n', 'i', 'l', 's', 'o', 'n', 's', 'a', '@', 'g', 'm', 'a', 'i', 'l', '.', 'c', 'o', 'm'
 #define USB_CFG_VENDOR_NAME_LEN 20
 /* These two values define the vendor name returned by the USB device. The name
@@ -207,10 +208,10 @@
  * obdev's free shared VID/PID pair. See the file USB-IDs-for-free.txt for
  * details.
  */
-//#define USB_CFG_DEVICE_NAME     'T', 'e', 'm', 'p', 'l', 'a', 't', 'e'
-//#define USB_CFG_DEVICE_NAME_LEN 8
-//#define USB_CFG_DEVICE_NAME     'H', 'I', 'D', 'K', 'e', 'y', 's'
-//#define USB_CFG_DEVICE_NAME_LEN 7
+//#d efine USB_CFG_DEVICE_NAME     'T', 'e', 'm', 'p', 'l', 'a', 't', 'e'
+//#d efine USB_CFG_DEVICE_NAME_LEN 8
+//#d efine USB_CFG_DEVICE_NAME     'H', 'I', 'D', 'K', 'e', 'y', 's'
+//#d efine USB_CFG_DEVICE_NAME_LEN 7
 // TODO: Mudar o nome para algo mais descritivo!
 #define USB_CFG_DEVICE_NAME     'P', 'r', 'o', 'j', 'e', 't', 'o', ' ', 'F', 'i', 'n', 'a', 'l'
 #define USB_CFG_DEVICE_NAME_LEN 13
@@ -218,8 +219,8 @@
  * the macros. See the file USB-IDs-for-free.txt before you assign a name if
  * you use a shared VID/PID.
  */
-/*#define USB_CFG_SERIAL_NUMBER   'N', 'o', 'n', 'e' */
-/*#define USB_CFG_SERIAL_NUMBER_LEN   0 */
+/*#d efine USB_CFG_SERIAL_NUMBER   'N', 'o', 'n', 'e' */
+/*#d efine USB_CFG_SERIAL_NUMBER_LEN   0 */
 /* Same as above for the serial number. If you don't want a serial number,
  * undefine the macros.
  * It may be useful to provide the serial number through other means than at
@@ -235,12 +236,14 @@
 #define USB_CFG_INTERFACE_CLASS     0x03    /* HID class */
 #define USB_CFG_INTERFACE_SUBCLASS  0       /* no boot interface */
 #define USB_CFG_INTERFACE_PROTOCOL  0       /* no protocol */
+//#d efine USB_CFG_INTERFACE_SUBCLASS  1       /* boot interface */
+//#d efine USB_CFG_INTERFACE_PROTOCOL  2       /* mouse protocol */
 /* See USB specification if you want to conform to an existing device class or
  * protocol. The following classes must be set at interface level:
  * HID class is 3, no subclass and protocol required (but may be useful!)
  * CDC class is 2, use subclass 2 and protocol 1 for ACM
  */
-#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH    56
+#define USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH    176 /*56*/
 /* Define this to the length of the HID report descriptor, if you implement
  * an HID device. Otherwise don't define it or define it to 0.
  * If you use this define, you must add a PROGMEM character array named

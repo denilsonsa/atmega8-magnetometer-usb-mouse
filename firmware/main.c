@@ -139,6 +139,7 @@ __attribute__((externally_visible))
 	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
 	0xc0,                          // END_COLLECTION
 	*/
+	/*
 	// Mouse
 	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
 	0x09, 0x02,                    // USAGE (Mouse)
@@ -146,7 +147,7 @@ __attribute__((externally_visible))
 //	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
 	0x09, 0x01,                    //   USAGE (Pointer)
 	0xa1, 0x00,                    //   COLLECTION (Physical)
-	0x85, 0x02,	                   //     REPORT_ID (2)
+//	0x85, 0x02,	                   //     REPORT_ID (2)
 	// Buttons
 	0x05, 0x09,                    //     USAGE_PAGE (Button)
 	0x19, 0x01,                    //     USAGE_MINIMUM (Button 1)
@@ -157,22 +158,123 @@ __attribute__((externally_visible))
 	0x95, 0x03,                    //     REPORT_COUNT (3)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
 	// Padding for the buttons
-//	0x75, 0x01,                    //     REPORT_SIZE (1)
-	0x95, 0x05,                    //     REPORT_COUNT (5)
+	0x75, 0x05,                    //     REPORT_SIZE (5)
+	0x95, 0x01,                    //     REPORT_COUNT (1)
 	0x81, 0x03,                    //     INPUT (Cnst,Var,Abs)
 	// X, Y movement
 	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
 	0x09, 0x30,                    //     USAGE (X)
 	0x09, 0x31,                    //     USAGE (Y)
 	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-	0x26, 0xfe, 0x7f,              //     LOGICAL_MAXIMUM (32766)
+//	0x26, 0xfe, 0x7f,              //     LOGICAL_MAXIMUM (32766)
+	0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
 	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
-	0x46, 0xfe, 0x7f,              //     PHYSICAL_MAXIMUM (32766)
+	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
+//	0x46, 0xfe, 0x7f,              //     PHYSICAL_MAXIMUM (32766)
 	0x75, 0x0f,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
 	0xc0,                          //   END_COLLECTION
 	0xc0                           // END_COLLECTION
+	*/
+
+
+	// start of keyboard report descriptor
+	0x05, 0x01,   // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,   // USAGE (Keyboard)
+	0xa1, 0x01,   // COLLECTION (Application)
+	0x85, 0x01,   //   REPORT_ID (1)
+	0x05, 0x07,   //   USAGE_PAGE (Keyboard)
+	0x19, 0xe0,   //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,   //   USAGE_MAXIMUM (Keyboard Right GUI)
+	0x15, 0x00,   //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,   //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,   //   REPORT_SIZE (1)
+	0x95, 0x08,   //   REPORT_COUNT (8)
+	0x81, 0x02,   //   INPUT (Data,Var,Abs)
+	0x95, 0x01,   //   REPORT_COUNT (1)
+	0x75, 0x08,   //   REPORT_SIZE (8)
+	0x81, 0x03,   //   INPUT (Cnst,Var,Abs)
+	0x95, 0x05,   //   REPORT_COUNT (5)
+	0x75, 0x01,   //   REPORT_SIZE (1)
+	0x05, 0x08,   //   USAGE_PAGE (LEDs)
+	0x19, 0x01,   //   USAGE_MINIMUM (Num Lock)
+	0x29, 0x05,   //   USAGE_MAXIMUM (Kana)
+	0x91, 0x02,   //   OUTPUT (Data,Var,Abs)
+	0x95, 0x01,   //   REPORT_COUNT (1)
+	0x75, 0x03,   //   REPORT_SIZE (3)
+	0x91, 0x03,   //   OUTPUT (Cnst,Var,Abs)
+	0x95, 0x06,   //   REPORT_COUNT (6)
+	0x75, 0x08,   //   REPORT_SIZE (8)
+	0x15, 0x00,   //   LOGICAL_MINIMUM (0)
+	0x25, 0x65,   //   LOGICAL_MAXIMUM (101)
+	0x05, 0x07,   //   USAGE_PAGE (Keyboard)
+	0x19, 0x00,   //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0x65,   //   USAGE_MAXIMUM (Keyboard Application)
+	0x81, 0x00,   //   INPUT (Data,Ary,Abs)
+	0xc0,         // END_COLLECTION
+	
+	// start of mouse report descriptor
+	0x05, 0x01,	   // USAGE_PAGE (Generic Desktop)
+	0x09, 0x02,	   // USAGE (Mouse)
+	0xa1, 0x01,	   // COLLECTION (Application)
+	0x09, 0x01,	   //   USAGE (Pointer)
+	0xa1, 0x00,	   //   COLLECTION (Physical)
+	0x85, 0x02,	   //   REPORT_ID (2)
+	0x05, 0x09,	   //	 USAGE_PAGE (Button)
+	0x19, 0x01,	   //	 USAGE_MINIMUM (Button 1)
+	0x29, 0x03,	   //	 USAGE_MAXIMUM (Button 3)
+	0x15, 0x00,	   //	 LOGICAL_MINIMUM (0)
+	0x25, 0x01,	   //	 LOGICAL_MAXIMUM (1)
+	0x95, 0x03,	   //	 REPORT_COUNT (3)
+	0x75, 0x01,	   //	 REPORT_SIZE (1)
+	0x81, 0x02,	   //	 INPUT (Data,Var,Abs)
+	0x95, 0x01,	   //	 REPORT_COUNT (1)
+	0x75, 0x05,	   //	 REPORT_SIZE (5)
+	0x81, 0x03,	   //	 INPUT (Cnst,Var,Abs)
+	0x05, 0x01,	   //	 USAGE_PAGE (Generic Desktop)
+	0x09, 0x30,	   //	 USAGE (X)
+	0x09, 0x31,	   //	 USAGE (Y)
+	0x09, 0x38,	   //	 USAGE (Wheel)
+	0x15, 0x81,	   //	 LOGICAL_MINIMUM (-127)
+	0x25, 0x7f,	   //	 LOGICAL_MAXIMUM (127)
+	0x75, 0x08,	   //	 REPORT_SIZE (8)
+	0x95, 0x03,	   //	 REPORT_COUNT (3)
+	0x81, 0x06,	   //	 INPUT (Data,Var,Rel)
+	0x05, 0x0c,	   //	 USAGE_PAGE (Consumer Devices)
+	0x0a, 0x38, 0x02, //	 USAGE (Undefined)
+	0x95, 0x01,	   //	 REPORT_COUNT (1)
+	0x81, 0x06,	   //	 INPUT (Data,Var,Rel)
+	0xc0,          //   END_COLLECTION
+	0xc0,          // END_COLLECTION
+	
+	// start of gamepad report descriptor
+	0x05, 0x01,	// USAGE_PAGE (Generic Desktop)
+	0x09, 0x05,	// USAGE (Game Pad)
+	0xa1, 0x01,	// COLLECTION (Application)
+	0xa1, 0x00,	//   COLLECTION (Physical)
+	0x85, 0x03, //   REPORT_ID (3)
+	0x05, 0x09,	//	 USAGE_PAGE (Button)
+	0x19, 0x01,	//	 USAGE_MINIMUM (Button 1)
+	0x29, 0x10,	//	 USAGE_MAXIMUM (Button 16)
+	0x15, 0x00,	//	 LOGICAL_MINIMUM (0)
+	0x25, 0x01,	//	 LOGICAL_MAXIMUM (1)
+	0x95, 0x10,	//	 REPORT_COUNT (16)
+	0x75, 0x01,	//	 REPORT_SIZE (1)
+	0x81, 0x02,	//	 INPUT (Data,Var,Abs)
+	0x05, 0x01,	//	 USAGE_PAGE (Generic Desktop)
+	0x09, 0x30,	//	 USAGE (X) // left X
+	0x09, 0x31,	//	 USAGE (Y) // left Y
+	0x09, 0x32,	//	 USAGE (Z) // right X
+	0x09, 0x33,	//	 USAGE (Rx) // right Y
+	0x15, 0x81,	//	 LOGICAL_MINIMUM (-127)
+	0x25, 0x7f,	//	 LOGICAL_MAXIMUM (127)
+	0x75, 0x08,	//	 REPORT_SIZE (8)
+	0x95, 0x04,	//	 REPORT_COUNT (4)
+	0x81, 0x02,	//	 INPUT (Data,Var,Abs)
+	0xc0,		//   END_COLLECTION
+	0xc0		// END_COLLECTION
+
 };
 /* TODO: update this comment
  * We use a simplifed keyboard report descriptor which does not support the
@@ -208,6 +310,7 @@ static uchar idle_rate;
 // This value is ignored.
 static unsigned char protocol_version;
 
+static uchar dummy_report_buffer[8];
 
 static void hardware_init(void) {  // {{{
 	// Configuring Watchdog to about 2 seconds
@@ -307,6 +410,10 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			}
 			*/
 
+			//usbMsgPtr = dummy_report_buffer;
+			return 0;
+
+			/*
 			if (rq->wValue.bytes[0] == 1) {
 				// Keyboard report
 
@@ -320,6 +427,7 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 				usbMsgPtr = (void*) &mouse_report;
 				return sizeof(mouse_report);
 			}
+			*/
 
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
@@ -422,7 +530,9 @@ main(void) {  // {{{
 				// Time for reading new data!
 				uchar return_code;
 
-				return_code = sensor_read_data_registers();
+				// XXX XXX XXX XXX XXX
+				//return_code = sensor_read_data_registers();
+				return_code = SENSOR_FUNC_DONE;
 				if (return_code == SENSOR_FUNC_DONE || return_code == SENSOR_FUNC_ERROR) {
 					// Restart the counter+timer
 					sensor_probe_counter = 5;
