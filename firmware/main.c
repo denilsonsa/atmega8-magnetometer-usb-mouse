@@ -164,11 +164,11 @@ __attribute__((externally_visible))
 //	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
 	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
 	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x95, 0x02,                    //   REPORT_COUNT (3)
+	0x95, 0x03,                    //   REPORT_COUNT (3)
 	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
 	// Padding for the buttons
 //	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x95, 0x02,                    //   REPORT_COUNT (5)
+	0x95, 0x05,                    //   REPORT_COUNT (5)
 	0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
 	0xc0                           // END_COLLECTION
 };
@@ -467,6 +467,7 @@ main(void) {  // {{{
 				// Getting the 3 buttons at once
 				mouse_report.buttons = button.state & 0x07;
 
+				/*
 				if (sensor.new_data_available) {
 					mouse_report.x = sensor.data.x + 2048;
 					mouse_report.y = sensor.data.y + 2048;
@@ -475,6 +476,7 @@ main(void) {  // {{{
 					mouse_report.x = -1;
 					mouse_report.y = -1;
 				}
+				*/
 
 				usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 			}
