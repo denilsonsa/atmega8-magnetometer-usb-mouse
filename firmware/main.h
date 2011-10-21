@@ -15,8 +15,8 @@ typedef struct KeyboardReport {
 
 typedef struct MouseReport {
 	//uchar report_id;
-	int x;
-	int y;
+	int x; // 0..32766
+	int y; // 0..32766
 	uchar buttons;
 	// TODO: update the report descriptor to this struct
 } MouseReport;
