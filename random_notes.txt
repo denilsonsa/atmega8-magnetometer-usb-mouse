@@ -38,6 +38,15 @@ HID Report Constraints:
 	Page 57/67 of HID1_11.pdf
 
 Reducing the firmware size:
-	If the firmware size is slightly above the limit, you can save a few bytes
-	easily by shortening the strings from menu.c (in special, the
-	keyboard_test_string, but also the menu items).
+	If the firmware size is slightly above the limit, you can save quite a few
+	bytes easily by shortening the strings from menu.c (at least 200 bytes can
+	be saved this way).
+
+	Also depending on the compiler options, it is possible to inline the
+	TWI_Transceiver_Busy() function (it's just a simple expression anyway).
+	But maybe the compiler has already inlined it for you.
+
+	In addition, each character from USB_CFG_VENDOR_NAME and
+	USB_CFG_DEVICE_NAME takes up 2 bytes because is stored in an array of
+	integers. Reducing the vendor/device names might further shrink the
+	firmware size a little bit.
