@@ -170,6 +170,11 @@
 
 /* -------------------------- Device Description --------------------------- */
 
+// Note: "obdev.at" does not have a VID/PID combination for devices that are
+// both Mouse and Keyboard at the same time. The VID/PID listed below is not
+// appropriate, but it's being used anyway for the lack of a better solution
+// (and because this project is for academic purposes).
+
 #define  USB_CFG_VENDOR_ID       0xc0, 0x16 /* = 0x16c0 = 5824 = voti.nl */
 /* USB vendor ID for the device, low byte first. If you have registered your
  * own Vendor ID, define it here. Otherwise you may use one of obdev's free
@@ -182,7 +187,6 @@
 //#define  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
 //#define  USB_CFG_DEVICE_ID       0xda, 0x27 /* = 0x27da = 10202 = For USB Mice */
 #define  USB_CFG_DEVICE_ID       0xd9, 0x27 /* = 0x27d9 = 10201 = For generic HID class devices */
-//#define  USB_CFG_DEVICE_ID       0xdf, 0x17 /* From USBWiiComboDev */
 /* This is the ID of the product, low byte first. It is interpreted in the
  * scope of the vendor ID. If you have registered your own VID with usb.org
  * or if you have licensed a PID from somebody else, define it here. Otherwise
@@ -210,10 +214,6 @@
  */
 //#define USB_CFG_DEVICE_NAME     'T', 'e', 'm', 'p', 'l', 'a', 't', 'e'
 //#define USB_CFG_DEVICE_NAME_LEN 8
-//#define USB_CFG_DEVICE_NAME     'H', 'I', 'D', 'K', 'e', 'y', 's'
-//#define USB_CFG_DEVICE_NAME_LEN 7
-// TODO: Mudar o nome para algo mais descritivo!
-//#define USB_CFG_DEVICE_NAME     'P', 'r', 'o', 'j', 'e', 't', 'o', ' ', 'F', 'i', 'n', 'a', 'l'
 #define USB_CFG_DEVICE_NAME     'A', 'T', 'm', 'e', 'g', 'a', '8', ' ', 'M', 'a', 'g', 'n', 'e', 't', 'o', 'm', 'e', 't', 'e', 'r', ' ', 'U', 'S', 'B', ' ', 'M', 'o', 'u', 's', 'e'
 #define USB_CFG_DEVICE_NAME_LEN 30
 /* Same as above for the device name. If you don't want a device name, undefine
