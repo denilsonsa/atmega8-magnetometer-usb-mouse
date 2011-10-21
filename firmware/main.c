@@ -136,6 +136,7 @@ __attribute__((externally_visible))
 	0x75, 0x08,                    //   REPORT_SIZE (8)
 	0x95, 0x01,                    //   REPORT_COUNT (1)
 	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
+	/*
 	0xc0,                          // END_COLLECTION
 	// Mouse
 	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
@@ -170,6 +171,7 @@ __attribute__((externally_visible))
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
 	0xc0,                          //   END_COLLECTION
+	*/
 	0xc0                           // END_COLLECTION
 };
 /* TODO: update this comment
@@ -460,7 +462,8 @@ main(void) {  // {{{
 		}
 
 		// Sending USB Interrupt-in report
-		if(usbInterruptIsReady()) {
+		if( 0  // disabled for debugging purposes
+		&& usbInterruptIsReady()) {
 			if(string_output_pointer != NULL){
 				// Automatically send keyboard report if there is something in
 				// the buffer
