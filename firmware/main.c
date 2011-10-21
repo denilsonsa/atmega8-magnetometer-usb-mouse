@@ -486,28 +486,30 @@ main(void) {  // {{{
 			} else if(button.state & BUTTON_SWITCH) {
 				// Sending mouse clicks...
 
-				// LED_TOGGLE(RED_LED);
-				if (button.state & 0x07) {
-					LED_TURN_ON(GREEN_LED);
-				} else {
-					LED_TURN_OFF(GREEN_LED);
+				if (button.changed) {
+					// LED_TOGGLE(RED_LED);
+					if (button.state & 0x07) {
+						LED_TURN_ON(GREEN_LED);
+					} else {
+						LED_TURN_OFF(GREEN_LED);
+					}
+
+					// Getting the 3 buttons at once
+					mouse_report.buttons = button.state & 0x07;
+
+					/*
+					if (sensor.new_data_available) {
+						mouse_report.x = sensor.data.x + 2048;
+						mouse_report.y = sensor.data.y + 2048;
+						sensor.new_data_available = 0;
+					} else {
+						mouse_report.x = -1;
+						mouse_report.y = -1;
+					}
+					*/
+
+					usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 				}
-
-				// Getting the 3 buttons at once
-				mouse_report.buttons = button.state & 0x07;
-
-				/*
-				if (sensor.new_data_available) {
-					mouse_report.x = sensor.data.x + 2048;
-					mouse_report.y = sensor.data.y + 2048;
-					sensor.new_data_available = 0;
-				} else {
-					mouse_report.x = -1;
-					mouse_report.y = -1;
-				}
-				*/
-
-				usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 			}
 		}
 	}
