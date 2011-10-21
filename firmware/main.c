@@ -159,7 +159,6 @@ __attribute__((externally_visible))
 	0x75, 0x05,                    //     REPORT_SIZE (5)
 	0x95, 0x01,                    //     REPORT_COUNT (1)
 	0x81, 0x03,                    //     INPUT (Cnst,Var,Abs)
-	/*
 	// X, Y movement
 	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
 	0x09, 0x30,                    //     USAGE (X)
@@ -170,21 +169,9 @@ __attribute__((externally_visible))
 	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
 	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 //	0x46, 0xfe, 0x7f,              //     PHYSICAL_MAXIMUM (32766)
-	0x75, 0x0f,                    //     REPORT_SIZE (16)
+	0x75, 0x10,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-	*/
-
-	// Copy-pasted from USBWiiComboDev
-	0x05, 0x01,	   //	 USAGE_PAGE (Generic Desktop)
-	0x09, 0x30,	   //	 USAGE (X)
-	0x09, 0x31,	   //	 USAGE (Y)
-	0x15, 0x81,	   //	 LOGICAL_MINIMUM (-127)
-	0x25, 0x7f,	   //	 LOGICAL_MAXIMUM (127)
-	0x75, 0x08,	   //	 REPORT_SIZE (8)
-	0x95, 0x02,	   //	 REPORT_COUNT (2)
-	0x81, 0x06,	   //	 INPUT (Data,Var,Rel)
-
 	0xc0,                          //   END_COLLECTION
 	0xc0                           // END_COLLECTION
 };
