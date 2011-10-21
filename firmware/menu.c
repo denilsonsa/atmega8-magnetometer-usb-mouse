@@ -572,52 +572,32 @@ void ui_main_code() {  // {{{
 
 			////////////////////
 			case UI_SENSOR_XYZ_ONCE_WIDGET:  // {{{
+			case UI_SENSOR_XYZ_CONT_WIDGET:
 				if (ui.menu_item == 0) {
 					if (string_output_pointer != NULL) {
 						// Do nothing, let's wait the previous output...
 						break;
 					}
 					sensor_start_continuous_reading();
-					ui.menu_item = 1;
-				} else {
-					if (string_output_pointer == NULL) {
-						if (sens->new_data_available) {
-							sens->new_data_available = 0;
-							sensor_stop_continuous_reading();
-							XYZVector_to_string(&sens->data, string_output_buffer);
-							string_output_pointer = string_output_buffer;
-							ui_pop_state();
-						} else if (sens->error_while_reading) {
-							sensor_stop_continuous_reading();
-							output_pgm_string(error_sensor_string);
-							ui_pop_state();
-						}
-					}
-				}
-				break;  // }}}
-
-			////////////////////
-			case UI_SENSOR_XYZ_CONT_WIDGET:  // {{{
-				if (ui.menu_item == 0) {
-					if (string_output_pointer != NULL) {
-						// Do nothing, let's wait the previous output...
-						break;
-					}
-					sensor_start_continuous_reading();
-					ui.menu_item = 1;
+					ui.menu_item = 1;  // Started reading, but nothing printed yet.
 				} else {
 					if (string_output_pointer == NULL) {
 						if (sens->new_data_available) {
 							sens->new_data_available = 0;
 							XYZVector_to_string(&sens->data, string_output_buffer);
 							string_output_pointer = string_output_buffer;
+							ui.menu_item = 2;  // At least one thing has been printed
 						} else if (sens->error_while_reading) {
-							sensor_stop_continuous_reading();
 							output_pgm_string(error_sensor_string);
+							sensor_stop_continuous_reading();
 							ui_pop_state();
+							break;
 						}
 					}
-					if (ON_KEY_DOWN(BUTTON_CONFIRM)) {
+					if (ui.menu_item == 2 && (
+						ui.widget_id == UI_SENSOR_XYZ_ONCE_WIDGET
+						|| ON_KEY_DOWN(BUTTON_CONFIRM)
+					)) {
 						sensor_stop_continuous_reading();
 						ui_pop_state();
 					}
