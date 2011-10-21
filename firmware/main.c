@@ -167,8 +167,8 @@ __attribute__((externally_visible))
 //	0x26, 0xfe, 0x7f,              //     LOGICAL_MAXIMUM (32766)
 	0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
 	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
-	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 //	0x46, 0xfe, 0x7f,              //     PHYSICAL_MAXIMUM (32766)
+	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 	0x75, 0x10,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
@@ -190,6 +190,7 @@ __attribute__((externally_visible))
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
+// TODO: move this to menu.c
 static const char hello_world[] PROGMEM = "Hello, !@#$%&*() -_ =+ ,< .> ;: /?\n";
 
 // As defined in section 7.2.4 Set_Idle Request
@@ -209,7 +210,6 @@ static uchar idle_rate;
 // This value is ignored.
 static unsigned char protocol_version;
 
-static uchar dummy_report_buffer[8];
 
 static void hardware_init(void) {  // {{{
 	// Configuring Watchdog to about 2 seconds
@@ -309,10 +309,6 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			}
 			*/
 
-			//usbMsgPtr = dummy_report_buffer;
-			return 0;
-
-			/*
 			if (rq->wValue.bytes[0] == 1) {
 				// Keyboard report
 
@@ -326,7 +322,6 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 				usbMsgPtr = (void*) &mouse_report;
 				return sizeof(mouse_report);
 			}
-			*/
 
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
@@ -429,9 +424,7 @@ main(void) {  // {{{
 				// Time for reading new data!
 				uchar return_code;
 
-				// XXX XXX XXX XXX XXX
-				//return_code = sensor_read_data_registers();
-				return_code = SENSOR_FUNC_DONE;
+				return_code = sensor_read_data_registers();
 				if (return_code == SENSOR_FUNC_DONE || return_code == SENSOR_FUNC_ERROR) {
 					// Restart the counter+timer
 					sensor_probe_counter = 5;
@@ -457,7 +450,7 @@ main(void) {  // {{{
 
 					//keyDidChange = 1;
 					LED_TOGGLE(YELLOW_LED);
-					// TODO: implement this... should re-send the current status
+					// TODO: implement idle rate... should re-send the current status
 					// Either that, or the idle_rate support should be removed.
 				}
 			}
@@ -471,8 +464,7 @@ main(void) {  // {{{
 		}
 
 		// Sending USB Interrupt-in report
-		if( 0  // disabled for debugging purposes
-		&& usbInterruptIsReady()) {
+		if(usbInterruptIsReady()) {
 			if(string_output_pointer != NULL){
 				// Automatically send keyboard report if there is something in
 				// the buffer
