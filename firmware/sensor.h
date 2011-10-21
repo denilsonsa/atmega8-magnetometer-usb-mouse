@@ -89,9 +89,6 @@ extern SensorEepromData EEMEM eeprom_sensor;
 
 
 // Functions
-void sensor_set_address_pointer(uchar reg);
-void sensor_set_register_value(uchar reg, uchar value);
-
 uchar sensor_read_data_registers();
 
 void sensor_start_continuous_reading();

@@ -37,3 +37,7 @@ HID Report Constraints:
 	span more than one top level collection.
 	Page 57/67 of HID1_11.pdf
 
+Reducing the firmware size:
+	If the firmware size is slightly above the limit, you can save a few bytes
+	easily by shortening the strings from menu.c (in special, the
+	keyboard_test_string, but also the menu items).

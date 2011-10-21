@@ -136,7 +136,7 @@ SensorEepromData X_EEMEM eeprom_sensor = {
 // }}}
 
 
-void sensor_set_address_pointer(uchar reg) {  // {{{
+static void sensor_set_address_pointer(uchar reg) {  // {{{
 	// Sets the sensor internal register pointer.
 	// This is required before reading registers.
 	//
@@ -148,7 +148,7 @@ void sensor_set_address_pointer(uchar reg) {  // {{{
 	TWI_Start_Transceiver_With_Data(msg, 2);
 }  // }}}
 
-void sensor_set_register_value(uchar reg, uchar value) {  // {{{
+static void sensor_set_register_value(uchar reg, uchar value) {  // {{{
 	// Sets one of those 3 writable registers to a value.
 	// Only useful for configuration.
 	//
