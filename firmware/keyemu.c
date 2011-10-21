@@ -15,9 +15,11 @@
 #include <stdlib.h>
 
 #include "common.h"
-#include "main.h"
 #include "keyemu.h"
 
+
+// HID report
+KeyboardReport keyboard_report;
 
 // Pointer to RAM for the string being typed.
 uchar *string_output_pointer = NULL;
@@ -151,51 +153,49 @@ static KeyAndModifier char_to_key[] PROGMEM = {  // {{{
 // }}}
 
 
-/*
 void init_keyboard_emulation() {  // {{{
 	// According to avr-libc FAQ, the compiler automatically initializes
 	// all variables with zero.
-	string_output_pointer = NULL;
+	keyboard_report.report_id = 1;
+	//keyboard_report.modifier = 0;
+	//keyboard_report.key = 0;
 }  // }}}
-*/
 
 void build_report_from_char(uchar c) {  // {{{
 	// Using a local pointer saves around 6 bytes
-	uchar *repbuf = report_buffer;
-	FIX_POINTER(repbuf);
+	KeyboardReport *repptr = &keyboard_report;
+	FIX_POINTER(repptr);
 
 	// For most cases, modifier is zero
-	//repbuf[0] = 0;
-
-	clear_report_buffer();
+	repptr->modifier = 0;
 
 	if (c >= ' ' && c <= '@') {
-		repbuf[0] = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
-		repbuf[1] = pgm_read_byte_near(&char_to_key[c - ' '].key);
+		repptr->modifier = pgm_read_byte_near(&char_to_key[c - ' '].modifier);
+		repptr->key = pgm_read_byte_near(&char_to_key[c - ' '].key);
 	} else if (c >= 'A' && c <= 'Z') {
-		repbuf[0] = MOD_SHIFT_LEFT;
-		repbuf[1] = KEY_A + c - 'A';
+		repptr->modifier = MOD_SHIFT_LEFT;
+		repptr->key = KEY_A + c - 'A';
 	} else if (c >= 'a' && c <= 'z') {
-		//repbuf[0] = 0;
-		repbuf[1] = KEY_A + c - 'a';
+		//repptr->modifier = 0;
+		repptr->key = KEY_A + c - 'a';
 	} else {
 		switch (c) {
 			case '\n':
-				//repbuf[0] = 0;
-				repbuf[1] = KEY_ENTER;
+				//repptr->modifier = 0;
+				repptr->key = KEY_ENTER;
 				break;
 			case '\t':
-				//repbuf[0] = 0;
-				repbuf[1] = KEY_TAB;
+				//repptr->modifier = 0;
+				repptr->key = KEY_TAB;
 				break;
 			case '_':
-				repbuf[0] = MOD_SHIFT_LEFT;
-				repbuf[1] = KEY_MINUS;
+				repptr->modifier = MOD_SHIFT_LEFT;
+				repptr->key = KEY_MINUS;
 				break;
 
 			default:
-				//repbuf[0] = 0;
-				repbuf[1] = 0;
+				//repptr->modifier = 0;
+				repptr->key = 0;
 		}
 	}
 }  // }}}
@@ -213,27 +213,28 @@ uchar send_next_char() {  // {{{
 	// "no key" before sending the char.
 
 	// Using a local pointer saves around 2 bytes
-	uchar *repbuf = report_buffer;
-	FIX_POINTER(repbuf);
+	KeyboardReport *repptr = &keyboard_report;
+	FIX_POINTER(repptr);
 
 	if (string_output_pointer != NULL && *string_output_pointer != '\0') {
-		uchar old_report_buffer_key;
+		uchar old_key;
 
-		old_report_buffer_key = repbuf[1];
+		old_key = repptr->key;
 		build_report_from_char(*string_output_pointer);
 
-		if (old_report_buffer_key == repbuf[1] && repbuf[1] != 0) {
+		if (old_key == repptr->key && repptr->key != 0) {
 			// Inserting a key release if the next key would be the same as
 			// the previous one
-			repbuf[0] = 0;
-			repbuf[1] = 0;
+			repptr->modifier = 0;
+			repptr->key = 0;
 		} else {
 			string_output_pointer++;
 		}
 
 		return 1;
 	} else {
-		clear_report_buffer();
+		repptr->modifier = 0;
+		repptr->key = 0;
 		string_output_pointer = NULL;
 		return 0;
 	}

@@ -10,6 +10,16 @@
 #include "sensor.h"
 
 
+typedef struct KeyboardReport {
+	uchar report_id;
+	uchar modifier;
+	uchar key;
+} KeyboardReport;
+
+
+extern KeyboardReport keyboard_report;
+
+
 // Copies a string from PGM to string_output_buffer and also sets
 // string_output_pointer.
 #define output_pgm_string(str) do { \
@@ -23,9 +33,7 @@ extern uchar *string_output_pointer;
 extern uchar string_output_buffer[STRING_OUTPUT_BUFFER_SIZE];
 
 
-// Init does nothing
-#define init_keyboard_emulation() do{ }while(0)
-
+void init_keyboard_emulation();
 void build_report_from_char(uchar c);
 uchar send_next_char();
 

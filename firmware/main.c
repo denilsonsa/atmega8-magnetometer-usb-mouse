@@ -54,8 +54,8 @@
 // Keyboard emulation code
 #include "keyemu.h"
 
-// USB-HID things also used by other files
-#include "main.h"
+// Mouse emulation code
+#include "mouseemu.h"
 
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
@@ -107,8 +107,6 @@
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
 
-// Buffer for HID reports
-uchar report_buffer[REPORT_BUFFER_SIZE];
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
@@ -183,21 +181,6 @@ __attribute__((externally_visible))
  * Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been omitted
  * for the second INPUT item.
  */
-
-void clear_report_buffer() {  // {{{
-	uchar *repbuf = report_buffer;
-	FIX_POINTER(repbuf);
-
-	// Keyboard
-	repbuf[0] = 0;
-	repbuf[1] = 0;
-	// Mouse
-	repbuf[2] = 0xFF ^ 0x03;  // The buttons should be zero
-	repbuf[3] = 0xFF;
-	repbuf[4] = 0xFF;
-	repbuf[5] = 0xFF;
-}  // }}}
-
 // }}}
 
 ////////////////////////////////////////////////////////////
@@ -293,17 +276,31 @@ __attribute__((externally_visible))
 usbFunctionSetup(uchar data[8]) {  // {{{
 	usbRequest_t *rq = (void *)data;
 
-	usbMsgPtr = report_buffer;
-	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {    /* class request type */
-		if (rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */
-			/* we only have one report type, so don't look at wValue */
+	if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS) {
+		// class request type
+		if (rq->bRequest == USBRQ_HID_GET_REPORT){
+			// wValue: ReportType (highbyte), ReportID (lowbyte)
+			// we only have one report type, so don't look at wValue
 
-			// XXX: Ainda não entendi quando isto é chamado...
+			// Pelo que entendi, isto é chamado durante a inicialização do
+			// dispositivo. Na verdade, uma das etapas finais da
+			// inicialização, depois que o ReportDescriptor já foi enviado.
+			// Retorna o estado inicial do dispositivo.
 			LED_TOGGLE(GREEN_LED);
-			build_report_from_char('\0');
 
-			usbMsgPtr = report_buffer;
-			return sizeof(report_buffer);
+			if (rq->wValue.bytes[0] == 1) {
+				// Keyboard report
+
+				// Not needed as I the struct already has sane values
+				// build_report_from_char('\0');
+
+				usbMsgPtr = (void*) &keyboard_report;
+				return sizeof(keyboard_report);
+			} else if (rq->wValue.bytes[0] == 2) {
+				// Mouse report
+				usbMsgPtr = (void*) &mouse_report;
+				return sizeof(mouse_report);
+			}
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
 			return 1;
@@ -328,7 +325,8 @@ main(void) {  // {{{
 	cli();
 
 	hardware_init();
-	clear_report_buffer();
+	init_keyboard_emulation();
+	init_mouse_emulation();
 	TWI_Master_Initialise();
 	usbInit();
 	init_int_eeprom();
@@ -337,7 +335,6 @@ main(void) {  // {{{
 	sei();
 
 	init_button_state();
-	init_keyboard_emulation();
 	init_ui_system();
 
 	// Sensor initialization must be done with interrupts enabled!
@@ -441,17 +438,14 @@ main(void) {  // {{{
 				// Automatically send keyboard report if there is something in
 				// the buffer
 				send_next_char();
-				usbSetInterrupt(report_buffer, sizeof(report_buffer));
+				usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
 			} else if(button.state & BUTTON_SWITCH) {
 				// Sending mouse clicks...
-				clear_report_buffer();
-				if (button.state & BUTTON_1){
-					report_buffer[2] |= 1;
-				}
-				if (button.state & BUTTON_2){
-					report_buffer[2] |= 2;
-				}
-				usbSetInterrupt(report_buffer, sizeof(report_buffer));
+
+				// Getting the 3 buttons at once
+				mouse_report.buttons = button.state & 0x07;
+
+				usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 			}
 		}
 	}

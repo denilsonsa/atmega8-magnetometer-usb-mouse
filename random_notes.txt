@@ -28,3 +28,6 @@ Unnamed unions and structs:
            with this option.
 	Anonymous structures and unions are part of C1X standard: http://en.wikipedia.org/wiki/C1X
 
+Using EEPROM on AVR:
+	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=38417
+	http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=68621
