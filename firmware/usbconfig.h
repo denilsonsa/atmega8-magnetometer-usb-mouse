@@ -179,7 +179,9 @@
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
-#define  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
+//#de fine  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
+#define  USB_CFG_DEVICE_ID       0xda, 0x27 /* = 0x27da = 10202 = For USB Mice */
+//#de fine  USB_CFG_DEVICE_ID       0xd9, 0x27 /* = 0x27d9 = 10201 = For generic HID class devices */
 /* This is the ID of the product, low byte first. It is interpreted in the
  * scope of the vendor ID. If you have registered your own VID with usb.org
  * or if you have licensed a PID from somebody else, define it here. Otherwise
