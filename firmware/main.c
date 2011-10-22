@@ -45,17 +45,27 @@
 // Sensor communication over I2C (TWI)
 #include "sensor.h"
 
-// Menu user interface for configuring the device
-#include "menu.h"
-
 // Button handling code
 #include "buttons.h"
 
+
+#if ENABLE_KEYBOARD
+
 // Keyboard emulation code
 #include "keyemu.h"
+// Menu user interface for configuring the device
+#include "menu.h"
+
+#endif
+
+
+#if ENABLE_MOUSE
 
 // Mouse emulation code
 #include "mouseemu.h"
+
+#endif
+
 
 ////////////////////////////////////////////////////////////
 // Hardware description                                  {{{
@@ -106,7 +116,6 @@
 
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
-
 
 // XXX: If this HID report descriptor is changed, remember to update
 //      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
@@ -197,6 +206,10 @@ __attribute__((externally_visible))
 // than one meter away from the buttons.
 // However, putting these buttons inside or outside that collection makes
 // no difference at all for the software, feel free to move them around.
+//
+// Also note that ENABLE_KEYBOARD and ENABLE_MOUSE options don't change the
+// HID Descriptor. Instead, they only enable/disable the code that implements
+// the keyboard or the mouse.
 
 // }}}
 
@@ -310,15 +323,7 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			// Turning off because this will be called at least twice.
 			LED_TURN_OFF(GREEN_LED);
 
-			/*
-			if (
-					rq->wLength.word != sizeof(keyboard_report)
-					&& rq->wLength.word != sizeof(keyboard_report)
-			) {
-				LED_TURN_ON(RED_LED);
-			}
-			*/
-
+#if ENABLE_KEYBOARD
 			if (rq->wValue.bytes[0] == 1) {
 				// Keyboard report
 
@@ -327,11 +332,16 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 
 				usbMsgPtr = (void*) &keyboard_report;
 				return sizeof(keyboard_report);
-			} else if (rq->wValue.bytes[0] == 2) {
+			}
+#endif
+
+#if ENABLE_MOUSE
+			if (rq->wValue.bytes[0] == 2) {
 				// Mouse report
 				usbMsgPtr = (void*) &mouse_report;
 				return sizeof(mouse_report);
 			}
+#endif
 
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
@@ -358,27 +368,31 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 void
 __attribute__ ((noreturn))
 main(void) {  // {{{
-	uchar should_send_report = 1;
 	int idle_counter = 0;
-
 	uchar sensor_probe_counter = 0;
 
 	cli();
 
 	hardware_init();
+
+#if ENABLE_KEYBOARD
 	init_keyboard_emulation();
+	init_ui_system();
+#endif
+#if ENABLE_MOUSE
 	init_mouse_emulation();
+#endif
+
 	TWI_Master_Initialise();
 	usbInit();
 	init_int_eeprom();
+	init_button_state();
 
 	wdt_reset();
 	sei();
 
-	init_button_state();
-	init_ui_system();
-
 	// Sensor initialization must be done with interrupts enabled!
+	// It uses I2C (TWI) to configure the sensor.
 	sensor_init_configuration();
 
 	LED_TURN_ON(GREEN_LED);
@@ -396,30 +410,23 @@ main(void) {  // {{{
 			LED_TURN_ON(RED_LED);
 		}
 
-		// Handling of the main switch
-		if (button.changed & BUTTON_SWITCH) {
-			// When the switch changes state, it's better to reset this
-			// variable, in order to avoid bugs.
-			sensor.func_step = 0;
-		}
-
+		// Handling the state change of the main switch
 		if (ON_KEY_UP(BUTTON_SWITCH)) {
 			// Upon releasing the switch, stop the continuous reading.
-			sensor.continuous_reading = 0;
-			//sensor_stop_continuous_reading();
+			sensor_stop_continuous_reading();
 
+#if ENABLE_KEYBOARD
 			// And also reset the menu system.
 			init_ui_system();
-		}
-
-		if (button.state & BUTTON_SWITCH) {
-			sensor.continuous_reading = 1;
-		} else {
-			ui_main_code();
+#endif
+		} else if (ON_KEY_DOWN(BUTTON_SWITCH)) {
+			// Upon pressing the switch, start the continuous reading for
+			// mouse emulation code.
+			sensor_start_continuous_reading();
 		}
 
 		// Continuous reading of sensor data
-		if (sensor.continuous_reading) {
+		if (sensor.continuous_reading) {  // {{{
 			// Timer is set to 1.365ms
 			if (TIFR & (1<<TOV0)) {
 				// The sensor is configured for 75Hz measurements.
@@ -440,11 +447,10 @@ main(void) {  // {{{
 					sensor_probe_counter = 5;
 				}
 			}
-		}
-
+		}  // }}}
 
 		// Timer is set to 1.365ms
-		if (TIFR & (1<<TOV0)) {
+		if (TIFR & (1<<TOV0)) {  // {{{
 			// Implementing the idle rate...
 			if (idle_rate != 0) {
 				if (idle_counter > 0){
@@ -464,26 +470,23 @@ main(void) {  // {{{
 					// Either that, or the idle_rate support should be removed.
 				}
 			}
-		}
+		}  // }}}
 
-		// Resetting the Timer0
-		if (TIFR & (1<<TOV0)) {
-			// Setting this bit to one will clear it.
-			// Yeah, weird, but that's how it works.
-			TIFR = 1<<TOV0;
-		}
+		// MAIN code. Code that emulates the mouse or implements the menu
+		// system.
+		if (button.state & BUTTON_SWITCH) {
+			// Code for when the switch is held down
+			// Should read data and do things
 
-		// Sending USB Interrupt-in report
-		if(usbInterruptIsReady()) {
-			if(string_output_pointer != NULL){
-				// Automatically send keyboard report if there is something in
-				// the buffer
-				send_next_char();
-				usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
-			} else if(button.state & BUTTON_SWITCH) {
+#if ENABLE_MOUSE
+			// Sending USB Interrupt-in report
+			if(usbInterruptIsReady()) {
 				// Sending mouse clicks...
 
-				if (button.changed) {
+				// TODO: Move most of this code to mouseemu.c
+
+				// If any of the 3 buttons has changed (but not the switch)
+				if (button.changed & 0x07) {
 					// LED_TOGGLE(RED_LED);
 					if (button.state & 0x07) {
 						LED_TURN_ON(GREEN_LED);
@@ -508,6 +511,32 @@ main(void) {  // {{{
 					usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 				}
 			}
+#endif
+		} else {
+			// Code for when the switch is "off"
+			// Basically, this is the menu system (implemented as keyboard)
+
+#if ENABLE_KEYBOARD
+			ui_main_code();
+
+			// Sending USB Interrupt-in report
+			if(usbInterruptIsReady()) {
+				if(string_output_pointer != NULL){
+					// Automatically send keyboard report if there is something in
+					// the buffer
+					send_next_char();
+					usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
+				}
+			}
+#endif
+		}
+
+
+		// Resetting the Timer0
+		if (TIFR & (1<<TOV0)) {
+			// Setting this bit to one will clear it.
+			// Yeah, weird, but that's how it works.
+			TIFR = 1<<TOV0;
 		}
 	}
 }  // }}}

@@ -23,6 +23,11 @@ BOOTLOADER_ENABLED = 1
 # words. Multiplying that number by 2 we get 0x1800, indexed in bytes.
 BOOTLOADER_ADDRESS = 1800
 
+# In order to fit into ATmega8 8K program space, some pieces of the firmware
+# must be disabled.
+ENABLE_MOUSE = 1
+ENABLE_KEYBOARD = 1
+
 
 ### Configurations that depend on the value of BOOTLOADER_ENABLED ###
 
@@ -107,6 +112,8 @@ endif
 # Starting with simple, straight-forward CFLAGS:
 CFLAGS   = -mmcu=$(GCC_MCU) -DF_CPU=$(F_CPU)
 CFLAGS  += -DBOOTLOADER_ENABLED=$(BOOTLOADER_ENABLED)
+CFLAGS  += -DENABLE_MOUSE=$(ENABLE_MOUSE)
+CFLAGS  += -DENABLE_KEYBOARD=$(ENABLE_KEYBOARD)
 CFLAGS  += -std=c99 -pipe -Os -Wall
 CFLAGS  += -I./ -I$(VUSBDIR)
 

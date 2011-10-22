@@ -196,25 +196,27 @@ uchar sensor_read_data_registers() {  // {{{
 			sens->func_step = 0;
 
 			if (lastTransOK) {
+				// Copying data to sensor->data struct
 				#define OFFSET(suffix) (1 + SENSOR_REG_DATA_##suffix - SENSOR_REG_DATA_START)
 				sens->data.x = (msg[OFFSET(X_MSB)] << 8) | (msg[OFFSET(X_LSB)]);
 				sens->data.y = (msg[OFFSET(Y_MSB)] << 8) | (msg[OFFSET(Y_LSB)]);
 				sens->data.z = (msg[OFFSET(Z_MSB)] << 8) | (msg[OFFSET(Z_LSB)]);
 				#undef OFFSET
 
+				// Detecting overflow
 				sens->overflow =
 					(sens->data.x == SENSOR_DATA_OVERFLOW)
 					|| (sens->data.y == SENSOR_DATA_OVERFLOW)
 					|| (sens->data.z == SENSOR_DATA_OVERFLOW);
 
-				sens->new_data_available = 1;
-
+				// Applying zero compensation
 				if (sens->e.zero_compensation && !sens->overflow) {
 					sens->data.x -= sens->e.zero.x;
 					sens->data.y -= sens->e.zero.y;
 					sens->data.z -= sens->e.zero.z;
 				}
 
+				sens->new_data_available = 1;
 				sens->error_while_reading = 0;
 				return SENSOR_FUNC_DONE;
 			} else {
