@@ -479,8 +479,20 @@ main(void) {  // {{{
 			// Should read data and do things
 
 #if ENABLE_MOUSE
-			// Sending USB Interrupt-in report
-			if(usbInterruptIsReady()) {
+#endif
+		} else {
+			// Code for when the switch is "off"
+			// Basically, this is the menu system (implemented as keyboard)
+
+#if ENABLE_KEYBOARD
+			ui_main_code();
+#endif
+		}
+
+		// Sending USB Interrupt-in report
+		if(usbInterruptIsReady()) {
+			if (button.state & BUTTON_SWITCH) {
+#if ENABLE_MOUSE
 				// Sending mouse clicks...
 
 				// TODO: Move most of this code to mouseemu.c
@@ -510,27 +522,22 @@ main(void) {  // {{{
 
 					usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
 				}
-			}
 #endif
-		} else {
-			// Code for when the switch is "off"
-			// Basically, this is the menu system (implemented as keyboard)
+			} else {
+#if ENABLE_KEYBOARD
+#endif
+			}
 
 #if ENABLE_KEYBOARD
-			ui_main_code();
-
-			// Sending USB Interrupt-in report
-			if(usbInterruptIsReady()) {
-				if(string_output_pointer != NULL){
-					// Automatically send keyboard report if there is something in
-					// the buffer
-					send_next_char();
-					usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
-				}
+			if(string_output_pointer != NULL){
+				// Automatically send keyboard report if there is something in
+				// the buffer
+				send_next_char();
+				usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
 			}
 #endif
-		}
 
+		}
 
 		// Resetting the Timer0
 		if (TIFR & (1<<TOV0)) {
