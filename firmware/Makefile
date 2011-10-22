@@ -121,6 +121,7 @@ CFLAGS  += -I./ -I$(VUSBDIR)
 CXXFLAGS = $(CFLAGS)
 ASFLAGS  = -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
 LDFLAGS  = -Wl,-Map=$(PROGNAME).map
+LIBS     = -lm
 
 ifdef BUILDING_BOOTLOADER
 LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDRESS)
@@ -223,7 +224,7 @@ all: normal-build post-build
 combine: combine-build post-build
 
 normal-build: $(ALLOBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $(PROGNAME).elf $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $(PROGNAME).elf $^ $(LIBS)
 
 combine-build: $(VUSBOBJS)
 # Combined compiling does not work for VUSB source-code. Thus, we add VUSBOBJS
@@ -231,7 +232,7 @@ combine-build: $(VUSBOBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(COMBINE_FLAGS) $(LDFLAGS) \
 		-o $(PROGNAME).elf \
 		$(PROGNAME).c $(MYOBJS:.o=.c) \
-		$(VUSBOBJS)
+		$(VUSBOBJS) $(LIBS)
 
 post-build: $(PROGNAME).elf $(PROGNAME).hex $(PROGNAME).eep $(PROGNAME).lss
 	$(CHECKSIZE) $(PROGNAME).elf $(CHECKSIZE_CODELIMIT)
