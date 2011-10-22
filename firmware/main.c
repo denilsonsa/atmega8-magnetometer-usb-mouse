@@ -101,6 +101,7 @@
  * - main.c: hardware_init()
  * - buttons.c: update_button_state()
  * - buttons.h and menu.c: BUTTON_* definitions
+ * - mouseemu.c: mouse_update_buttons()
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
@@ -480,6 +481,7 @@ main(void) {  // {{{
 			// Should read data and do things
 
 #if ENABLE_MOUSE
+			// nothing here
 #endif
 		} else {
 			// Code for when the switch is "off"
@@ -492,52 +494,26 @@ main(void) {  // {{{
 
 		// Sending USB Interrupt-in report
 		if(usbInterruptIsReady()) {
-			if (button.state & BUTTON_SWITCH) {
-#if ENABLE_MOUSE
-				// Sending mouse clicks...
-
-				// TODO: Move most of this code to mouseemu.c
-
-				// If any of the 3 buttons has changed (but not the switch)
-				if (button.changed & 0x07) {
-					// LED_TOGGLE(RED_LED);
-					if (button.state & 0x07) {
-						LED_TURN_ON(GREEN_LED);
-					} else {
-						LED_TURN_OFF(GREEN_LED);
-					}
-
-					// Getting the 3 buttons at once
-					mouse_report.buttons = button.state & 0x07;
-
-					/*
-					if (sensor.new_data_available) {
-						mouse_report.x = sensor.data.x + 2048;
-						mouse_report.y = sensor.data.y + 2048;
-						sensor.new_data_available = 0;
-					} else {
-						mouse_report.x = -1;
-						mouse_report.y = -1;
-					}
-					*/
-
-					usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
-				}
-#endif
-			} else {
-#if ENABLE_KEYBOARD
-#endif
+			if (0) {
+				// This useless "if" is here to make all the following
+				// conditionals an "else if", and thus making it a lot easier
+				// to add/remove them using preprocessor directives.
 			}
-
 #if ENABLE_KEYBOARD
-			if(string_output_pointer != NULL){
+			else if(string_output_pointer != NULL){
 				// Automatically send keyboard report if there is something in
 				// the buffer
 				send_next_char();
 				usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
 			}
 #endif
-
+#if ENABLE_MOUSE
+			else if (button.state & BUTTON_SWITCH) {
+				if (mouse_prepare_next_report()) {
+					usbSetInterrupt((void*) &mouse_report, sizeof(mouse_report));
+				}
+			}
+#endif
 		}
 
 		// Resetting the Timer0

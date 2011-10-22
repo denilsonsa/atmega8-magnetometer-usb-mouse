@@ -21,6 +21,7 @@ extern MouseReport mouse_report;
 
 
 void init_mouse_emulation();
+uchar mouse_prepare_next_report();
 
 
 #endif  // __mouseemu_h_included____
