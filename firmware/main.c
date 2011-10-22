@@ -163,8 +163,8 @@ __attribute__((externally_visible))
 	0x09, 0x31,                    //     USAGE (Y)
 //	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
 	0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
-	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
-	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
+//	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
+//	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 	0x75, 0x10,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
 	0x81, 0x42,                    //     INPUT (Data,Var,Abs,Null)
@@ -201,6 +201,9 @@ __attribute__((externally_visible))
 //
 // Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been
 // commented out when possible, in order to save a few bytes.
+//
+// PHYSICAL_MINIMUM and PHYSICAL_MAXIMUM, when undefined, assume the same
+// values as LOGICAL_MINIMUM and LOGICAL_MAXIMUM.
 //
 // Note about where the buttons are located in the Report Descriptor:
 // The buttons are placed outside the "Physical" collection just because in
