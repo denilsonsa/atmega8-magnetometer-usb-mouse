@@ -167,7 +167,7 @@ __attribute__((externally_visible))
 	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
 	0x75, 0x10,                    //     REPORT_SIZE (16)
 	0x95, 0x02,                    //     REPORT_COUNT (2)
-	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
+	0x81, 0x42,                    //     INPUT (Data,Var,Abs,Null)
 	0xc0,                          //   END_COLLECTION
 	// Buttons
 	0x05, 0x09,                    //   USAGE_PAGE (Button)
