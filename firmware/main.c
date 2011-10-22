@@ -97,9 +97,10 @@
  * PD6: yellow debug LED
  * PD7: green debug LED
  *
- * If you change the ports, remember to update these functions:
+ * If you change the ports, remember to update:
  * - main.c: hardware_init()
  * - buttons.c: update_button_state()
+ * - buttons.h and menu.c: BUTTON_* definitions
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
@@ -117,8 +118,8 @@
 ////////////////////////////////////////////////////////////
 // USB HID Report Descriptor                             {{{
 
-// XXX: If this HID report descriptor is changed, remember to update
-//      USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
+// If this HID report descriptor is changed, remember to update
+// USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
 PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
 __attribute__((externally_visible))
 = {
