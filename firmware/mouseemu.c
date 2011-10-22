@@ -36,10 +36,8 @@ static uchar mouse_update_buttons() {  // {{{
 	uchar new_state = button.state & 0x07;
 	uchar modified = (new_state != mouse_report.buttons);
 
-	// The code below is being ignored, for debugging purposes
-	//mouse_report.buttons = new_state;
-	//return modified;
-	return 0;
+	mouse_report.buttons = new_state;
+	return modified;
 }  // }}}
 
 
@@ -47,8 +45,8 @@ static void mouse_axes_no_conversion() {  // {{{
 	SensorData *sens = &sensor;
 	FIX_POINTER(sens);
 
-	mouse_report.x = sens->data.x + 2048;
-	mouse_report.y = sens->data.y + 2048;
+	mouse_report.x = sens->data.x * 8 + 16384;
+	mouse_report.y = sens->data.y * 8 + 16384;
 }  // }}}
 
 
@@ -56,24 +54,6 @@ static uchar mouse_update_axes() {  // {{{
 	SensorData *sens = &sensor;
 	FIX_POINTER(sens);
 
-	if (ON_KEY_DOWN(BUTTON_1)) {
-		mouse_report.x += 4096;
-		mouse_report.y += 4096;
-		return 1;
-	} else if (ON_KEY_DOWN(BUTTON_2)) {
-		mouse_report.x -= 4096;
-		mouse_report.y -= 4096;
-		return 1;
-	} else if (ON_KEY_DOWN(BUTTON_3)) {
-		mouse_report.x = 0;
-		mouse_report.y = 0;
-		return 1;
-	}
-
-	return 0;
-
-	// The code below is being ignored, for debugging purposes
-	/*
 	if (sens->new_data_available && !sens->overflow) {
 		mouse_axes_no_conversion();
 		sens->new_data_available = 0;
@@ -84,38 +64,17 @@ static uchar mouse_update_axes() {  // {{{
 		//mouse_report.x = -1;
 		//mouse_report.y = -1;
 
+		// Well... Actually, Linux 2.6.38 does not behave that way.
+		// Instead, Linux moves the mouse pointer even if the supplied X,Y
+		// values are outside the LOGICAL_MINIMUM..LOGICAL_MAXIMUM range.
+		//
+		// As a workaround:
+		// If no data is available, I just leave the previous data in there.
+		//
+		// Note: Windows correctly ignores the invalid values.
+
 		return 0;
 	}
-	*/
-
-// Peculiar (or buggy) behavior under Linux...
-//
-// For debugging:
-// cat /sys/kernel/debug/usb/usbmon/5u | awk --posix '/ [0-9a-f]{4}$/ {if(old != $9) {print ; old=$9} }'
-// ffff88004b49fe40 3155151289 C Ii:5:086:1 0:8 6 = 02620779 0800
-// ffff88004b49fe40 3158927311 C Ii:5:086:1 0:8 6 = 02ffffff ff04
-// ffff88004b49fe40 3158935300 C Ii:5:086:1 0:8 6 = 02610780 0804
-// ffff88004b49fe40 3161743331 C Ii:5:086:1 0:8 6 = 02ffffff ff00
-// ffff88004b49fe40 3161751326 C Ii:5:086:1 0:8 6 = 02aa07c2 0800
-//
-// Look here --------------------------------------------------^^
-//
-// The last byte is the "buttons" (either 00 for no button or 04 for
-// middle-button). The preceding 4 bytes are the X,Y position (or ffff meaning
-// "null value").
-//
-// So, should be the behavior if the system receives a mouse click at an
-// invalid position?
-//
-// Linux appears to "move" the pointer to the "ffff,ffff" position (that is,
-// the bottom-right corner of the screen, which is 1279,799 for my laptop) for
-// one moment, and registers the mouse click there. This is wrong, in my
-// opinion, as this value is clearly out of the logical minimum and logical
-// maximum described in the HID Descriptor, and thus should be ignored.
-//
-// Windows appears to do the right thing, ignoring the invalid X,Y and
-// registering the click wherever the pointer currently is.
-
 }  // }}}
 
 
