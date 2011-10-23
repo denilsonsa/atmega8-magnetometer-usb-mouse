@@ -4,19 +4,35 @@
 // http://blogoben.wordpress.com/2011/04/16/webgl-basics-4-wireframe-3d-object/
 // http://www.rozengain.com/blog/2010/02/22/beginning-webgl-step-by-step-tutorial/
 // http://www.iquilezles.org/apps/shadertoy/
+// http://www.iquilezles.org/apps/shadertoy/help.html
 // http://cake23.de/diffusion-mix.html
 // http://evanw.github.com/webgl-filter/
+// http://www.khronos.org/opengles/sdk/docs/reference_cards/OpenGL-ES-2_0-Reference-card.pdf
 
 
 // Global vars
 var canvascontainer, canvas, gl;
 var vertex_shader, fragment_shader, shader_program;
 var vertex_buffer;
+var fb_tex, frame_buffer;
+var mouse_x, mouse_y;
 
 function init_global_vars() {
 	canvascontainer = document.getElementById('canvascontainer');
 	canvas = document.getElementById('canvas');
 	gl = canvas.getContext('experimental-webgl');
+
+	mouse_x = 0.5;
+	mouse_y = 0.5;
+}
+
+function update_mouse_pos(ev) {
+	var rect = this.getBoundingClientRect();
+	var x = ev.clientX - rect.left - this.clientLeft + this.scrollLeft;
+	var y = ev.clientY - rect.right - this.clientRight + this.scrollRight;
+
+	mouse_x = x;
+	mouse_y = y;
 }
 
 function resize_canvas() {
@@ -44,6 +60,7 @@ function init_shaders() {
 
 	if (!gl.getShaderParameter(vertex_shader, gl.COMPILE_STATUS)) {
 		abort_with_message('Error while compiling the vertex shader');
+		console.log(vs_text);
 
 		// .deleteShader() is optional here, because the shader object is
 		// automatically deleted when WebGLShader object is destroyed.
@@ -61,6 +78,7 @@ function init_shaders() {
 
 	if (!gl.getShaderParameter(fragment_shader, gl.COMPILE_STATUS)) {
 		abort_with_message('Error while compiling the fragment shader');
+		console.log(fs_text);
 
 		fragment_shader = null;
 
@@ -105,8 +123,24 @@ function init_vertex_buffer() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 }
+function init_frame_buffer() {
+	fb_tex = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
+	gl.pixelStorei(gl.GL_UNPACK_ALIGNMENT, 1);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, canvas);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+	frame_buffer = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fb_tex, 0);
+}
 
 function paint() {
+	gl.uniform2f(gl.getUniformLocation(shader_program, "mouse"), mouse_x, mouse_y);
+	gl.uniform2f(gl.getUniformLocation(shader_program, "size"), canvas.width, canvas.height);
+	//gl.uniform1i(gl.getUniformLocation(shader_program, "canv"), fb_tex);
+
 	var pos = gl.getAttribLocation(shader_program, "pos");
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 	gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
@@ -116,6 +150,11 @@ function paint() {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.flush();
     gl.disableVertexAttribArray(pos);
+}
+
+function animation_frame_callback() {
+	paint();
+	window.requestAnimationFrame(animation_frame_callback);
 }
 
 function abort_with_message(text) {
@@ -134,6 +173,7 @@ function init() {
 
 	resize_canvas();
 	window.addEventListener('resize', resize_canvas, false);
+	canvas.addEventListener('mousemove', update_mouse_pos, false);
 
 	var stat = init_shaders();
 	if (!stat) {
@@ -151,7 +191,7 @@ function init() {
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	setTimeout(paint, 1000);
+	animation_frame_callback();
 }
 
 window.addEventListener('load', init, false);
