@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Full-screen WebGL canvas</title>
+
+<meta name="author" content="Denilson Figueiredo de S&aacute;">
+
+<!-- The following vertex shader is from http://www.iquilezles.org/apps/shadertoy/effect.js -->
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec2 pos;
+void main()
+{
+	gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+void main(void) {
+	gl_FragColor = vec4(0.6, 0.0, 0.0, 1.0);
+}
+</script>
+
+<script type="text/javascript" src="mouse_clicks_in_webgl.js"></script>
+
+<style type="text/css">
+html, body {
+	padding: 0;
+	border: 0;
+	margin: 0;
+}
+#canvascontainer {
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+#canvascontainer, #canvas {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+#nowebgl {
+	display: none;
+	color: red;
+	font-size: 4em;
+	text-align: center;
+	margin: 1em 0;
+}
+</style>
+
+</head>
+<body>
+
+<div id="canvascontainer">
+	<canvas id="canvas" width="256" height="256"></canvas>
+</div>
+
+<div id="nowebgl">error</div>
+
+</body>
+</html>
