@@ -15,6 +15,7 @@
 // Global vars
 var canvascontainer, canvas, gl;
 var vertex_shader, fragment_shader, shader_program;
+var shader_param;
 var vertex_buffer;
 var fb_tex, frame_buffer;
 var mouse_x, mouse_y, mouse_click, mouse_hold;
@@ -54,12 +55,11 @@ function resize_canvas() {
 	var width = canvascontainer.clientWidth;
 	var height = canvascontainer.clientHeight;
 
-	console.log('Resizing to', width, height);
+	//console.log('Resizing to', width, height);
 
 	// http://pl4n3.blogspot.com/2010/02/html5-canvas-with-variable-size.html
 	canvas.width = width;
 	canvas.height = height;
-	gl.viewport(0, 0, width, height);
 
 	//console.log(gl.drawingBufferWidth, gl.drawingBufferHeight)
 }
@@ -126,6 +126,24 @@ function init_shaders() {
 		return false;
 	}
 
+	// The shader parameters
+	shader_param = {};
+	var param_names = [
+		'canvassize',
+		'fbsize',
+		'mouse',
+		'mouse_click',
+		'mouse_hold',
+		'fb',
+		'to_fb'
+	];
+	var i;
+	var name;
+	for (i=0; i < param_names.length; i++) {
+		name = param_names[i];
+		shader_param[name] = gl.getUniformLocation(shader_program, name);
+	}
+
 	return true;
 }
 function init_vertex_buffer() {
@@ -162,13 +180,13 @@ function init_frame_buffer() {
 }
 
 function paint() {
-	// Fragment shader
-	gl.uniform2f(gl.getUniformLocation(shader_program, "canvassize"), canvas.width, canvas.height);
-	gl.uniform2f(gl.getUniformLocation(shader_program, "fbsize"), frame_buffer.width, frame_buffer.height);
-	gl.uniform2f(gl.getUniformLocation(shader_program, "mouse"), mouse_x, mouse_y);
-	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_click"), mouse_click);
-	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_hold"), mouse_hold);
-	gl.uniform1i(gl.getUniformLocation(shader_program, "fb"), fb_tex);
+	// Fragment shader parameters
+	gl.uniform2f(shader_param.canvassize, canvas.width, canvas.height);
+	gl.uniform2f(shader_param.fbsize, frame_buffer.width, frame_buffer.height);
+	gl.uniform2f(shader_param.mouse, mouse_x, mouse_y);
+	gl.uniform1i(shader_param.mouse_click, mouse_click);
+	gl.uniform1i(shader_param.mouse_hold, mouse_hold);
+	gl.uniform1i(shader_param.fb, fb_tex);
 
 	mouse_click = false;
 
@@ -179,7 +197,7 @@ function paint() {
 	gl.enableVertexAttribArray(pos);
 
 	// Using the frame buffer
-	gl.uniform1i(gl.getUniformLocation(shader_program, "to_fb"), true);
+	gl.uniform1i(shader_param.to_fb, true);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
@@ -188,9 +206,10 @@ function paint() {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);  // 4 is the number of vertices
 	gl.flush();
 
-	gl.uniform1i(gl.getUniformLocation(shader_program, "to_fb"), false);
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
+	// Drawing to the screen
+	gl.uniform1i(shader_param.to_fb, false);
+	//gl.activeTexture(gl.TEXTURE0);
+	//gl.bindTexture(gl.TEXTURE_2D, fb_tex);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 
