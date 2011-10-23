@@ -27,10 +27,17 @@ uniform vec2 size;
 
 void main(void) {
 	vec2 pos;
-	pos = gl_FragCoord.xy / size;
-	gl_FragColor = vec4(pos.x, 0.5, pos.y, 1.0);
+	vec2 posnorm;
+	vec4 color;
 
-	//gl_FragColor = vec4(0.1, 0.6, distance(mouse, vec2(0.5, 0.5)), 1.0);
+	pos = gl_FragCoord.xy;
+	posnorm = gl_FragCoord.xy / size;
+
+	color = vec4(posnorm.x, 0.5, posnorm.y, 1.0);
+
+	color.y = 8.0 / distance(mouse, pos);
+
+	gl_FragColor = color;
 }
 </script>
 

@@ -8,6 +8,7 @@
 // http://cake23.de/diffusion-mix.html
 // http://evanw.github.com/webgl-filter/
 // http://www.khronos.org/opengles/sdk/docs/reference_cards/OpenGL-ES-2_0-Reference-card.pdf
+// http://developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html
 
 
 // Global vars
@@ -29,10 +30,11 @@ function init_global_vars() {
 function update_mouse_pos(ev) {
 	var rect = this.getBoundingClientRect();
 	var x = ev.clientX - rect.left - this.clientLeft + this.scrollLeft;
-	var y = ev.clientY - rect.right - this.clientRight + this.scrollRight;
+	var y = ev.clientY - rect.top - this.clientTop + this.scrollTop;
 
+	// Fixing Y orientation for OpenGL
 	mouse_x = x;
-	mouse_y = y;
+	mouse_y = canvas.height - y;
 }
 
 function resize_canvas() {
