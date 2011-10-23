@@ -22,8 +22,10 @@ void main()
 precision highp float;
 #endif
 
-uniform vec2 mouse;
 uniform vec2 size;
+uniform vec2 mouse;
+uniform bool mouse_click;
+uniform bool mouse_hold;
 
 void main(void) {
 	vec2 pos;
@@ -36,6 +38,8 @@ void main(void) {
 	color = vec4(posnorm.x, 0.5, posnorm.y, 1.0);
 
 	color.y = 8.0 / distance(mouse, pos);
+
+	color += 0.25 * float(mouse_hold);
 
 	gl_FragColor = color;
 }

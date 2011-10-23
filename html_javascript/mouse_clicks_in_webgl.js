@@ -16,7 +16,7 @@ var canvascontainer, canvas, gl;
 var vertex_shader, fragment_shader, shader_program;
 var vertex_buffer;
 var fb_tex, frame_buffer;
-var mouse_x, mouse_y;
+var mouse_x, mouse_y, mouse_click, mouse_hold;
 
 function init_global_vars() {
 	canvascontainer = document.getElementById('canvascontainer');
@@ -25,6 +25,8 @@ function init_global_vars() {
 
 	mouse_x = 0.5;
 	mouse_y = 0.5;
+	mouse_click = false;
+	mouse_hold = false;
 }
 
 function update_mouse_pos(ev) {
@@ -35,6 +37,15 @@ function update_mouse_pos(ev) {
 	// Fixing Y orientation for OpenGL
 	mouse_x = x;
 	mouse_y = canvas.height - y;
+}
+
+function update_mouse_down(ev) {
+	mouse_click = true;
+	mouse_hold = true;
+}
+
+function update_mouse_up(ev) {
+	mouse_hold = false;
 }
 
 function resize_canvas() {
@@ -139,9 +150,13 @@ function init_frame_buffer() {
 }
 
 function paint() {
-	gl.uniform2f(gl.getUniformLocation(shader_program, "mouse"), mouse_x, mouse_y);
 	gl.uniform2f(gl.getUniformLocation(shader_program, "size"), canvas.width, canvas.height);
+	gl.uniform2f(gl.getUniformLocation(shader_program, "mouse"), mouse_x, mouse_y);
+	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_click"), mouse_click);
+	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_hold"), mouse_hold);
 	//gl.uniform1i(gl.getUniformLocation(shader_program, "canv"), fb_tex);
+
+	mouse_click = false;
 
 	var pos = gl.getAttribLocation(shader_program, "pos");
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
@@ -176,6 +191,8 @@ function init() {
 	resize_canvas();
 	window.addEventListener('resize', resize_canvas, false);
 	canvas.addEventListener('mousemove', update_mouse_pos, false);
+	canvas.addEventListener('mousedown', update_mouse_down, false);
+	canvas.addEventListener('mouseup', update_mouse_up, false);
 
 	var stat = init_shaders();
 	if (!stat) {
