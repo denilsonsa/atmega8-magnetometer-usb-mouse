@@ -26,7 +26,7 @@ BOOTLOADER_ADDRESS = 1800
 # In order to fit into ATmega8 8K program space, some pieces of the firmware
 # must be disabled.
 ENABLE_MOUSE = 1
-ENABLE_KEYBOARD = 1
+ENABLE_KEYBOARD = 0
 
 
 ### Configurations that depend on the value of BOOTLOADER_ENABLED ###

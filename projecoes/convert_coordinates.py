@@ -212,6 +212,7 @@ class State(object):
 
     def interpolation_using_linear_equations(self, pointer):
         # Let ABD be the plane of the screen. (yes, I'm ignoring C)
+        # Let A be the topleft, B the topright, and D the bottomleft.
         # Let P be the currently pointed direction.
         # Let X be the point that, at the same time, is contained into ABD
         # plane and P direction.
