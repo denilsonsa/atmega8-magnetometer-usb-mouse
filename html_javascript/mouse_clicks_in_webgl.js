@@ -7,6 +7,7 @@
 // http://www.iquilezles.org/apps/shadertoy/help.html
 // http://cake23.de/diffusion-mix.html
 // http://evanw.github.com/webgl-filter/
+// http://learningwebgl.com/blog/?p=1786
 // http://www.khronos.org/opengles/sdk/docs/reference_cards/OpenGL-ES-2_0-Reference-card.pdf
 // http://developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html
 
@@ -59,6 +60,8 @@ function resize_canvas() {
 	canvas.width = width;
 	canvas.height = height;
 	gl.viewport(0, 0, width, height);
+
+	//console.log(gl.drawingBufferWidth, gl.drawingBufferHeight)
 }
 
 function init_shaders() {
@@ -137,36 +140,64 @@ function init_vertex_buffer() {
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 }
 function init_frame_buffer() {
+	frame_buffer = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+	frame_buffer.width = 1024;
+	frame_buffer.height = 1024;
+
 	fb_tex = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
-	gl.pixelStorei(gl.GL_UNPACK_ALIGNMENT, 1);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, canvas);
+	//gl.pixelStorei(gl.GL_UNPACK_ALIGNMENT, 1);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-	frame_buffer = gl.createFramebuffer();
-	gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, frame_buffer.width, frame_buffer.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fb_tex, 0);
+
+	// Tidying up GL state
+	gl.bindTexture(gl.TEXTURE_2D, null);
+    //gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function paint() {
-	gl.uniform2f(gl.getUniformLocation(shader_program, "size"), canvas.width, canvas.height);
+	// Fragment shader
+	gl.uniform2f(gl.getUniformLocation(shader_program, "canvassize"), canvas.width, canvas.height);
+	gl.uniform2f(gl.getUniformLocation(shader_program, "fbsize"), frame_buffer.width, frame_buffer.height);
 	gl.uniform2f(gl.getUniformLocation(shader_program, "mouse"), mouse_x, mouse_y);
 	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_click"), mouse_click);
 	gl.uniform1i(gl.getUniformLocation(shader_program, "mouse_hold"), mouse_hold);
-	//gl.uniform1i(gl.getUniformLocation(shader_program, "canv"), fb_tex);
+	gl.uniform1i(gl.getUniformLocation(shader_program, "fb"), fb_tex);
 
 	mouse_click = false;
 
+	// Using the vertex buffer with the vertex shader
 	var pos = gl.getAttribLocation(shader_program, "pos");
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 	gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-
 	gl.enableVertexAttribArray(pos);
-	// 4 is the number of vertices
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+	// Using the frame buffer
+	gl.uniform1i(gl.getUniformLocation(shader_program, "to_fb"), true);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+	gl.viewport(0, 0, frame_buffer.width, frame_buffer.height);
+
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);  // 4 is the number of vertices
 	gl.flush();
-    gl.disableVertexAttribArray(pos);
+
+	gl.uniform1i(gl.getUniformLocation(shader_program, "to_fb"), false);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, fb_tex);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	gl.viewport(0, 0, canvas.width, canvas.height);
+
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);  // 4 is the number of vertices
+	gl.flush();
+
+    //gl.disableVertexAttribArray(pos);
 }
 
 function animation_frame_callback() {
@@ -189,6 +220,7 @@ function init() {
 	}
 
 	resize_canvas();
+
 	window.addEventListener('resize', resize_canvas, false);
 	canvas.addEventListener('mousemove', update_mouse_pos, false);
 	canvas.addEventListener('mousedown', update_mouse_down, false);
@@ -200,15 +232,17 @@ function init() {
 	}
 
 	init_vertex_buffer();
+	init_frame_buffer();
 
 	gl.useProgram(shader_program);
 
-	gl.clearDepth(1.0);
-	gl.enable(gl.DEPTH_TEST);
-	gl.depthFunc(gl.LEQUAL);
+	//gl.clearDepth(1.0);
+	//gl.enable(gl.DEPTH_TEST);
+	//gl.depthFunc(gl.LEQUAL);
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	animation_frame_callback();
 }

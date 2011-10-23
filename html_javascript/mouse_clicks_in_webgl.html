@@ -22,27 +22,55 @@ void main()
 precision highp float;
 #endif
 
-uniform vec2 size;
+uniform vec2 canvassize;
+uniform vec2 fbsize;
 uniform vec2 mouse;
 uniform bool mouse_click;
 uniform bool mouse_hold;
+uniform sampler2D fb;
 
-void main(void) {
+uniform bool to_fb;
+
+void draw_to_fb(void) {
 	vec2 pos;
 	vec2 posnorm;
 	vec4 color;
+	float dist;
 
 	pos = gl_FragCoord.xy;
-	posnorm = gl_FragCoord.xy / size;
+	posnorm = gl_FragCoord.xy / fbsize;
 
-	color = vec4(posnorm.x, 0.5, posnorm.y, 1.0);
+	if (!mouse_hold) {
+		color = vec4(posnorm.x, 0.5, posnorm.y, 1.0);
+	} else {
+		color = texture2D(fb, posnorm);
+	}
 
-	color.y = 8.0 / distance(mouse, pos);
+	//color *= 0.5;
 
-	color += 0.25 * float(mouse_hold);
+	dist = distance(mouse, posnorm*canvassize);
+
+	color += float(int(8.0 / dist));
+
+	//color += 0.25 * float(mouse_hold);
 
 	gl_FragColor = color;
 }
+
+void draw_to_main(void) {
+	vec2 posnorm;
+	posnorm = gl_FragCoord.xy / canvassize;
+	gl_FragColor = texture2D(fb, posnorm);
+}
+
+void main(void) {
+	if (to_fb) {
+		draw_to_fb();
+	} else {
+		draw_to_main();
+	}
+}
+
 </script>
 
 <script type="text/javascript" src="RequestAnimationFrame.js"></script>
@@ -59,8 +87,8 @@ html, body {
 	display: block;
 	position: absolute;
 	top: 0;
-	bottom: 0;
 	left: 0;
+	bottom: 0;
 	right: 0;
 	overflow: hidden;
 }
