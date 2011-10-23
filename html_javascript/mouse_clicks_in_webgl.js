@@ -1,14 +1,12 @@
-"use strict";
-
-// Based on:
+// Inspired or based on:
 // http://blogoben.wordpress.com/2011/04/16/webgl-basics-4-wireframe-3d-object/
 // http://www.rozengain.com/blog/2010/02/22/beginning-webgl-step-by-step-tutorial/
 // http://www.iquilezles.org/apps/shadertoy/
-// http://www.iquilezles.org/apps/shadertoy/help.html
 // http://cake23.de/diffusion-mix.html
 // http://evanw.github.com/webgl-filter/
 // http://learningwebgl.com/blog/?p=1786
 // http://www.khronos.org/opengles/sdk/docs/reference_cards/OpenGL-ES-2_0-Reference-card.pdf
+// http://www.khronos.org/registry/webgl/specs/latest/
 // http://developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html
 
 
@@ -19,6 +17,13 @@ var shader_param;
 var vertex_buffer;
 var fb_tex, frame_buffer;
 var mouse_x, mouse_y, mouse_click, mouse_hold;
+
+function abort_with_message(text) {
+	var nowebgl = document.getElementById('nowebgl');
+	canvascontainer.style.display = 'none';
+	nowebgl.style.display = 'block';
+	nowebgl.innerHTML = text;
+}
 
 function init_global_vars() {
 	canvascontainer = document.getElementById('canvascontainer');
@@ -139,7 +144,7 @@ function init_shaders() {
 	];
 	var i;
 	var name;
-	for (i=0; i < param_names.length; i++) {
+	for (i = 0; i < param_names.length; i++) {
 		name = param_names[i];
 		shader_param[name] = gl.getUniformLocation(shader_program, name);
 	}
@@ -168,7 +173,11 @@ function init_frame_buffer() {
 	//gl.pixelStorei(gl.GL_UNPACK_ALIGNMENT, 1);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	//gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	//gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+	// Textures must have power-of-2 dimensions.
+	// (and don't ask me how Compiz works, with windows of arbitrary sizes!)
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, frame_buffer.width, frame_buffer.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
 
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fb_tex, 0);
@@ -188,6 +197,7 @@ function paint() {
 	gl.uniform1i(shader_param.mouse_hold, mouse_hold);
 	gl.uniform1i(shader_param.fb, fb_tex);
 
+	// Resetting the mouse_click boolean
 	mouse_click = false;
 
 	// Using the vertex buffer with the vertex shader
@@ -224,16 +234,9 @@ function animation_frame_callback() {
 	window.requestAnimationFrame(animation_frame_callback);
 }
 
-function abort_with_message(text) {
-	var nowebgl = document.getElementById('nowebgl');
-	canvascontainer.style.display = 'none';
-	nowebgl.style.display = 'block';
-	nowebgl.innerHTML = text;
-}
-
 function init() {
 	init_global_vars();
-	if(!gl) {
+	if (!gl) {
 		abort_with_message('WebGL not supported');
 		return;
 	}

@@ -10,7 +10,12 @@
 
 <!-- The following vertex shader is from http://www.iquilezles.org/apps/shadertoy/effect.js -->
 <script id="shader-vs" type="x-shader/x-vertex">
+// When using shaders, it is required to have both a vertex shader and a
+// fragment shader. This vertex shader is trivial, just passes the points
+// without any transformation.
+
 attribute vec2 pos;
+
 void main()
 {
 	gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
@@ -18,45 +23,82 @@ void main()
 </script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
+// These lines are required for the correct compilation of this shader.
 #ifdef GL_ES
 precision highp float;
 #endif
 
+// The size of the canvas
 uniform vec2 canvassize;
+// The size of the framebuffer
 uniform vec2 fbsize;
+// The mouse position (in the same coordinates as the canvas)
 uniform vec2 mouse;
+
+// Has mouse clicked?
 uniform bool mouse_click;
+// Is a mouse button held down?
 uniform bool mouse_hold;
+
+// Texture of the framebuffer
 uniform sampler2D fb;
 
+// Is this drawing to the framebuffer or the screen?
+// Note: it would probably be faster to have 2 different shaders.
 uniform bool to_fb;
 
+// This is where the magic happens.
 void draw_to_fb(void) {
 	vec2 pos;
 	vec2 posnorm;
+	vec2 poscanv;
+	vec2 zooming;
 	vec4 color;
 	float dist;
 
+	// Position of the current pixel
 	pos = gl_FragCoord.xy;
+	// Position of the current pixel, normalized between 0.0 and 1.0
 	posnorm = gl_FragCoord.xy / fbsize;
+	// Position of the current pixel, in canvas coordinates (the same as the
+	// mouse)
+	poscanv = posnorm*canvassize;
 
-	if (!mouse_hold) {
-		color = vec4(posnorm.x, 0.5, posnorm.y, 1.0);
+
+	// Distance between the current pixel and the mouse, already taking into
+	// account the difference between the coordinate systems
+	dist = distance(mouse, poscanv);
+	if ( dist < 16.0 ) {
+		// Drawing a circle around the mouse with a solid color
+		// Blue if mouse button is not pressed, orange if it is pressed
+		color = vec4(0.2, 0.25, 1.0, 0.0) + vec4(1.0, 0.5, -1.0, 0.0) * float(mouse_hold);
 	} else {
-		color = texture2D(fb, posnorm);
+		// Zooming trick
+		zooming = ((mouse - poscanv) * (0.015625)) / canvassize;
+		color = texture2D(fb, posnorm + zooming);
+
+		color -= (color * 0.00390625) + 0.001953125;
 	}
-
-	//color *= 0.5;
-
-	dist = distance(mouse, posnorm*canvassize);
-
-	color += float(int(8.0 / dist));
-
-	//color += 0.25 * float(mouse_hold);
 
 	gl_FragColor = color;
 }
 
+// 2**-1 = 0.5
+// 2**-2 = 0.25
+// 2**-3 = 0.125
+// 2**-4 = 0.0625
+// 2**-5 = 0.03125
+// 2**-6 = 0.015625
+// 2**-7 = 0.0078125
+// 2**-8 = 0.00390625
+// 2**-9 = 0.001953125
+// 2**-10 = 0.0009765625
+
+
+// This is a simple, dumb drawing routine.
+// gl_FragCoord is between [0, 0] and [canvas.width, canvas.height].
+// posnorm is the same position as gl_FragCoord, but normalized between 0.0
+// and 1.0, which is the same coordinate system required by the texture2D()
 void draw_to_main(void) {
 	vec2 posnorm;
 	posnorm = gl_FragCoord.xy / canvassize;
@@ -70,7 +112,6 @@ void main(void) {
 		draw_to_main();
 	}
 }
-
 </script>
 
 <script type="text/javascript" src="RequestAnimationFrame.js"></script>
