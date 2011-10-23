@@ -30,8 +30,8 @@ function init_global_vars() {
 	canvas = document.getElementById('canvas');
 	gl = canvas.getContext('experimental-webgl');
 
-	mouse_x = 0.5;
-	mouse_y = 0.5;
+	mouse_x = 0;
+	mouse_y = 0;
 	mouse_click = false;
 	mouse_hold = false;
 }
