@@ -97,6 +97,7 @@ void print_matrix(float m[3][4]) {  // {{{
 			m[row][3]
 		);
 	}
+	fflush(stdout);
 }  // }}}
 
 
@@ -198,6 +199,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 			swap_rows(m[y], m[maxrow]);
 			//printf("After swap_rows(%d, %d)\n", y, maxrow);
 			//print_matrix(m);
+			//fflush(stdout);
 		}
 
 		// Now we are ready to eliminate the column y, using m[y][y]
@@ -213,16 +215,21 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		}
 	}
 
+	//print_matrix(m);
+
 	// The matrix is now in "row echelon form" (it is a triangular matrix).
 	// Instead of using a loop for back-substituting all 3 elements from
 	// sol[], I'm calculating only 2 of them, as only those are needed.
 	sol[2] = m[2][3] / m[2][2];
 
-	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2];
+	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
 
 	mouse_report.x = (int)(sol[1] * 32767);
 	mouse_report.y = (int)(sol[2] * 32767);
 	// sol[0] is discarded
+
+	//printf("%f %f\n", sol[1], sol[2]);
+	//fflush(stdout);
 
 	return 1;
 #undef W
@@ -256,6 +263,7 @@ int main(int argc, char *argv[]) {
 				fx = (float)mouse_report.x / 32767;
 				fy = (float)mouse_report.y / 32767;
 				printf("%f %f\n", fx, fy);
+				fflush(stdout);
 			}
 
 			// Next one gets stored at the sensor data.

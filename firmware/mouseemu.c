@@ -171,7 +171,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	// sol[], I'm calculating only 2 of them, as only those are needed.
 	sol[2] = m[2][3] / m[2][2];
 
-	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2];
+	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
 
 	mouse_report.x = (int)(sol[1] * 32767);
 	mouse_report.y = (int)(sol[2] * 32767);
