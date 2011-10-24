@@ -84,6 +84,21 @@ SensorData sensor;
 MouseReport mouse_report;
 
 
+void print_matrix(float m[3][4]) {
+	uchar row;
+
+	for (row=0; row < 3; row++) {
+		printf("m[%d] = [\t%f,\t%f,\t%f,\t%f]\n",
+			row,
+			m[row][0],
+			m[row][1],
+			m[row][2],
+			m[row][3]
+		);
+	}
+}
+
+
 
 static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	SensorData *sens = &sensor;
@@ -105,23 +120,23 @@ static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	// topleft/bottomleft direction. "u" and "v" are between 0.0 and 1.0.
 
 	// First column: - current_point
-	m[0][2] = -sens->data.x;
-	m[1][2] = -sens->data.y;
-	m[2][2] = -sens->data.z;
+	m[0][0] = -sens->data.x;
+	m[1][0] = -sens->data.y;
+	m[2][0] = -sens->data.z;
 
 	// Note: the values below are constant, and could have been pre-converted
 	// to float only once (either at boot, or after updating those values).
 	// It would save some cycles during this runtime.
 
 	// Second column: topright - topleft
-	m[0][0] = sens->e.corners[1].x - sens->e.corners[0].x;
-	m[1][0] = sens->e.corners[1].y - sens->e.corners[0].y;
-	m[2][0] = sens->e.corners[1].z - sens->e.corners[0].z;
+	m[0][1] = sens->e.corners[1].x - sens->e.corners[0].x;
+	m[1][1] = sens->e.corners[1].y - sens->e.corners[0].y;
+	m[2][1] = sens->e.corners[1].z - sens->e.corners[0].z;
 
 	// Third column: bottomleft - topleft
-	m[0][1] = sens->e.corners[2].x - sens->e.corners[0].x;
-	m[1][1] = sens->e.corners[2].y - sens->e.corners[0].y;
-	m[2][1] = sens->e.corners[2].z - sens->e.corners[0].z;
+	m[0][2] = sens->e.corners[2].x - sens->e.corners[0].x;
+	m[1][2] = sens->e.corners[2].y - sens->e.corners[0].y;
+	m[2][2] = sens->e.corners[2].z - sens->e.corners[0].z;
 
 	// Fourth column: - topleft
 	m[0][3] = -sens->e.corners[0].x;
@@ -152,6 +167,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 
 	fill_matrix_from_sensor(m);
 
+	print_matrix(m);
+
 	// Gauss-Jordan elimination, based on:
 	// http://elonen.iki.fi/code/misc-notes/python-gaussj/index.html
 
@@ -178,6 +195,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		}
 		if (maxrow != y) {
 			swap_rows(m[y], m[maxrow]);
+			printf("After swap_rows(%d, %d)\n", y, maxrow);
+			print_matrix(m);
 		}
 
 		// Now we are ready to eliminate the column y, using m[y][y]
@@ -229,9 +248,12 @@ int main(int argc, char *argv[]) {
 			next_vector->z = z;
 
 			if (next_vector == &sensor.data) {
+				float fx, fy;
 				// Do the conversion
 				mouse_axes_linear_equation_system();
-				printf("%d %d\n", mouse_report.x, mouse_report.y);
+				fx = (float)mouse_report.x / 32767;
+				fy = (float)mouse_report.y / 32767;
+				printf("%f %f\n", fx, fy);
 			}
 
 			// Next one gets stored at the sensor data.
@@ -249,8 +271,12 @@ int main(int argc, char *argv[]) {
 					next_vector = &sensor.e.corners[3];
 				}
 			} else {
-				puts("scanf failed. This shouldn't happen. Aborting...");
-				return 1;
+				if (feof(stdin)) {
+					return 0;
+				} else {
+					puts("scanf failed. This shouldn't happen. Aborting...");
+					return 1;
+				}
 			}
 		}
 	}
