@@ -1,8 +1,0 @@
-topleft
-164	63	121
-topright
--88	94	167
-bottomright
--56	-79	337
-bottomleft
-152	-114	310
