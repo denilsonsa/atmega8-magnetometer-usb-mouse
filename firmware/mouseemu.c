@@ -78,23 +78,23 @@ static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	// topleft/bottomleft direction. "u" and "v" are between 0.0 and 1.0.
 
 	// First column: - current_point
-	m[0][2] = -sens->data.x;
-	m[1][2] = -sens->data.y;
-	m[2][2] = -sens->data.z;
+	m[0][0] = -sens->data.x;
+	m[1][0] = -sens->data.y;
+	m[2][0] = -sens->data.z;
 
 	// Note: the values below are constant, and could have been pre-converted
 	// to float only once (either at boot, or after updating those values).
 	// It would save some cycles during this runtime.
 
 	// Second column: topright - topleft
-	m[0][0] = sens->e.corners[1].x - sens->e.corners[0].x;
-	m[1][0] = sens->e.corners[1].y - sens->e.corners[0].y;
-	m[2][0] = sens->e.corners[1].z - sens->e.corners[0].z;
+	m[0][1] = sens->e.corners[1].x - sens->e.corners[0].x;
+	m[1][1] = sens->e.corners[1].y - sens->e.corners[0].y;
+	m[2][1] = sens->e.corners[1].z - sens->e.corners[0].z;
 
 	// Third column: bottomleft - topleft
-	m[0][1] = sens->e.corners[2].x - sens->e.corners[0].x;
-	m[1][1] = sens->e.corners[2].y - sens->e.corners[0].y;
-	m[2][1] = sens->e.corners[2].z - sens->e.corners[0].z;
+	m[0][2] = sens->e.corners[2].x - sens->e.corners[0].x;
+	m[1][2] = sens->e.corners[2].y - sens->e.corners[0].y;
+	m[2][2] = sens->e.corners[2].z - sens->e.corners[0].z;
 
 	// Fourth column: - topleft
 	m[0][3] = -sens->e.corners[0].x;

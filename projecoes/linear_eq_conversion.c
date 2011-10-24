@@ -7,7 +7,7 @@
 #define FIX_POINTER(x)
 #define uchar  unsigned char
 #define int    short int
-#define float  double
+//#define float  double
 
 // Compatibility end  }}}
 
@@ -230,7 +230,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 }  // }}}
 
 #undef int
-#undef float
+//#undef float
 
 
 
