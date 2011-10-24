@@ -21,11 +21,17 @@ for abertura in {10..90..5} ; do
 	P=${abertura}
 	T=${abertura}
 
-	for a in {1..9} ; do
-		./generate_sphere_vectors.py -P ${P} -T ${T} -p ${p} -t ${t} \
-		| ./convert_coordinates.py -a ${a} \
-		| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_a${a}.png"
-	done
+	# C program
+	./generate_sphere_vectors.py -P ${P} -T ${T} -p ${p} -t ${t} \
+	| ./linear_eq_conversion \
+	| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_cleq.png"
+
+	# Python program
+	#for a in {1..9} ; do
+	#	./generate_sphere_vectors.py -P ${P} -T ${T} -p ${p} -t ${t} \
+	#	| ./convert_coordinates.py -a ${a} \
+	#	| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_a${a}.png"
+	#done
 done
 
 echo "If you want to save space, also run this command:"

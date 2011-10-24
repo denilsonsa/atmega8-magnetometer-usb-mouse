@@ -3,6 +3,7 @@ syntax: glob
 projecoes/2d.txt
 projecoes/3d.txt
 projecoes/images/
+projecoes/linear_eq_conversion
 ignored_files/
 # Temporary and backup files:
 \#*#
