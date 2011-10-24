@@ -167,6 +167,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 
 	uchar y;
 
+	int final_x, final_y;
+
 	fill_matrix_from_sensor(m);
 
 	//print_matrix(m);
@@ -224,9 +226,33 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 
 	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
 
-	mouse_report.x = (int)(sol[1] * 32767);
-	mouse_report.y = (int)(sol[2] * 32767);
 	// sol[0] is discarded
+
+	if (
+		   sol[1] < 0.0
+		|| sol[1] > 1.0
+		|| sol[2] < 0.0
+		|| sol[2] > 1.0
+	) {
+		// Out-of-bounds
+		return 0;
+	}
+
+	final_x = (int)(sol[1] * 32767);
+	final_y = (int)(sol[2] * 32767);
+
+	if (
+		   final_x < 0
+		|| final_x > 32767
+		|| final_y < 0
+		|| final_y > 32767
+	) {
+		// Out-of-bounds
+		return 0;
+	}
+
+	mouse_report.x = final_x;
+	mouse_report.y = final_y;
 
 	//printf("%f %f\n", sol[1], sol[2]);
 	//fflush(stdout);
