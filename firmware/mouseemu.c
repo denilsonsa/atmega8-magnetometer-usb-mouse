@@ -76,6 +76,11 @@ static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	// Which means the current point is equal to the topleft corner, plus "u"
 	// times in the topleft/topright direction, plus "v" times in the
 	// topleft/bottomleft direction. "u" and "v" are between 0.0 and 1.0.
+	//
+	// It would have been better to normalize each vector before doing any
+	// math on them, in order to reduce deformations. However, I know
+	// (empirically) that all values from the sensor have about the same
+	// magnitude, and thus I don't need to normalize them.
 
 	// First column: - current_point
 	m[0][0] = -sens->data.x;
@@ -187,8 +192,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		return 0;
 	}
 
-	final_x = (int)(sol[1] * 32767);
-	final_y = (int)(sol[2] * 32767);
+	final_x = (int) round(sol[1] * 32767);
+	final_y = (int) round(sol[2] * 32767);
 
 	if (
 		   final_x < 0
