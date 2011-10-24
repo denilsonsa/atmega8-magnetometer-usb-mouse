@@ -102,6 +102,12 @@
  * - buttons.c: update_button_state()
  * - buttons.h and menu.c: BUTTON_* definitions
  * - mouseemu.c: mouse_update_buttons()
+ *
+ * If the Switch is ON, runs the "mouseemu" code. In this mode, buttons 1, 2
+ * and 3 emulate mouse click.
+ * If the Switch is OFF, runs the "keyemu" code. In this mode, there is an
+ * interactive menu system to configure and debug the sensor. Buttons 1 and 2
+ * are next/prev item, and button 3 is "confirm".
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
