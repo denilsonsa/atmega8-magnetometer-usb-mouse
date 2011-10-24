@@ -7,6 +7,7 @@
 #define FIX_POINTER(x)
 #define uchar  unsigned char
 #define int    short int
+#define float  double
 
 // Compatibility end  }}}
 
@@ -84,7 +85,7 @@ SensorData sensor;
 MouseReport mouse_report;
 
 
-void print_matrix(float m[3][4]) {
+void print_matrix(float m[3][4]) {  // {{{
 	uchar row;
 
 	for (row=0; row < 3; row++) {
@@ -96,7 +97,7 @@ void print_matrix(float m[3][4]) {
 			m[row][3]
 		);
 	}
-}
+}  // }}}
 
 
 
@@ -167,7 +168,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 
 	fill_matrix_from_sensor(m);
 
-	print_matrix(m);
+	//print_matrix(m);
 
 	// Gauss-Jordan elimination, based on:
 	// http://elonen.iki.fi/code/misc-notes/python-gaussj/index.html
@@ -195,8 +196,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		}
 		if (maxrow != y) {
 			swap_rows(m[y], m[maxrow]);
-			printf("After swap_rows(%d, %d)\n", y, maxrow);
-			print_matrix(m);
+			//printf("After swap_rows(%d, %d)\n", y, maxrow);
+			//print_matrix(m);
 		}
 
 		// Now we are ready to eliminate the column y, using m[y][y]
@@ -229,6 +230,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 }  // }}}
 
 #undef int
+#undef float
 
 
 
