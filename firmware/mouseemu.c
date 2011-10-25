@@ -264,16 +264,7 @@ uchar mouse_prepare_next_report() {  // {{{
 	// I'm using a bitwise OR here because a boolean OR would short-circuit
 	// the expression and wouldn't run the second function. It's ugly, but
 	// it's simple and works.
-//	return mouse_update_buttons() | mouse_update_axes();
-
-
-	uchar tmp;
-	tmp = mouse_update_buttons() | mouse_update_axes();
-	if (tmp) {
-		mouse_report.x *= 2;
-	}
-	return tmp;
-
+	return mouse_update_buttons() | mouse_update_axes();
 }  // }}}
 
 
