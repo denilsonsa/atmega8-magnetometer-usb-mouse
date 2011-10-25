@@ -50,3 +50,6 @@ Reducing the firmware size:
 	USB_CFG_DEVICE_NAME takes up 2 bytes because is stored in an array of
 	integers. Reducing the vendor/device names might further shrink the
 	firmware size a little bit.
+
+Getting the USB HID Report Descriptor:
+	http://www.slashdev.ca/2010/05/08/get-usb-report-descriptor-with-linux/
