@@ -1,0 +1,146 @@
+\documentclass[brazil]{abnt}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+
+% http://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
+% http://texblog.net/latex-archive/fonts/symbols/
+\usepackage[T1]{fontenc}
+
+% 'microtype' improves LaTeX line-breaking algorithm by using
+% microtypographic features of the font
+% http://tex.stackexchange.com/questions/349/what-is-the-practical-difference-between-latex-and-pdflatex/358#358
+\usepackage{microtype}
+
+% 'hyperref' for including hyperlinks to the PDF.
+% http://en.wikibooks.org/wiki/LaTeX/Formatting#Typesetting_URLs
+\usepackage{hyperref}
+\hypersetup{
+	pdfborder={0 0 0}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Other packages
+
+% Allow including graphics
+\usepackage{graphicx}
+
+% To find the total number of pages
+%\usepackage{lastpage}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Embedding source-code
+
+% For inserting source-code
+%\usepackage{listings}
+% TODO: configure this
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table-related packages:
+
+% For multirow cells inside tabular environments
+%\usepackage{multirow}
+
+% Longtable allows you to write tables that continue to the next page
+%\usepackage{longtable}
+
+% 'tabularx' package - simple column stretching
+% http://en.wikibooks.org/wiki/LaTeX/Tables#The_tabularx_package_-_simple_column_stretching
+%\usepackage{tabularx}
+
+% 'booktabs' - Publication quality tables in LaTeX
+%\usepackage{booktabs}
+
+% Alternating row colors in tables
+%\usepackage[table]{xcolor}
+%\definecolor{tabular-odd-color}{gray}{0.90}
+%\definecolor{tabular-even-color}{gray}{0.97}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fancy headers (and footers)
+% http://en.wikibooks.org/wiki/LaTeX/Page_Layout#Page_Styles
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+%
+%% Headers and footers definition:
+%\lhead{\includegraphics[height=21mm]{shared/2aliancas_h.pdf}}
+%\chead{}
+%% This \parbox is a hack to keep text aligned at top, but it's not the
+%% only available solution:
+%% http://tex.stackexchange.com/questions/2440/how-to-vertically-align-headers-footers-in-fancyhdr-package
+%\rhead{\parbox[b][21mm][t]{0.65\textwidth}{\raggedleft\large\titletext \\[1em] \subtitletext}}
+%\lfoot{}
+%\cfoot{}
+%\rfoot{Page \thepage{} of \pageref{LastPage}}
+%
+%\renewcommand{\headrulewidth}{0pt}  % Default is 0.4pt
+%\renewcommand{\footrulewidth}{0pt}  % Default is 0pt
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some metadata
+
+% The following are used at the first page, and also by hypersetup
+\newcommand{\titletext}{Mouse USB usando magnetômetro}
+\newcommand{\authortext}{Denilson Figueiredo de Sá}
+
+% This is used only by latex-beamer package:
+%\title{Mouse USB usando magnetômetro}
+%\author{Denilson Figueiredo de Sá}
+%\date{2011-11-??}
+%\institute{DCC/UFRJ}
+%\keywords{django, south, database migration}
+
+% This is needed when not using latex-beamer:
+\hypersetup{
+	pdftitle={\titletext},
+	pdfauthor={\authortext}
+}
+
+\begin{document}
+
+\autor{\authortext}
+\titulo{\titletext}
+\orientador{Nelson Quilula Vasconcelos}
+\comentario{Monografia apresentada para obtenção do Grau de Bacharel em Ciência da Computação pela Universidade Federal do Rio de Janeiro.}
+\instituicao{Departamento de Ciência da Computação \par Instituto de Matemática \par Universidade Federal do Rio de Janeiro}
+\local{Rio de Janeiro - RJ, Brasil}
+\data{??/11/2011}
+
+\capa
+\folhaderosto
+
+
+\begin{resumo}
+O resumo será escrito aqui.
+\end{resumo}
+
+\begin{abstract}
+This will be the abstract, someday.
+\end{abstract}
+
+%\chapter*{Dedicatória}
+
+%\chapter*{Agradecimentos}
+
+
+\tableofcontents{}
+\listoffigures
+%\listoftables
+
+\chapter{Introdução\label{cap:introducao}}
+
+blhbalahblahsd
+a
+da
+hds
+ahd
+
+
+
+\end{document}
+
+% vim:filetype=tex ts=4 sw=4 noet tw=76 foldmethod=marker foldmarker=\\begin,\\end foldcolumn=4 foldlevel=1
