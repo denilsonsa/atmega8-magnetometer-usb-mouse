@@ -1,4 +1,4 @@
-\documentclass[brazil]{abnt}
+\documentclass[brazil,pagestart=firstchapter]{abnt}
 \usepackage[utf8]{inputenc}
 \usepackage[brazil]{babel}
 
@@ -28,6 +28,13 @@
 % To find the total number of pages
 %\usepackage{lastpage}
 
+% List of abbreviations
+% http://en.wikibooks.org/wiki/LaTeX/Indexing#Abbreviation_list
+% http://franz.kollmann.in/latex/latex.html#abbr
+\usepackage{nomencl}
+\makenomenclature
+% Insert the abbreviation in the tex as short and long form: 
+% \nomenclature{Abbr}{Abbreviation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Embedding source-code
@@ -102,11 +109,20 @@
 
 \begin{document}
 
+% The "abnt" class issues a warning:
+%   pdfTeX warning (ext4): destination with the same identifier
+%   (name{page.i}) has been already used, duplicate ignored
+% This page has a solution (or workaround):
 % http://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages
-\pagenumbering{roman}
+%\pagenumbering{roman}
+% But, anyway, it's better to ignore that warning (or even better would be
+% to report it to abntex maintainers).
+% Instead of messing with page numbering, I've added pagestart=firstchapter
+% option.
 
 \autor{\authortext}
 \titulo{\titletext}
+% huh... como inserir o subtítulo?
 \orientador{Nelson Quilula Vasconcelos}
 \comentario{Monografia apresentada para obtenção do Grau de Bacharel em Ciência da Computação pela Universidade Federal do Rio de Janeiro.}
 \instituicao{Departamento de Ciência da Computação \par Instituto de Matemática \par Universidade Federal do Rio de Janeiro}
@@ -114,7 +130,12 @@
 \data{??/11/2011}
 
 \capa
+
 \folhaderosto
+
+
+% TODO: ver sobre a folha de aprovação, se ela será gerada usando LaTeX ou
+% se será inserida usando outra forma.
 
 
 \begin{resumo}
@@ -125,14 +146,23 @@ O resumo será escrito aqui.
 This will be the abstract, someday.
 \end{abstract}
 
+
 %\chapter*{Dedicatória}
+% TODO: escrever dedicatória (opcional)
 
 %\chapter*{Agradecimentos}
+% TODO: escrever agradecimentos
 
+
+\listoffigures
+
+%\listoftables
+
+\pretextualchapter{Lista de abreviaturas e siglas}
+\printnomenclature
 
 \tableofcontents{}
-\listoffigures
-%\listoftables
+
 
 \chapter{Introdução\label{cap:introducao}}
 
@@ -142,6 +172,14 @@ da
 hds
 ahd
 
+Então o  HTTP existe para
+blablabla.
+
+Mas também HTTP serve...
+
+\nomenclature{HTTP}{Hypertext Transfer Protocol}
+\nomenclature{XYZ}{ABC}
+\nomenclature{BASD}{asdjakd}
 
 
 \end{document}
