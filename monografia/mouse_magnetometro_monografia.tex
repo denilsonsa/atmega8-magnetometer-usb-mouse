@@ -31,10 +31,13 @@
 % List of abbreviations
 % http://en.wikibooks.org/wiki/LaTeX/Indexing#Abbreviation_list
 % http://franz.kollmann.in/latex/latex.html#abbr
-\usepackage{nomencl}
-\makenomenclature
+%\usepackage{nomencl}
+%\makenomenclature
 % Insert the abbreviation in the tex as short and long form: 
 % \nomenclature{Abbr}{Abbreviation}
+%
+% latexmk needs a custom dependency for this package
+% http://magic.aladdin.cs.cmu.edu/2007/11/06/continuous-latex-compilation-using-latexmk/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Embedding source-code
@@ -158,8 +161,7 @@ This will be the abstract, someday.
 
 %\listoftables
 
-\pretextualchapter{Lista de abreviaturas e siglas}
-\printnomenclature
+%\pretextualchapter{Lista de abreviaturas e siglas}
 
 \tableofcontents{}
 
@@ -171,16 +173,6 @@ a
 da
 hds
 ahd
-
-Então o  HTTP existe para
-blablabla.
-
-Mas também HTTP serve...
-
-\nomenclature{HTTP}{Hypertext Transfer Protocol}
-\nomenclature{XYZ}{ABC}
-\nomenclature{BASD}{asdjakd}
-
 
 \end{document}
 

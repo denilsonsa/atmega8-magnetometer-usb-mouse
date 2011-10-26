@@ -4,11 +4,12 @@ all: $(BASENAME).pdf
 
 .PHONY: all clean pvc
 
-$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).nls
+#$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).nls
+$(BASENAME).pdf: $(BASENAME).tex
 	latexmk -pdf $< | ./filter_pdflatex_output.sed
 
-$(BASENAME).nls: $(BASENAME).nlo
-	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
+#$(BASENAME).nls: $(BASENAME).nlo
+#	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
 
 pvc:
 	latexmk -pdf -pvc $(BASENAME) | ./filter_pdflatex_output.sed
