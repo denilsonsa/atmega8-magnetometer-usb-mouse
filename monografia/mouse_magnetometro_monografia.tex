@@ -93,23 +93,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some metadata
 
-% The following are used at the first page, and also by hypersetup
-\newcommand{\titletext}{Mouse USB usando magnetômetro}
-\newcommand{\authortext}{Denilson Figueiredo de Sá}
-
 % This is used only by latex-beamer package:
 %\title{Mouse USB usando magnetômetro}
 %\author{Denilson Figueiredo de Sá}
 %\date{2011-11-16}
 %\institute{DCC/UFRJ}
-%\keywords{django, south, database migration}
+%\keywords{AVR, USB, mouse, magnetometer}
 
-% This is needed when not using latex-beamer:
+\autor{Denilson Figueiredo de Sá}
+\titulo{Mouse USB usando magnetômetro}
+\orientador{Nelson Quilula Vasconcelos}
+%\comentario{}
+\instituicao{Departamento de Ciência da Computação \par Instituto de Matemática \par Universidade Federal do Rio de Janeiro}
+\local{Rio de Janeiro - RJ, Brasil}
+\data{16 de novembro de 2011}
+
+% latex-beamer sets the pdftitle and pdfauthor automatically, but here we
+% must explicitly run it:
 \hypersetup{
-	pdftitle={\titletext},
-	pdfauthor={\authortext}
+	pdftitle={\ABNTtitulodata},
+	pdfauthor={\ABNTautordata}
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
 % The "abnt" class issues a warning:
@@ -123,14 +129,6 @@
 % Instead of messing with page numbering, I've added pagestart=firstchapter
 % option.
 
-\autor{\authortext}
-\titulo{\titletext}
-% huh... como inserir o subtítulo?
-\orientador{Nelson Quilula Vasconcelos}
-%\comentario{Monografia apresentada para obtenção do Grau de Bacharel em Ciência da Computação pela Universidade Federal do Rio de Janeiro.}
-\instituicao{Departamento de Ciência da Computação \par Instituto de Matemática \par Universidade Federal do Rio de Janeiro}
-\local{Rio de Janeiro - RJ, Brasil}
-\data{16 de novembro de 2011}
 
 \capa
 
@@ -143,12 +141,12 @@
 \setlength{\ABNTsignskip}{2cm}
 \hspace*{1cm}
 
-\centerline{\textbf{\large \titletext}}
+\centerline{\textbf{\large \ABNTtitulodata}}
 
 \bigskip
 \bigskip
 
-\centerline{\textbf{\authortext}}
+\centerline{\textbf{\ABNTautordata}}
 
 \bigskip
 \bigskip
@@ -160,7 +158,7 @@ Ciência da Computação.
 
 Apresentado por:
 
-\assinatura{\authortext}
+\assinatura{\ABNTautordata}
 
 Aprovado por:
 
