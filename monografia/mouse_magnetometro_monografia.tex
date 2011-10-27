@@ -185,6 +185,7 @@
 % Custom commands
 
 \newcommand{\VBUS}{V\textsubscript{BUS}\xspace}
+\newcommand{\VCC}{V\textsubscript{CC}\xspace}
 \newcommand{\GND}{GND\xspace}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -373,7 +374,7 @@ funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{img/USB.png}
-\caption{Conectores USB 2.0}
+\caption{Conectores do tipo A e do tipo B para USB 1.x/2.0}
 \label{fig:usb_connectors}
 \end{figure}
 
@@ -384,7 +385,15 @@ são transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing}
 \cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
 
 A velocidade de um dispositivo é determinada por hardware, de acordo com a
-posição do resistor de \textit{pull-up} nas vias de dados. Dispositivos
+posição do resistor de \textit{pull-up}
+	\footnote{Resistores de \textit{pull-up} ou de \textit{pull-down} servem
+	para manter uma via de dados num nível lógico conhecido enquanto nenhuma
+	transferência ocorre.  Normalmente possuem um valor relativamente alto
+	(de \SIrange{1.5}{15}{\kilo\ohm}) para drenar pouca corrente. Um
+	resistor de \textit{pull-up} conecta a via ao \VCC e a mantém no nível
+	lógico 1, enquanto um resistor de \textit{pull-down} conecta a via ao
+	\GND e a mantém no nível lógico 0.}
+nas vias de dados. Dispositivos
 \textit{low speed} possuem um resistor de \textit{pull-up} ligado ao D-,
 enquanto dispositivos \textit{full speed} possuem  um resistor de
 \textit{pull-up} ligado ao D+. Se não há nenhum resistor de
@@ -415,7 +424,7 @@ normalmente é um computador. Por definição, o \textit{host} contém um
 um \textit{hub} da camada imediatamente acima a um dispositivo na camada
 imediatamente abaixo. Um dispositivo pode ser um outro \textit{hub} ou então
 uma função. Por limitações de tempo de propagação, o número máximo de
-camadas é 7, includindo a camada que contém o \textit{host}.
+camadas é 7, incluindo a camada que contém o \textit{host}.
 \cite[p.~16]{usb20}
 
 A especificação \ac{USB} define dois tipos de conectores (conforme ilustrado
@@ -430,7 +439,7 @@ arquitetura \textit{master/slave}, na qual o \textit{host} é o
 \textit{master} e os dispositivos têm o papel de \textit{slave}. Só há um
 \textit{host} por barramento \ac{USB}, e ele é responsável por iniciar e
 gerenciar cada transação.  Como consequência, a maior parte da lógica está
-centralizado no \textit{host}, simplificando bastante a implementação de
+centralizada no \textit{host}, simplificando bastante a implementação de
 dispositivos que se conectam ao barramento \ac{USB}. \cite{usbinanutshell}
 
 Em novembro de 2008, foi lançada a especificação do USB 3.0, que introduziu
