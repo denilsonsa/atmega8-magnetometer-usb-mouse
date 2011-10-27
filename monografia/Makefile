@@ -5,11 +5,14 @@ all: $(BASENAME).pdf
 .PHONY: all clean pvc
 
 #$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).nls
-$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
+$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib $(BASENAME).sigla
 	latexmk -pdf $< | ./filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo
 #	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
+
+$(BASENAME).sigla: $(BASENAME).siglax
+	makeindex -s tabela-siglas.ist -o $(BASENAME).sigla $(BASENAME).siglax
 
 pvc:
 	latexmk -pdf -pvc $(BASENAME) | ./filter_pdflatex_output.sed

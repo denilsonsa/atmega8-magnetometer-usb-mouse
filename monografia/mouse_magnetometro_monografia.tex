@@ -22,8 +22,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Other packages
 
+% From abntex:
+\usepackage{tabela-simbolos}
+
 % Allow including graphics
 \usepackage{graphicx}
+
+% SI Units
+\usepackage{siunitx}
+\sisetup{
+	list-final-separator = { e },
+	range-phrase = { a },
+	output-decimal-marker = {,}
+}
 
 % To find the total number of pages
 %\usepackage{lastpage}
@@ -138,8 +149,10 @@
 % http://en.wikibooks.org/wiki/LaTeX/Formatting#Typesetting_URLs
 \usepackage{hyperref}
 \hypersetup{
-	pdfborder={0 0 0}
+	pdfborder={0 0 0},
+	hyperindex=false
 }
+% hyperindex=false is required by "tabela-de-simbolos"
 
 % http://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing#Issues_with_links_to_tables_and_figures_handled_by_hyperref
 %\usepackage[all]{hypcap}
@@ -239,6 +252,13 @@ Aprovado por:
 \end{folhadeaprovacao}
 
 
+%\chapter*{Dedicatória}
+% TODO: escrever dedicatória (opcional)
+
+%\chapter*{Agradecimentos}
+% TODO: escrever agradecimentos
+
+
 \begin{resumo}
 O resumo será escrito aqui.
 \end{resumo}
@@ -248,12 +268,7 @@ This will be the abstract, someday.
 \end{abstract}
 
 
-%\chapter*{Dedicatória}
-% TODO: escrever dedicatória (opcional)
-
-%\chapter*{Agradecimentos}
-% TODO: escrever agradecimentos
-
+\listadesiglas
 
 \listoffigures
 
@@ -274,18 +289,34 @@ necessidades especiais, interatividade em jogos e exposições)
 TrackIR, Wiimote, eye-tracking
 
 
-\chapter{Teoria\label{cap:teoria}}
+\chapter{Protocolos e componentes\label{cap:protocolos_e_componentes}}
 
 \section{USB\label{sec:usb}}
 
 Descrição resumida de como USB funciona, quais as características e
 limitações.
+\sigla{USB}{Universal Serial Bus}
 
 \section{USB HID\label{sec:usb_hid}}
 
 Descrição do USB HID.
+\sigla{HID}{Human Interface Device}
 
 \section{Microcontrolador ATmega8\label{sec:atmega8}}
+
+ATmega8 é um microcontrolador de 8 bits da família AVR. Suas características
+são:
+
+\begin{itemize}
+\item Arquitetura Harvard, com espaços de endereçamento distintos para as
+instruções e para as variáveis.
+\item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
+\item \num{512} bytes de memória EEPROM para guardar parâmetros de configuração do
+programa.
+\item \num{1024} bytes de memória SRAM para as variáveis.
+\item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
+\item Clock máximo de \SI{16}{\mega\hertz}.
+\end{itemize}
 
 Descrição resumida das características do microcontrolador ATmega8.
 Basicamente, o resumo do datasheet.
