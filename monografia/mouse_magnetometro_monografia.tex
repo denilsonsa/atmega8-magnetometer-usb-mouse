@@ -33,12 +33,22 @@
 % Let's instead use "acronym":
 \usepackage[printonlyused,withpage]{acronym}
 
+% Adding \textsubscript{}
+% http://en.wikibooks.org/wiki/LaTeX/Formatting#Text_mode_superscript_and_subscript
+\usepackage{fixltx2e}
+
+% http://tex.stackexchange.com/questions/17730/newcommand-and-spacing
+\usepackage{xspace}
+
 % Allow including graphics
 \usepackage{graphicx}
 
 % SI Units
+% https://bitbucket.org/josephwright/siunitx/issue/100/undefined-control-sequence-bit-and-byte
 \usepackage{siunitx}
 \sisetup{
+	load-configurations = binary,
+	per-mode = symbol,
 	list-final-separator = { e },
 	range-phrase = { a },
 	output-decimal-marker = {,}
@@ -169,7 +179,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom commands
 
-%\newcommand{\something}{something else}
+\newcommand{\VBUS}{V\textsubscript{BUS}\xspace}
+\newcommand{\GND}{GND\xspace}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some metadata
@@ -260,6 +271,11 @@ Aprovado por:
 \end{folhadeaprovacao}
 
 
+% Colocar o Sumário aqui é muito bom, mas não é de acordo com a norma ABNT
+% NBR 14724: informação e documentação: trabalhos acadêmicos: apresentação.
+%\tableofcontents{}
+
+
 %\pretextualchapter{Dedicatória}
 % TODO: escrever dedicatória (opcional)
 
@@ -276,6 +292,11 @@ This will be the abstract, someday.
 \end{abstract}
 
 
+\listoffigures
+
+%\listoftables
+
+
 % The following command does not work:
 % \listadesiglas
 % Instead, I'm using "acronym" package.
@@ -287,20 +308,24 @@ This will be the abstract, someday.
 \acro{USB}{Universal Serial Bus}
 \acro{HID}{Human Interface Device}
 
+\acro{NRZI}{Non-Return-to-Zero Inverted}
+\acro{SE0}{Single-ended 0}
+\acro{SE1}{Single-ended 1}
+
 \acro{I2C}[I²C]{Inter-Integrated Circuit}
 \acro{TWI}{Two-Wire Interface}
 
+\acro{ISP}{In-System Programmer}
+\acro{ICSP}{In-Circuit Serial Programmer}
+
 \acro{SRAM}{Static Random-Access Memory}
+\acro{ROM}{Read-Only Memory}
 \acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
 
 \end{acronym}
 
 
-\listoffigures
-
-%\listoftables
-
-\tableofcontents{}
+\tableofcontents
 
 
 \chapter{Introdução\label{cap:introducao}}
@@ -317,14 +342,77 @@ TrackIR, Wiimote, eye-tracking
 
 \section{USB\label{sec:usb}}
 
-Descrição resumida de como USB funciona, quais as características e
-limitações.
+\ac{USB} é um protocolo que foi desenvolvido a partir do ano de 1994 pelas
+empresas \textit{Compaq}, \textit{Hewlett-Packard}, \textit{Intel},
+\textit{Lucent}, \textit{Microsoft}, \textit{NEC} e \textit{Philips}. Foi
+motivado pela inexistência de um barramento bidirecional de baixo custo para
+periféricos de baixa e média velocidade, assim como a falta de flexibilidade
+dos barramentos até então existentes, os quais eram projetados para usos
+bastante específicos, sendo impossível reutilizá-los para outros
+periféricos. \cite{usb20}
+
+A primeira versão do \ac{USB}, conhecida como ``USB 1.0'', foi oficialmente
+lançada em janeiro de 1996 e definiu duas velocidades: \textit{low speed}
+(\SI{1.5}{\mega\bit\per\second}) e \textit{full speed}
+(\SI{12}{\mega\bit\per\second}). Alguns anos depois, em setembro de 1998, foi
+lançada sua primeira revisão, ``USB 1.1'', que resolveu alguns problemas da
+versão anterior mas não introduziu nenhuma mudança significativa.
+
+A primeira grande revisão do protocolo foi lançada em abril de 2000, com o
+nome de ``USB 2.0''. Esta versão introduziu uma terceira velocidade --
+\textit{high speed} (\SI{480}{\mega\bit\per\second}) -- mas manteve total
+compatibilidade com a revisão anterior do protocolo: dispositivos USB 1.x
+funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
+\textit{hosts} USB 1.x (porém limitados a \textit{full speed}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/USB.png}
+\caption{Conectores USB 2.0}
+\label{fig:usb_connectors}
+\end{figure}
+
+Uma conexão \ac{USB} é formada por 4 vias, sendo duas para alimentação
+(\VBUS = \SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados
+são transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing}
+(um ``zero'' é inserido após 6 bits ``um'' consecutivos).
+\cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
+
+A velocidade de um dispositivo é determinada por hardware, de acordo com a
+posição do resistor de \textit{pull-up} nas vias de dados. Dispositivos
+\textit{low speed} possuem um resistor de \textit{pull-up} ligado ao D-,
+enquanto dispositivos \textit{full speed} possuem  um resistor de
+\textit{pull-up} ligado ao D+. Se não há nenhum resistor de
+\textit{pull-up}, assume-se que não há nenhum dispositivo conectado.
+\cite[p.~141]{usb20} \cite[cap.~2]{usbinanutshell}
+
+Dispositivos \textit{high speed}, introduzidos no \ac{USB} 2.0, inicialmente
+se identificam como \textit{full speed} (com um resistor de \textit{pull-up}
+ligado ao D+), mas removem o resistor após uma negociação realizada durante
+o durante o USB \textit{reset}, caso o \textit{host} também suporte
+\textit{high speed}.  Caso contrário, o resistor será mantido e o
+dispositivo funcionará em \textit{full speed}. Essa negociação incial
+permite a compatibilidade entre dispositivos USB 2.0 \textit{high speed} e
+\textit{hosts} USB 1.x. \cite[p.~142]{usb20} \cite[cap.~2]{usbinanutshell}
+
+A conexão de equipamentos \ac{USB} segue uma topologia de estrela em
+camadas.
+
+blah A especificação \ac{USB} define dois tipos de conectores diferente
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{img/usb_bus_topology.pdf}
+\caption{Topologia do barramento USB}
+\label{fig:usb_topology}
+\end{figure}
+
 
 \section{USB HID\label{sec:usb_hid}}
 
 Descrição do USB HID.
 
-\section{Protocolo I²C\label{sec:i2c}}
+\section{I²C\label{sec:i2c}}
 
 Breve descrição do protocolo \ac{I2C}.
 
@@ -345,8 +433,8 @@ programa.
 \item Interface de comunicação serial \ac{I2C}, com o nome de \ac{TWI}.
 \end{itemize}
 
-Descrição resumida das características do microcontrolador ATmega8.
-Basicamente, o resumo do datasheet.
+% TODO: completar esta seção
+TODO: completar esta seção
 
 \section{Sensor HMC5883\label{sec:sensor}}
 

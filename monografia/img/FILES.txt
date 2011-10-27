@@ -1,0 +1,11 @@
+USB.svg: (USB.png)
+	http://en.wikipedia.org/wiki/File:USB.svg
+	GNU Free Documentation License
+	Creative Commons Attribution-Share Alike
+
+	Converting to .pdf does not work. It's better to just convert to PNG.
+	Also, converting to a non-transparent PNG makes it render better (prettier,
+	clearer) than using a transparent PNG.
+
+usb_bus_topology.svg: (usb_bus_topology.pdf)
+	Page 16 of usb_20.pdf
