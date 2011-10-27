@@ -27,7 +27,11 @@
 % Other packages
 
 % From abntex:
-\usepackage{tabela-simbolos}
+%\usepackage{tabela-simbolos}
+% But it doesn't work correctly
+% http://comments.gmane.org/gmane.comp.tex.brazilian/13365
+% Let's instead use "acronym":
+\usepackage[printonlyused,withpage]{acronym}
 
 % Allow including graphics
 \usepackage{graphicx}
@@ -256,10 +260,10 @@ Aprovado por:
 \end{folhadeaprovacao}
 
 
-%\chapter*{Dedicatória}
+%\pretextualchapter{Dedicatória}
 % TODO: escrever dedicatória (opcional)
 
-%\chapter*{Agradecimentos}
+%\pretextualchapter{Agradecimentos}
 % TODO: escrever agradecimentos
 
 
@@ -272,13 +276,29 @@ This will be the abstract, someday.
 \end{abstract}
 
 
-\listadesiglas
+% The following command does not work:
+% \listadesiglas
+% Instead, I'm using "acronym" package.
+
+\pretextualchapter{Lista de Siglas}
+
+\begin{acronym}[EEPROM]
+
+\acro{USB}{Universal Serial Bus}
+\acro{HID}{Human Interface Device}
+
+\acro{I2C}[I²C]{Inter-Integrated Circuit}
+\acro{TWI}{Two-Wire Interface}
+
+\acro{SRAM}{Static Random-Access Memory}
+\acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
+
+\end{acronym}
+
 
 \listoffigures
 
 %\listoftables
-
-%\pretextualchapter{Lista de abreviaturas e siglas}
 
 \tableofcontents{}
 
@@ -299,18 +319,14 @@ TrackIR, Wiimote, eye-tracking
 
 Descrição resumida de como USB funciona, quais as características e
 limitações.
-\sigla{USB}{Universal Serial Bus}
 
 \section{USB HID\label{sec:usb_hid}}
 
 Descrição do USB HID.
-%\sigla{HID}{Human Interface Device}
 
 \section{Protocolo I²C\label{sec:i2c}}
 
-Breve descrição do protocolo I²C.
-%\sigla{I2C}{Inter-Integrated Circuit}
-%\sigla{TWI}{Two-Wire Interface}
+Breve descrição do protocolo \ac{I2C}.
 
 \section{Microcontrolador ATmega8\label{sec:atmega8}}
 
@@ -321,12 +337,12 @@ Corporation. Suas características principais são \cite{ATmega8}:
 \item Arquitetura Harvard, com espaços de endereçamento distintos para 
 instruções e para variáveis.
 \item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
-\item \num{512} bytes de memória EEPROM para guardar parâmetros de configuração do
+\item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de configuração do
 programa.
-\item \num{1024} bytes de memória SRAM para as variáveis.
+\item \num{1024} bytes de memória \ac{SRAM} para as variáveis.
 \item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
 \item Clock máximo de \SI{16}{\mega\hertz}.
-\item Interface de comunicação serial I²C (com o nome de TWI).
+\item Interface de comunicação serial \ac{I2C}, com o nome de \ac{TWI}.
 \end{itemize}
 
 Descrição resumida das características do microcontrolador ATmega8.

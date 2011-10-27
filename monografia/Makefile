@@ -5,7 +5,6 @@ all: $(BASENAME).pdf
 .PHONY: all clean pvc
 
 $(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
-	makeindex -s tabela-siglas.ist -o $(BASENAME).sigla $(BASENAME).siglax
 	latexmk -pdf $< | ./filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo
@@ -16,6 +15,7 @@ pvc:
 
 clean:
 	latexmk -C $(BASENAME)
+	rm -f $(BASENAME).bbl
 
 
 # latexmk -c  will clean temporary files, but will keep: .dvi .ps .pdf
