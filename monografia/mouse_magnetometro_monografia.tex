@@ -395,17 +395,53 @@ dispositivo funcionará em \textit{full speed}. Essa negociação incial
 permite a compatibilidade entre dispositivos USB 2.0 \textit{high speed} e
 \textit{hosts} USB 1.x. \cite[p.~142]{usb20} \cite[cap.~2]{usbinanutshell}
 
-A conexão de equipamentos \ac{USB} segue uma topologia de estrela em
-camadas.
-
-blah A especificação \ac{USB} define dois tipos de conectores diferente
-
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.75\textwidth]{img/usb_bus_topology.pdf}
 \caption{Topologia do barramento USB}
 \label{fig:usb_topology}
 \end{figure}
+
+A conexão de equipamentos \ac{USB} segue uma topologia de estrela em
+camadas, que também pode ser entendida como uma árvore. No centro da estrela
+(ou na raiz da árvore) temos obrigatoriamente o \textit{host}, que
+normalmente é um computador. Por definição, o \textit{host} contém um
+\textit{root hub}. Cada cabo \ac{USB} é uma conexão ponto-a-ponto que liga
+um \textit{hub} da camada imediatamente acima a um dispositivo na camada
+imediatamente abaixo. Um dispositivo pode ser um outro \textit{hub} ou então
+uma função. Por limitações de tempo de propagação, o número máximo de
+camadas é 7, includindo a camada que contém o \textit{host}.
+\cite[p.~16]{usb20}
+
+A especificação \ac{USB} define dois tipos de conectores (conforme ilustrado
+na figura \ref{fig:usb_connectors}). Um cabo \ac{USB} possui uma ponta de
+cada tipo, sendo que o plugue do tipo A é conectado ao \textit{hub} da
+camada acima, e o plugue do tipo B é conectado ao dispositivo da camada
+abaixo. Posteriormente, foram também especificados conectores de tamanho
+mais reduzido (Mini e Micro), mas os conceitos continuam os mesmos.
+
+O protocolo de comunicação do \ac{USB} pode ser entendido como uma
+arquitetura \textit{master/slave}, na qual o \textit{host} é o
+\textit{master} e os dispositivos têm o papel de \textit{slave}. Só há um
+\textit{host} por barramento \ac{USB}, e ele é responsável por iniciar e
+gerenciar cada transação.  Como consequência, a maior parte da lógica está
+centralizado no \textit{host}, simplificando bastante a implementação de
+dispositivos que se conectam ao barramento \ac{USB}. \cite{usbinanutshell}
+
+Em novembro de 2008, foi lançada a especificação do USB 3.0, que introduziu
+uma quarta velocidade: \textit{super speed} (\SI{5}{\giga\bit\per\second}).
+A quantidade de mudanças para suportar essa nova velocidade é grande, e foge
+ao escopo deste trabalho.
+
+% Não falei sobre:
+% * Endpoints e tipos de transferências
+% * *(control, interrupt, isochronous, bulk)
+% * Descriptors
+% * * Device Descriptor
+% * * Configuration Descriptor
+% * * Interface Descriptor
+% * * Endpoint Descriptor
+% * * String Descriptor
 
 
 \section{USB HID\label{sec:usb_hid}}
@@ -453,6 +489,8 @@ Inserir aqui o diagrama do circuito.
 
 Comunicação entre a USB e o microcontrolador.
 
+Falar sobre o resistor para indiciar low speed.
+
 \section{Interface com o sensor\label{sec:hardware_sensor}}
 
 Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
@@ -465,6 +503,12 @@ Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
 \section{Comunicação I²C/TWI\label{sec:twi}}
 
 \section{Driver V-USB\label{sec:vusb}}
+
+Falar que implementa USB 1.1 (eu acho que é 1.1), low speed.
+Falar sobre o consumo de 100mA.
+Falar sobre os tipos de endpoints.
+Falar sobre limitações, como por exemplo não
+implementar o Suspend.
 
 Falar aqui também sobre a implementação de um teclado. Talvez numa
 subsection.
