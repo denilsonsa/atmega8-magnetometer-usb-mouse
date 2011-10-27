@@ -5,7 +5,7 @@ all: $(BASENAME).pdf
 .PHONY: all clean pvc
 
 #$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).nls
-$(BASENAME).pdf: $(BASENAME).tex
+$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
 	latexmk -pdf $< | ./filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo

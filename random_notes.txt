@@ -53,3 +53,13 @@ Reducing the firmware size:
 
 Getting the USB HID Report Descriptor:
 	http://www.slashdev.ca/2010/05/08/get-usb-report-descriptor-with-linux/
+
+Google IO:
+	http://www.youtube.com/watch?v=ttavBa4giPc
+	Starting 02:49
+	He starts using iPod Touch from 04:03
+	Ends at 04:40
+
+	How to link to a specific time:
+	http://www.mattcutts.com/blog/link-to-youtube-minute-second/
+	Just add #t=04m03s at the end

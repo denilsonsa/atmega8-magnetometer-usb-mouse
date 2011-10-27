@@ -1,5 +1,12 @@
 \documentclass[brazil,pagestart=firstchapter]{abnt}
-\usepackage[utf8]{inputenc}
+
+% This does not accept all Unicode chars (for instance: I²C gives an error)
+%\usepackage[utf8]{inputenc}
+
+% This adds support for Unicode chars.
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+
 \usepackage[brazil]{babel}
 
 % http://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
@@ -10,13 +17,6 @@
 % microtypographic features of the font
 % http://tex.stackexchange.com/questions/349/what-is-the-practical-difference-between-latex-and-pdflatex/358#358
 \usepackage{microtype}
-
-% 'hyperref' for including hyperlinks to the PDF.
-% http://en.wikibooks.org/wiki/LaTeX/Formatting#Typesetting_URLs
-\usepackage{hyperref}
-\hypersetup{
-	pdfborder={0 0 0}
-}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,6 +45,48 @@
 % For inserting source-code
 %\usepackage{listings}
 % TODO: configure this
+
+% Settings I had from another project:
+%% Setting the default listings font size
+%\lstset{
+%	basicstyle=\ttfamily\footnotesize
+%}
+%
+%% AVISO!!!
+%% Dentro dos exemplos de código-fonte abaixo, coloquei um "tab" de
+%% indentação por estar dentro de um "frame", e "espaços" para a
+%% indentação do código de exemplo. Isto foi necessário porque os tabs
+%% estavam sendo ignorados dentro do códigos de exemplo.
+%
+%\lstnewenvironment{shellcode}[1][]
+%{\lstset{language=bash,
+%	basicstyle=\ttfamily\footnotesize,
+%	escapeinside={(*@}{@*)},
+%	breaklines=true,
+%	breakatwhitespace=true,
+%	showspaces=false,
+%	showstringspaces=false,
+%	frame=shadowbox,
+%	rulecolor=\color{black},
+%	rulesepcolor=\color{black},
+%	#1}
+%}{}
+%
+%\lstnewenvironment{pythoncode}[1][]
+%{\lstset{language=Python,
+%	basicstyle=\ttfamily\footnotesize,
+%	escapeinside={(*@}{@*)},
+%	%numbers=left,
+%	breaklines=true,
+%	breakatwhitespace=true,
+%	showspaces=false,
+%	showstringspaces=false,
+%	frame=shadowbox,
+%	frameround=rrrt,
+%	rulecolor=\color{black},
+%	rulesepcolor=\color{gray},
+%	#1}
+%}{}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,6 +131,24 @@
 %\renewcommand{\headrulewidth}{0pt}  % Default is 0.4pt
 %\renewcommand{\footrulewidth}{0pt}  % Default is 0pt
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 'hyperref' for including hyperlinks to the PDF.
+% It should be loaded last.
+% http://en.wikibooks.org/wiki/LaTeX/Formatting#Typesetting_URLs
+\usepackage{hyperref}
+\hypersetup{
+	pdfborder={0 0 0}
+}
+
+% http://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing#Issues_with_links_to_tables_and_figures_handled_by_hyperref
+%\usepackage[all]{hypcap}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom commands
+
+%\newcommand{\something}{something else}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some metadata
@@ -206,12 +266,113 @@ This will be the abstract, someday.
 
 \chapter{Introdução\label{cap:introducao}}
 
-blhbalahblahsd
-a
-da
-hds
-ahd
+Falar sobre: motivação, resumo, possíveis aplicações (palestras,
+necessidades especiais, interatividade em jogos e exposições)
+
+\section{Trabalhos relacionados\label{sec:trabalhos_relacionados}}
+
+TrackIR, Wiimote, eye-tracking
+
+
+\chapter{Teoria\label{cap:teoria}}
+
+\section{USB\label{sec:usb}}
+
+Descrição resumida de como USB funciona, quais as características e
+limitações.
+
+\section{USB HID\label{sec:usb_hid}}
+
+Descrição do USB HID.
+
+\section{Microcontrolador ATmega8\label{sec:atmega8}}
+
+Descrição resumida das características do microcontrolador ATmega8.
+Basicamente, o resumo do datasheet.
+
+\section{Protocolo I²C\label{sec:i2c}}
+
+Breve descrição do protocolo I²C.
+
+\section{Sensor HMC5883\label{sec:sensor}}
+
+Descrição de como o sensor funciona.
+
+
+\chapter{Descrição do hardware\label{cap:hardware}}
+
+Explicar de maneira geral as partes do circuito.
+
+Falar sobre microcontrolador, cristal, LEDs e botões.
+
+Inserir aqui o diagrama do circuito.
+
+\section{Interface USB\label{sec:hardware_usb}}
+
+Comunicação entre a USB e o microcontrolador.
+
+\section{Interface com o sensor\label{sec:hardware_sensor}}
+
+Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
+
+
+\chapter{Descrição do software\label{cap:software}}
+
+\section{Bootloader\label{sec:bootloader}}
+
+\section{Comunicação I²C/TWI\label{sec:twi}}
+
+\section{Driver V-USB\label{sec:vusb}}
+
+Falar aqui também sobre a implementação de um teclado. Talvez numa
+subsection.
+
+\section{Menu de configuração\label{sec:menu}}
+
+Talvez falar sobre o teclado aqui dentro, não sei.
+
+\section{Transformação de coordenadas\label{sec:coordenadas}}
+
+Falar sobre: ferramentas auxiliares, teoria, resultados.
+
+Falar sobre calibração dos cantos.
+
+Falar sobre calibração do zero (ou deixar para falar isso depois).
+
+\section{Mouse USB\label{sec:mouse}}
+
+Falar sobre a implementação do mouse (que na verdade é absolute pointing
+device).
+
+Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
+
+\section{Outros problemas\label{sec:outros_problemas}}
+
+\subsection{Debouncing dos botões\label{sec:debouncing}}
+
+\subsection{Tamanho do firmware\label{sec:firmware_size}}
+
+\subsection{Gravar configurações na EEPROM\label{sec:eeprom}}
+
+Falar sobre gravar na EEPROM de maneira não bloqueante.
+
+\chapter{Conclusões\label{cap:conclusoes}}
+
+Resultados alcançados. O que deu certo. O que não deu certo.
+
+\section{Trabalhos futuros\label{sec:trabalhos_futuros}}
+
+Listar o que pode ser feito a partir deste projeto.
+
+
+%%fakesection  Bibliografia
+
+\bibliographystyle{abnt-alf}
+\bibliography{mouse_magnetometro_monografia}
+
+%%fakesection  Anexo
+\anexo
 
 \end{document}
 
-% vim:filetype=tex ts=4 sw=4 noet tw=76 foldmethod=marker foldmarker=\\begin,\\end foldcolumn=4 foldlevel=1
+% vim:filetype=tex ts=4 sw=4 noet tw=76
