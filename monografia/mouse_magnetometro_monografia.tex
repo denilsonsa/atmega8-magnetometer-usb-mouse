@@ -13,6 +13,10 @@
 % http://texblog.net/latex-archive/fonts/symbols/
 \usepackage[T1]{fontenc}
 
+% Use another font:
+% http://tex.stackexchange.com/questions/553/what-packages-do-people-load-by-default-in-latex/951#951
+%\usepackage{lmodern}
+
 % 'microtype' improves LaTeX line-breaking algorithm by using
 % microtypographic features of the font
 % http://tex.stackexchange.com/questions/349/what-is-the-practical-difference-between-latex-and-pdflatex/358#358
@@ -300,30 +304,33 @@ limitações.
 \section{USB HID\label{sec:usb_hid}}
 
 Descrição do USB HID.
-\sigla{HID}{Human Interface Device}
+%\sigla{HID}{Human Interface Device}
+
+\section{Protocolo I²C\label{sec:i2c}}
+
+Breve descrição do protocolo I²C.
+%\sigla{I2C}{Inter-Integrated Circuit}
+%\sigla{TWI}{Two-Wire Interface}
 
 \section{Microcontrolador ATmega8\label{sec:atmega8}}
 
-ATmega8 é um microcontrolador de 8 bits da família AVR. Suas características
-são:
+ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela Atmel
+Corporation. Suas características principais são \cite{ATmega8}:
 
 \begin{itemize}
-\item Arquitetura Harvard, com espaços de endereçamento distintos para as
-instruções e para as variáveis.
+\item Arquitetura Harvard, com espaços de endereçamento distintos para 
+instruções e para variáveis.
 \item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
 \item \num{512} bytes de memória EEPROM para guardar parâmetros de configuração do
 programa.
 \item \num{1024} bytes de memória SRAM para as variáveis.
 \item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
 \item Clock máximo de \SI{16}{\mega\hertz}.
+\item Interface de comunicação serial I²C (com o nome de TWI).
 \end{itemize}
 
 Descrição resumida das características do microcontrolador ATmega8.
 Basicamente, o resumo do datasheet.
-
-\section{Protocolo I²C\label{sec:i2c}}
-
-Breve descrição do protocolo I²C.
 
 \section{Sensor HMC5883\label{sec:sensor}}
 
@@ -398,8 +405,11 @@ Listar o que pode ser feito a partir deste projeto.
 
 %%fakesection  Bibliografia
 
-\bibliographystyle{abnt-alf}
+\bibliographystyle{abnt-num}
 \bibliography{mouse_magnetometro_monografia}
+
+% How to add \url{} to "url=" entries from Pybliographic:
+% :%s/\(url\s*=\s*{\)\([^\\].*[^}]\)\(},\?\)/\1\\url{\2}\3/
 
 %%fakesection  Anexo
 \anexo
