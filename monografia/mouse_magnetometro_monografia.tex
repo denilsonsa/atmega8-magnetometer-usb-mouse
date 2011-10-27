@@ -24,23 +24,39 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Other packages
+% Acronyms and abbreviations
 
-% From abntex:
-%\usepackage{tabela-simbolos}
-% But it doesn't work correctly
-% http://comments.gmane.org/gmane.comp.tex.brazilian/13365
-% Let's instead use "acronym":
+% Simple and effective acronym package:
 \usepackage[printonlyused,withpage]{acronym}
 
+% This one from abntex does not work correctly:
+% http://comments.gmane.org/gmane.comp.tex.brazilian/13365
+%\usepackage{tabela-simbolos}
+
+% "nomencl" is quite annoying to use, specially when compared to "acronym".
+% "nomencl" requires an external file and some extra commands.
+% "acronym", on the other hand, just works out of the box!
+%\usepackage{nomencl}
+%\makenomenclature
+% http://en.wikibooks.org/wiki/LaTeX/Indexing#Abbreviation_list
+% http://franz.kollmann.in/latex/latex.html#abbr
+% latexmk needs a custom dependency for this package
+% http://magic.aladdin.cs.cmu.edu/2007/11/06/continuous-latex-compilation-using-latexmk/
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Other packages
+
 % Adding \textsubscript{}
+% LaTeX already has \textsuperscript, but lacks \textsubscript.
 % http://en.wikibooks.org/wiki/LaTeX/Formatting#Text_mode_superscript_and_subscript
 \usepackage{fixltx2e}
 
+% Better handling of space after a custom command.
 % http://tex.stackexchange.com/questions/17730/newcommand-and-spacing
 \usepackage{xspace}
 
-% Allow including graphics
+% Required for including graphics
 \usepackage{graphicx}
 
 % SI Units
@@ -56,17 +72,6 @@
 
 % To find the total number of pages
 %\usepackage{lastpage}
-
-% List of abbreviations
-% http://en.wikibooks.org/wiki/LaTeX/Indexing#Abbreviation_list
-% http://franz.kollmann.in/latex/latex.html#abbr
-%\usepackage{nomencl}
-%\makenomenclature
-% Insert the abbreviation in the tex as short and long form: 
-% \nomenclature{Abbr}{Abbreviation}
-%
-% latexmk needs a custom dependency for this package
-% http://magic.aladdin.cs.cmu.edu/2007/11/06/continuous-latex-compilation-using-latexmk/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Embedding source-code
