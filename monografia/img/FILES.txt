@@ -9,3 +9,7 @@ USB.svg: (USB.png)
 
 usb_bus_topology.svg: (usb_bus_topology.pdf)
 	Page 16 of usb_20.pdf
+
+sensor_back.jpg:
+sensor_front.jpg:
+	Photos from the sensor. I took these photos.

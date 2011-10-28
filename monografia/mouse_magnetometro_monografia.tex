@@ -56,6 +56,10 @@
 % http://tex.stackexchange.com/questions/17730/newcommand-and-spacing
 \usepackage{xspace}
 
+% Avoid floats and figures from crossing a section boundary
+% http://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions#Keeping_floats_in_their_place
+\usepackage[section]{placeins}
+
 % Required for including graphics
 \usepackage{graphicx}
 
@@ -185,7 +189,7 @@
 % Custom commands
 
 \newcommand{\VBUS}{V\textsubscript{BUS}\xspace}
-\newcommand{\VCC}{V\textsubscript{CC}\xspace}
+\newcommand{\VDD}{V\textsubscript{DD}\xspace}
 \newcommand{\GND}{GND\xspace}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -328,6 +332,11 @@ This will be the abstract, someday.
 \acro{DIP}{Dual In-line Package}
 \acro{QFP}{Quad Flat Package}
 \acro{QFN}{Quad-Flat No-leads Package}
+\acro{LCC}{Leaded Chip Carrier}
+
+\acro{PCB}{Printed Circuit Board}
+
+\acro{ADC}{Analog-to-Digital Converter}
 
 \acro{ISP}{In-System Programmer}
 \acro{ICSP}{In-Circuit Serial Programmer}
@@ -398,7 +407,7 @@ acordo com a posição do resistor de \textit{pull-up}
 	para manter uma via de dados num nível lógico conhecido enquanto nenhuma
 	transferência ocorre.  Normalmente possuem um valor relativamente alto
 	(de \SIrange{1.5}{15}{\kilo\ohm}) para drenar pouca corrente. Um
-	resistor de \textit{pull-up} conecta a via ao \VCC e a mantém no nível
+	resistor de \textit{pull-up} conecta a via ao \VDD e a mantém no nível
 	lógico 1, enquanto um resistor de \textit{pull-down} conecta a via ao
 	\GND e a mantém no nível lógico 0.}
 nas vias de dados. Dispositivos
@@ -606,9 +615,35 @@ microcontrolador. Essa solução será descrita em mais detalhes na seção
 \ref{sec:vusb}.
 
 
-\section{Sensor HMC5883\label{sec:sensor}}
+\section{Sensor HMC5883L\label{sec:sensor}}
 
-Descrição de como o sensor funciona.
+HMC5883L é um magnetômetro fabricado pela \textit{Honeywell}. Um
+magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
+eletrônica''.
+
+Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
+intensidade do campo magnético em 3 eixos perpendiculares ($X$, $Y$, $Z$)
+através de um \ac{ADC} de 12 bits, chegando a uma precisão de
+\SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}.
+\cite{HMC5883L}
+
+O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
+\num{3.0} × \num{3.0} × \SI{0.9}{\milli\metre} de tamanho. É impossível
+trabalhar manualmente com algo tão minúsculo, por isso foi adquirida uma
+\ac{PCB} já contendo o sensor e alguns capacitores. \cite{ebay_HMC5883L}
+Essa placa possui 4 contatos, sendo metade deles para alimentação (\GND e
+\VDD) e a outra metade para comunicação \ac{I2C} (SDA e SCL).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{img/sensor_front.jpg}
+\includegraphics[width=0.45\textwidth]{img/sensor_back.jpg}
+\caption{Fotos da PCB contendo o sensor}
+\label{fig:sensor_photos}
+\end{figure}
+
+% TODO: falar sobre o pino DRDY (talvez falar isso só nas conclusões, ou na
+% seção onde se configura o sensor
 
 
 \chapter{Descrição do \textit{hardware}\label{cap:hardware}}
@@ -635,6 +670,15 @@ Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
 \section{Bootloader\label{sec:bootloader}}
 
 \section{Comunicação I²C/TWI\label{sec:twi}}
+
+Falar sobre como foi implementada.
+
+E depois falar sobre como se comunicar com o sensor (talvez em outra seção)
+
+Internamente, o sensor possui 13 registradores que podem ser acessados pela
+comunicação serial e ainda mais um registrador interno chamado de
+\textit{address pointer}. Quando o \textit{master}...
+
 
 \section{Driver V-USB\label{sec:vusb}}
 
