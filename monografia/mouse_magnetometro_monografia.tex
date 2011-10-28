@@ -188,7 +188,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom commands
 
+% http://tex.stackexchange.com/questions/24132/overline-outside-of-math-mode
+\makeatletter
+\newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
+\makeatother
+
 \newcommand{\VBUS}{V\textsubscript{BUS}\xspace}
+\newcommand{\VCC}{V\textsubscript{CC}\xspace}
 \newcommand{\VDD}{V\textsubscript{DD}\xspace}
 \newcommand{\GND}{GND\xspace}
 
@@ -335,7 +341,7 @@ This will be the abstract, someday.
 \acro{LCC}{Leaded Chip Carrier}
 
 \acro{PCB}{Printed Circuit Board}
-
+\acro{LED}{Light-Emitting Diode}
 \acro{ADC}{Analog-to-Digital Converter}
 
 \acro{ISP}{In-System Programmer}
@@ -628,11 +634,12 @@ através de um \ac{ADC} de 12 bits, chegando a uma precisão de
 \cite{HMC5883L}
 
 O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
-\num{3.0} × \num{3.0} × \SI{0.9}{\milli\metre} de tamanho. É impossível
-trabalhar manualmente com algo tão minúsculo, por isso foi adquirida uma
-\ac{PCB} já contendo o sensor e alguns capacitores. \cite{ebay_HMC5883L}
-Essa placa possui 4 contatos, sendo metade deles para alimentação (\GND e
-\VDD) e a outra metade para comunicação \ac{I2C} (SDA e SCL).
+\SI[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho. É
+impossível trabalhar manualmente com algo tão minúsculo, por isso foi
+adquirida uma \ac{PCB} já contendo o sensor e alguns capacitores.
+\cite{ebay_HMC5883L} Essa placa possui 4 contatos, sendo metade deles para
+alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C} (SDA e
+SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 
 \begin{figure}[h]
 \centering
@@ -648,11 +655,51 @@ Essa placa possui 4 contatos, sendo metade deles para alimentação (\GND e
 
 \chapter{Descrição do \textit{hardware}\label{cap:hardware}}
 
-Explicar de maneira geral as partes do circuito.
+O núcleo do circuito é o microcontrolador ATmega8, o qual é responsável por
+ler os dados do sensor, fazer cálculos para converter os valores lidos, e
+enviar as coordenadas via USB.
 
-Falar sobre microcontrolador, cristal, LEDs e botões.
+Um cristal de \SI{12}{\mega\hertz}, ligado aos pinos 9 e 10, define o
+\textit{clock} do microcontrolador. A implementação do protocolo \ac{USB},
+descrita na seção \ref{sec:vusb}, permite o uso de cristais de
+\SIlist[list-final-separator={ ou }]{12; 15; 16; 20}{\mega\hertz}. A escolha
+pelo cristal de \SI{12}{\mega\hertz} foi arbitrária.
 
-Inserir aqui o diagrama do circuito.
+O pino 1 (\textoverline{RESET}) possui um resistor de \textit{pull-up}
+(ligado ao \VCC) e um botão ligado ao \GND. Quando o botão é pressionado, o
+nível lógico do pino cai para zero e o microcontrolador é reiniciado. Este
+botão de \textit{reset} se mostrou bastante útil durante o desenvolvimento,
+mas não é necessário para o funcionamento deste projeto.
+
+Há 3 \acp{LED} ligados aos pinos 11, 12 e 13 (PORTD5, PORTD6, PORTD7),
+montados de modo a acender quando o valor lógico 1 é escrito. Foram usados
+para fins de depuração, mas não são essenciais para o funcionamento deste
+projeto.
+
+Há 3 botões ligados aos pinos 23, 24 e 25 (PORTC0, PORTC1, PORTC2), e ainda
+uma chave ligada ao pino 26 (PORTC3). Quando pressionados, o nível lógico de
+cada pino cai para zero. Cada pino possui internamente um resistor de
+\textit{pull-up}, o qual foi habilitado pelo programa, dispensando o uso de
+resistores externos.
+
+Os pinos 17, 18 e 19 (MOSI, MISO, SCK), juntamente com o pino 1
+(\textoverline{RESET}) são usados para \ac{ISP}. Por simplicidade e por
+falta de necessidade, decidiu-se não usá-los para nenhuma outra função.
+
+Por fim, os pinos 2 e 4 (PD0 e PD2) estão ligados às vias USB~D- e USB~D+, e
+serão detalhados na seção \ref{sec:hardware_usb}; e os pinos 27 e 28 (SDA e
+SCL) estão ligados ao sensor através de um barramento \ac{I2C}, e serão
+detalhados na seção \ref{sec:hardware_sensor}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{img/circuito-USBasp.pdf}
+\caption{Diagrama completo do circuito}
+\label{fig:circuito_completo}
+\end{figure}
+
+% TODO: Atualizar o diagrama do circuito!
+
 
 \section{Interface USB\label{sec:hardware_usb}}
 
