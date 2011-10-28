@@ -63,3 +63,8 @@ Google IO:
 	How to link to a specific time:
 	http://www.mattcutts.com/blog/link-to-youtube-minute-second/
 	Just add #t=04m03s at the end
+
+Resistor de pull-up da USB:
+	p. 141 do usb_20.pdf define como 1K5 ± 5%
+	USBasp usa 2K2.
+	Eu usei 2K2.

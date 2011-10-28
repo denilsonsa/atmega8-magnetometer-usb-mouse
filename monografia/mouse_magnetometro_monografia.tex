@@ -315,11 +315,19 @@ This will be the abstract, someday.
 \acro{HID}{Human Interface Device}
 
 \acro{NRZI}{Non-Return-to-Zero Inverted}
-\acro{SE0}{Single-ended 0}
-\acro{SE1}{Single-ended 1}
+\acro{SE0}{Single-Ended 0}
+\acro{SE1}{Single-Ended 1}
 
 \acro{I2C}[I²C]{Inter-Integrated Circuit}
 \acro{TWI}{Two-Wire Interface}
+
+\acro{SCL}{Serial Clock}
+\acro{SDA}{Serial Data}
+
+\acro{PDIP}{Plastic Dual In-line Package}
+\acro{DIP}{Dual In-line Package}
+\acro{QFP}{Quad Flat Package}
+\acro{QFN}{Quad-Flat No-leads Package}
 
 \acro{ISP}{In-System Programmer}
 \acro{ICSP}{In-Circuit Serial Programmer}
@@ -384,8 +392,8 @@ são transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing}
 (um ``zero'' é inserido após 6 bits ``um'' consecutivos).
 \cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
 
-A velocidade de um dispositivo é determinada por hardware, de acordo com a
-posição do resistor de \textit{pull-up}
+A velocidade de um dispositivo é determinada por \textit{hardware}, de
+acordo com a posição do resistor de \textit{pull-up}
 	\footnote{Resistores de \textit{pull-up} ou de \textit{pull-down} servem
 	para manter uma via de dados num nível lógico conhecido enquanto nenhuma
 	transferência ocorre.  Normalmente possuem um valor relativamente alto
@@ -460,11 +468,92 @@ ao escopo deste trabalho.
 
 \section{USB HID\label{sec:usb_hid}}
 
-Descrição do USB HID.
+De modo a permitir a existência de dispositivos \textit{plug-and-play} --
+que funcionam assim que são ligados ao \textit{host}, sem necessidade de
+configurações feitas pelo usuário ou de instalação de drivers específicos --
+foram definidas algumas classes de dispositivos. Por exemplo, os populares
+\textit{pen drives}, que substituíram os disquetes e CDs regraváveis para
+transferência de arquivos, pertencem à classe \textit{USB Mass Storage}, e
+os sistemas operacionais modernos já incluem suporte nativo a dispositivos
+dessa classe.
+
+Dispositivos de interface com seres humanos fazem parte da classe
+\textit{USB \ac{HID}} e abrangem principalmente teclados, mouses e
+joysticks. No entanto, essa classe foi projetada de forma genérica, e inclui
+outros tipos de dispositivos com necessidades similares, tais como medidores
+de temperatura, controles de um painel (botões, alavancas, ajustes),
+volantes, pedais, leitores de códigos de barra, ou ainda novos dispositivos
+que não foram previstos inicialmente na especificação. \cite[p.~1]{usbhid}
+
+A classe \ac{USB} \ac{HID} tem como objetivos ser compacta (para reduzir o
+espaço necessário no firmware do dispositivo), ser flexível e extensível,
+ser genérica e auto-descritiva (de modo que cada dispositivo descreva suas
+características de forma padronizada para o \textit{host}). O driver da
+classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz de se
+comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
+
+A especificação do \ac{USB} \ac{HID} foi inicialmente lançada em janeiro de
+1996 (versão 1.0). Sua primeira revisão ficou disponível em abril de 1999
+(versão 1.1). Sua segunda revisão, que também é a mais recente, foi lançada
+em junho de 2001 (versão 1.11). Apesar desta versão ter sido lançada após o
+\ac{USB} 2.0, a especificação do \ac{USB} \ac{HID} menciona apenas as duas
+velocidades de dispositivos presentes no \ac{USB} 1.x, e incorretamente
+chama dispositivos \textit{full speed} de \textit{high-speed}.
+\cite{usbhid}
+
 
 \section{I²C\label{sec:i2c}}
 
-Breve descrição do protocolo \ac{I2C}.
+\ac{I2C} é um protocolo serial bidirecional desenvolvido em 1982 pela
+\textit{Philips Semiconductors} (atual \textit{NXP Semiconductors}). Foi
+projetado como um protocolo simples e eficiente para comunicação entre
+circuitos integrados. Utiliza apenas duas vias: \ac{SCL} e \ac{SDA}.
+\cite{UM10204}
+
+A arquitetura do \ac{I2C} é baseada no modelo \textit{master/slave}, sendo
+que qualquer um dos dispositivos do barramento pode assumir o papel de
+\textit{master}, e inclusive o papel pode mudar ao longo do tempo. O
+protocolo permite também múltiplos \textit{masters} no mesmo barramento.
+\cite[p.~6]{UM10204} \cite[p.~161]{ATmega8} No entanto, para este trabalho
+foi necessário apenas ligar 2 dispositivos: o microcontrolador ATmega8
+(funcionando sempre como \textit{master}) e o sensor HMC5883L (funcionando
+sempre como \textit{slave}).
+
+Tanto a via de dados \ac{SDA} como a via de \textit{clock} \ac{SCL} são
+bidirecionais. O \textit{master} é responsável por gerar o sinal de
+\textit{clock}, mas o dispositivo \textit{slave} pode esticar o período de
+\textit{clock} em determinadas situações, indicando que ainda não está
+pronto para responder. \cite[p.~13]{UM10204}
+
+A comunicação no \ac{I2C} é baseada em bytes. O \textit{master} envia um
+sinal de \textit{START}, seguido de um byte de endereço. Nesse byte, 7 bits,
+indicam o endereço do \textit{slave} e o oitavo bit indica o tipo de
+comunicação (escrita ou leitura). Após a transmissão desse byte, o
+\textit{master} libera a linha de dados e o \textit{slave} envia um bit zero
+durante próximo pulso de \textit{clock}, sinalizando que recebeu o byte
+(\textit{acknowledge}). \cite[p.~3]{AVR315}
+
+Logo após o byte de endereço, inicia-se a transmissão dos bytes de dados.
+Caso seja uma escrita, o \textit{master} envia os byte de dados exatamente
+da mesma forma como enviou o byte de endereços, esperando pelo bit de
+\textit{acknowledge} após cada byte enviado. Caso seja uma leitura, o
+\textit{master} é responsável por gerar o \textit{clock} (conforme já
+mencionado anteriormente), e o \textit{slave} envia um bit a cada pulso do
+\textit{clock}. Após cada 8 bits recebidos (ou seja, após cada byte), o
+\textit{master} deve enviar um bit de \textit{acknowledge} para o
+\textit{slave}. Em outras palavras, cada byte transmitido numa direção é
+sempre seguido de um bit de \textit{acknowledge} transmitido na direção
+contrária. \cite[p.~3]{AVR315}
+
+O \textit{master} finaliza uma transmissão enviando um sinal \textit{STOP},
+ou então enviando um novo sinal \textit{START} para iniciar uma nova
+transmissão imediatamente (condição conhecida como \textit{REPEATED START}).
+\cite[p.~158]{ATmega8}
+
+Pode-se também observar que a quantidade total de bytes transferidos é uma
+escolha do \textit{master}, e o \textit{slave} não tem como saber
+inicialmente quantos bytes serão requisitados.
+
 
 \section{Microcontrolador ATmega8\label{sec:atmega8}}
 
@@ -475,23 +564,54 @@ Corporation. Suas características principais são \cite{ATmega8}:
 \item Arquitetura Harvard, com espaços de endereçamento distintos para 
 instruções e para variáveis.
 \item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
-\item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de configuração do
-programa.
-\item \num{1024} bytes de memória \ac{SRAM} para as variáveis.
+\item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de
+configuração do programa.
+\item \num{1024} bytes de memória \ac{SRAM} volátil para as variáveis.
 \item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
-\item Clock máximo de \SI{16}{\mega\hertz}.
-\item Interface de comunicação serial \ac{I2C}, com o nome de \ac{TWI}.
+\item Clock máximo de \SI{16}{\mega\hertz} usando um cristal externo.
+\item Interface de comunicação serial I²C/TWI.
+\item Disponível no encapsulamento PDIP
+	\footnote{O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP},
+	é o ideal para se trabalhar numa protoboard, pois o circuito integrado
+	pode ser diretamente encaixado nela.}
+de 28 pinos, assim como QFP e QFN
+	\footnote{Para o produto final, em ambiente de produção industrial, o
+	ideal é usar um encapsulamento mais compacto, como \ac{QFP} ou \ac{QFN}}
+de 32 pinos.
 \end{itemize}
 
-% TODO: completar esta seção
-TODO: completar esta seção
+A arquitetura dos processadores AVR foi projetada em conjunto com os
+desenvolvedores do compilador de C da \textit{IAR Systems}. Como
+consequência, o conjunto de instruções do AVR foi pensado de modo a
+minimizar o \textit{overhead} durante a execução de programas que tenham
+sido escritos em linguagens de alto nível. \cite{avr_iar_design}
+
+Além disso, as instruções são executadas num pipeline de 2 estágios,
+permitindo um desempenho máximo de 1 instrução por ciclo de \textit{clock}.
+\cite[p.~9]{ATmega8} Nem sempre esse desempenho é alcançado, pois algumas
+instruções (como as que acessam a memória \ac{SRAM} e os desvios) demoram
+pelo menos 2 ciclos. \cite[p.~282]{ATmega8}
+
+O microcontrolador ATmega8 inclui um módulo de comunicação serial \ac{I2C},
+porém, para evitar problemas de patentes e licenças, a \textit{Atmel
+Corporation} usa o nome \ac{TWI} para sua implementação dessa interface.
+\cite{avrlibctwi}
+
+Embora existam alguns modelos de microcontrolador AVR com controlador
+\ac{USB} embutido \cite{atmel_avr_product_list}, o microcontrolador ATmega8
+usado neste projeto não possui nenhum tipo de \textit{hardware} dedicado
+para essa função. Para tal, foi usado um \textit{driver} que implementa o
+protocolo \ac{USB} via software, diretamente no \textit{firmware} do
+microcontrolador. Essa solução será descrita em mais detalhes na seção
+\ref{sec:vusb}.
+
 
 \section{Sensor HMC5883\label{sec:sensor}}
 
 Descrição de como o sensor funciona.
 
 
-\chapter{Descrição do hardware\label{cap:hardware}}
+\chapter{Descrição do \textit{hardware}\label{cap:hardware}}
 
 Explicar de maneira geral as partes do circuito.
 
