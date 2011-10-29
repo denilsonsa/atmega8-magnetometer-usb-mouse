@@ -197,6 +197,8 @@
 \newcommand{\VCC}{V\textsubscript{CC}\xspace}
 \newcommand{\VDD}{V\textsubscript{DD}\xspace}
 \newcommand{\GND}{GND\xspace}
+% http://tex.stackexchange.com/questions/9691/avoid-hyphenation-in-2-d
+\newcommand{\VUSB}{\mbox{V-USB}\xspace}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some metadata
@@ -364,7 +366,22 @@ necessidades especiais, interatividade em jogos e exposições)
 
 \section{Trabalhos relacionados\label{sec:trabalhos_relacionados}}
 
-TrackIR, Wiimote, eye-tracking
+\subsection{TrackIR\label{sub:trackir}}
+
+% http://www.naturalpoint.com/trackir/
+
+\subsection{Wiimote\label{sub:wiimote}}
+
+% http://en.wikipedia.org/wiki/Wiimote
+% http://wiibrew.org/wiki/Wiimote
+
+\subsection{Eye-tracking\label{sub:eyetracking}}
+
+% http://www.technologyreview.com/Infotech/18254/
+% http://hci.stanford.edu/research/GUIDe/applications.html
+% http://www.bltt.org/pointer/index.htm#gen9
+% http://www.inference.phy.cam.ac.uk/dasher/SpecialNeeds.html
+% http://www.inference.phy.cam.ac.uk/dasher/Headmouse.html
 
 
 \chapter{Protocolos e componentes\label{cap:protocolos_e_componentes}}
@@ -549,8 +566,8 @@ durante próximo pulso de \textit{clock}, sinalizando que recebeu o byte
 (\textit{acknowledge}). \cite[p.~3]{AVR315}
 
 Logo após o byte de endereço, inicia-se a transmissão dos bytes de dados.
-Caso seja uma escrita, o \textit{master} envia os byte de dados exatamente
-da mesma forma como enviou o byte de endereços, esperando pelo bit de
+Caso seja uma escrita, o \textit{master} envia os bytes de dados exatamente
+da mesma forma como enviou o byte de endereço, esperando pelo bit de
 \textit{acknowledge} após cada byte enviado. Caso seja uma leitura, o
 \textit{master} é responsável por gerar o \textit{clock} (conforme já
 mencionado anteriormente), e o \textit{slave} envia um bit a cada pulso do
@@ -703,9 +720,50 @@ detalhados na seção \ref{sec:hardware_sensor}.
 
 \section{Interface USB\label{sec:hardware_usb}}
 
-Comunicação entre a USB e o microcontrolador.
+Um porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
+limita as vias de dados D+ e D- ao intervalo de \SIrange{2.8}{3.6}{\volt}.
+\cite[p.~178,~179]{usb20}
 
-Falar sobre o resistor para indiciar low speed.
+Uma solução seria usar um microcontrolador que possa funcionar a tensões
+mais baixas e colocar um circuito para reduzir a alimentação para dentro do
+intervalo desejado. Modelos mais recentes da linha AVR permitem o uso dessa
+solução. \cite[p.~322]{ATmega_newer_datasheets} No entanto, o
+microcontrolador ATmega8 usado neste projeto não trabalha com tensões
+inferiores a \SI{4.5}{\volt}. \cite{ATmega8}
+
+Uma outra solução é manter o microcontrolador alimentado com \SI{5}{\volt} e
+adicionar um circuito para reduzir a saída dos pinos do AVR para a tensão
+desejada. Esta foi a solução empregada neste projeto.
+
+O circuito usado para reduzir a tensão nas linhas de dados segue o mesmo
+esquema usado no projeto USBasp \cite{USBasp}, também disponível no arquivo
+\textit{circuits/with-zener.png} do \textit{driver} \VUSB \cite{vusbdrv}. É
+composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
+\GND, e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
+Zener.
+
+Quando o microcontrolador escreve o nível lógico 1, seu pino sobe para
+\SI{5}{\volt}. Como essa tensão é maior que a tensão de ruptura do Zener,
+este começa a conduzir, limitando a tensão da linha de dados. A diferença de
+$\num{5} - \num{3.6} = \SI{1.4}{\volt}$ fica no resistor, resultando numa
+corrente de $\SI{1.4}{\volt} / \SI{68}{\ohm} = \SI{20.6}{\milli\ampere}$,
+que é abaixo do limite de \SI{40}{\milli\ampere} para cada pino do
+microcontrolador. \cite[p.~235]{ATmega8}
+
+Além disso, conforme mencionado na seção \ref{sec:usb}, é preciso adicionar
+um resistor de \textit{pull-up} à linha D-, indicando que este dispositivo
+é \textit{low speed}. A especificação do USB 2.0 define que esse resistor
+deve ter \SI{1.5}{\kilo\ohm}. \cite[p.~141,~180]{usb20} O projeto USBasp, no
+entanto, usa um resistor de \SI{2.2}{\kilo\ohm} \cite{USBasp}, que, mesmo
+fora da especificação, também funcionou.
+
+Por fim, para o funcionamento correto do \textit{driver} \VUSB, é necessário
+ligar a linha USB~D+ ao pino INT0 do microcontrolador. Além disso, é preciso
+que as duas vias de dados estejam ligadas a pinos que pertençam à mesma
+porta do microcontrolador. \cite[usbconfig-prototype.h]{vusbdrv} Portanto, a
+linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2
+(PD0).
+
 
 \section{Interface com o sensor\label{sec:hardware_sensor}}
 
@@ -727,7 +785,7 @@ comunicação serial e ainda mais um registrador interno chamado de
 \textit{address pointer}. Quando o \textit{master}...
 
 
-\section{Driver V-USB\label{sec:vusb}}
+\section{Driver \VUSB\label{sec:vusb}}
 
 Falar que implementa USB 1.1 (eu acho que é 1.1), low speed.
 Falar sobre o consumo de 100mA.
