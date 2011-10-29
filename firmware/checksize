@@ -57,15 +57,21 @@ fi
 # See also: http://www.nongnu.org/avr-libc/user-manual/mem_sections.html
 
 set -- $( avr-size --format=sysv --radix=10 "$1" |
-	awk '/^\.[a-z]/ {
-			section[$1] = $2
+	awk 'BEGIN {
+			section[".text"] = 0;
+			section[".bss"] = 0;
+			section[".data"] = 0;
+			section[".eeprom"] = 0;
+		}
+		/^\.[a-z]/ {
+			section[$1] = $2;
 		}
 		END {
 			print \
 				section[".text"] + section[".data"], \
 				section[".data"] + section[".bss"], \
 				section[".data"], \
-				section[".eeprom"]
+				section[".eeprom"];
 		}'
 )
 
