@@ -87,51 +87,67 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Embedding source-code
 
-% For inserting source-code
-%\usepackage{listings}
-% TODO: configure this
+%\usepackage{color}
+%\usepackage{xcolor}
 
-% Settings I had from another project:
-%% Setting the default listings font size
-%\lstset{
-%	basicstyle=\ttfamily\footnotesize
-%}
-%
-%% AVISO!!!
-%% Dentro dos exemplos de código-fonte abaixo, coloquei um "tab" de
-%% indentação por estar dentro de um "frame", e "espaços" para a
-%% indentação do código de exemplo. Isto foi necessário porque os tabs
-%% estavam sendo ignorados dentro do códigos de exemplo.
-%
-%\lstnewenvironment{shellcode}[1][]
-%{\lstset{language=bash,
-%	basicstyle=\ttfamily\footnotesize,
-%	escapeinside={(*@}{@*)},
-%	breaklines=true,
-%	breakatwhitespace=true,
-%	showspaces=false,
-%	showstringspaces=false,
-%	frame=shadowbox,
-%	rulecolor=\color{black},
-%	rulesepcolor=\color{black},
-%	#1}
-%}{}
-%
-%\lstnewenvironment{pythoncode}[1][]
-%{\lstset{language=Python,
-%	basicstyle=\ttfamily\footnotesize,
-%	escapeinside={(*@}{@*)},
-%	%numbers=left,
-%	breaklines=true,
-%	breakatwhitespace=true,
-%	showspaces=false,
-%	showstringspaces=false,
+% LaTeX, as delivered, offers no means of handling bold "teletype" fonts
+% http://www.tex.ac.uk/cgi-bin/texfaq2html?label=bold-extras
+% This packages seems useless:
+%\usepackage{bold-extra}
+% And the solution is to load another fixed-width font:
+%\usepackage{courier}
+%\usepackage{couriers}
+%\usepackage{beramono}
+\usepackage{txfonts}
+
+% For inserting source-code
+\usepackage{listings}
+
+% Setting the default options
+\lstset{
+	basicstyle=\ttfamily\footnotesize,
+	numberstyle=\scriptsize,
+	numbers=left,
+	escapeinside={(*@}{@*)},
+	tabsize=4,
+	breaklines=true,
+	breakatwhitespace=true,
+	showspaces=false,
+	showstringspaces=false,
+	showlines=false
+}
+%	extendedchars=true,
+%	inputencoding=utf8x,
+%	numbersep=5pt,
 %	frame=shadowbox,
 %	frameround=rrrt,
 %	rulecolor=\color{black},
-%	rulesepcolor=\color{gray},
-%	#1}
-%}{}
+%	rulesepcolor=\color{black},
+
+
+% AVISO!!!  (copiado de outro projeto, mas não se aplica aqui)
+% Dentro dos exemplos de código-fonte abaixo, coloquei um "tab" de
+% indentação por estar dentro de um "frame", e "espaços" para a
+% indentação do código de exemplo. Isto foi necessário porque os tabs
+% estavam sendo ignorados dentro do códigos de exemplo.
+
+\lstnewenvironment{ccode}[1][]
+{\lstset{language=C,
+	#1}
+}{}
+
+\lstnewenvironment{pythoncode}[1][]
+{\lstset{language=Python,
+	#1}
+}{}
+
+\lstnewenvironment{shellcode}[1][]
+{\lstset{language=bash,
+	#1}
+}{}
+
+% \begin{lstlisting}[caption={Useless code},label=useless]
+% \end{lstlisting}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -930,6 +946,74 @@ microcontrolador foi reduzido de \num{8192} para \num{6144} bytes.
 \section{Comunicação I²C/TWI}
 \label{sec:twi}
 
+O microcontrolador ATmega8 possui um \textit{hardware} dedicado para
+comunicação \ac{I2C} (chamada de \ac{TWI}, conforme citado na seção
+\ref{sec:atmega8}). No entanto, seu uso é relativamente burocrático, tendo
+que implementar uma máquina de estados para gerenciar os registradores do
+módulo de \ac{TWI} e a transmissão de dados. \cite[p.~168]{ATmega8} O
+exemplo de código disponível na página 170 do \textit{datasheet} do ATmega8
+utiliza a técnica de \textit{busy-wait} e não é adequado para o firmware
+deste projeto.
+
+Reconhecendo a dificuldade de usar esse módulo de maneira eficiente, a
+própria Atmel publicou um documento e o código-fonte de um
+\textit{driver}\footnote{
+	Neste contexto, ``\textit{driver}'' significa um pedaço de
+	\textit{software} dentro do \textit{firmware} que controla um módulo de
+	hardware do microcontrolador. Não confundir com \textit{drivers} do
+	sistema operacional.}
+que utiliza o módulo \ac{TWI} de maneira mais eficiente. \cite{AVR315}
+
+Para este projeto, foi usado o \textit{driver} disponível na
+\textit{application note} ``AVR315: Using the TWI module as I²C master''.
+Seu funcionamento é baseado em interrupções, e portanto pode realizar a
+transmissão de vários bytes de maneira assíncrona (não-bloqueante), uma
+característica altamente desejável. A rotina de tratamento da interrupção
+basicamente implementa uma máquina de estados. \cite[p.~13]{AVR315}
+
+O \textit{driver} possui um \textit{buffer} interno para armazenar os dados
+a serem enviados ou os dados sendo recebidos. O tamanho desse
+\textit{buffer} é configurável em tempo de compilação, através da linha:
+
+\begin{ccode}[numbers=none]
+#define TWI_BUFFER_SIZE     7
+\end{ccode}
+
+O código-fonte estava originalmente escrito para o compilador IAR. Adaptá-lo
+para o compilador GCC foi uma tarefa bastante simples, bastando apenas
+trocar os cabeçalhos e trocar a sintaxe da declaração da rotina de
+interrupção. \cite{avrlibcporting}
+
+\begin{ccode}[numbers=none, multicols=2, float=h]
+// IAR:
+#include "ioavr.h"
+#include "inavr.h"
+// GCC:
+#include <avr/io.h>
+#include <avr/interrupt.h>
+\end{ccode}
+
+\begin{ccode}[numbers=none, multicols=2, float=h]
+// IAR syntax:
+#pragma vector=TWI_vect
+__interrupt void TWI_ISR(void)
+{
+  ...
+}
+// GCC syntax:
+ISR(TWI_vect)
+{
+  ...
+}
+
+\end{ccode}
+
+
+\section{Comunicação com o sensor}
+\label{sec:software_sensor}
+
+TODO FROM HERE.
+
 Falar sobre como foi implementada.
 
 E depois falar sobre como se comunicar com o sensor (talvez em outra seção)
@@ -1015,6 +1099,27 @@ Listar o que pode ser feito a partir deste projeto.
 %%fakesection  Apendice
 \apendice
 
+% Aproximadamente 84 páginas.
+% Mais páginas, se inserir um pagebreak/chapter antes de cada arquivo.
+%\lstinputlisting[language=C]{../firmware/avr315/TWI_Master.h}
+%\lstinputlisting[language=C]{../firmware/avr315/TWI_Master.c}
+%\lstinputlisting[language=C]{../firmware/buttons.h}
+%\lstinputlisting[language=C]{../firmware/buttons.c}
+%\lstinputlisting[language=C]{../firmware/common.h}
+%\lstinputlisting[language=C]{../firmware/int_eeprom.h}
+%\lstinputlisting[language=C]{../firmware/int_eeprom.c}
+%\lstinputlisting[language=C]{../firmware/keyemu.h}
+%\lstinputlisting[language=C]{../firmware/keyemu.c}
+%\lstinputlisting[language=C]{../firmware/main.c}
+%\lstinputlisting[language=C]{../firmware/menu.h}
+%\lstinputlisting[language=C]{../firmware/menu.c}
+%\lstinputlisting[language=C]{../firmware/mouseemu.h}
+%\lstinputlisting[language=C]{../firmware/mouseemu.c}
+%\lstinputlisting[language=C]{../firmware/sensor.h}
+%\lstinputlisting[language=C]{../firmware/sensor.c}
+%\lstinputlisting[language=C]{../firmware/hardwareconfig.h}
+%\lstinputlisting[language=C]{../firmware/usbconfig.h}
+
 
 %%fakesection  Anexo
 \anexo
@@ -1023,9 +1128,9 @@ Listar o que pode ser feito a partir deste projeto.
 \chapter{ATmega8 datasheet}
 \label{anx:atmega8_datasheet}
 
-Páginas 1-6, 9-10, 17-19, 157-160, 213, 216-217, 235-236, 238-239, 280-284. \cite{ATmega8}
+Páginas 1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217, 235-236, 238-239, 280-284. \cite{ATmega8}
 
-\includepdf[pages={1-6, 9-10, 17-19, 157-160, 213, 216-217, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
+\includepdf[pages={1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
 
 
 \chapter{HMC5883L datasheet}
@@ -1042,6 +1147,14 @@ Todas as páginas. \cite{HMC5883L}
 Páginas 1, 4. \cite{3vtipsandtricks}
 
 \includepdf[pages={1, 4}]{../../level-shifting/en026368.pdf}
+
+
+\chapter{AVR315: Using the TWI module as I²C master}
+\label{anx:avr315_pdf}
+
+Todas as páginas. \cite{AVR315}
+
+\includepdf[pages=-]{/home/denilson/avr/PDFs/doc2564.pdf}
 
 
 \end{document}

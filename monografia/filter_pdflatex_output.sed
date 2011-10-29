@@ -19,7 +19,7 @@
 # More included files:
 # [40] <../../hmc5883/HMC5883L.pdf, id=721, page=1, 614.295pt x 794.97pt>
 # <img/circuito-USBasp.pdf, id=430, 240.9pt x 349.305pt>
-/^\(\(\[[0-9]\+\] *\)\?<[^>]*\.\(pdf\|png\|jpg\), id=[^>]*> *\)\+$/d
+/^\(\(\[[0-9]\+\]\)\? *<[^>]*\.\(pdf\|png\|jpg\), id=[^>]*> *\(<use [^>]*\.\(pdf\|png\|jpg\)\(, page [0-9]\+\)\?>\)\?\)\+$/d
 
 # Yeah, everybody knows there is a log file, no need to keep this line
 /^Transcript written on [^ ]*\.log\.$/d
