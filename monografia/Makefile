@@ -5,13 +5,13 @@ all: $(BASENAME).pdf
 .PHONY: all clean pvc
 
 $(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
-	latexmk -pdf $< | ./filter_pdflatex_output.sed
+	latexmk -pdf $< | ./join_lines.awk | ./filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo
 #	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
 
 pvc:
-	latexmk -pdf -pvc $(BASENAME) | ./filter_pdflatex_output.sed
+	latexmk -pdf -pvc $(BASENAME) | ./join_lines.awk | ./filter_pdflatex_output.sed
 
 clean:
 	latexmk -C $(BASENAME)

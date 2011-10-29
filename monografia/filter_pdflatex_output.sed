@@ -9,18 +9,24 @@
 # One .aux with lots of fonts
 /^([^)>}]*\.aux) ){[^}>)].*}\(<[^>)}]*\.pfb>\)+$/d
 
-# Included file being printed for every page, like this:
+# Included file being printed, like this:
+# <use img/sensor_front.jpg>
+# <use /home/denilson/avr/PDFs/doc2486.pdf, page 158>
+# <use /home/denilson/avr/PDFs/doc2486.pdf, page 158> [28 </home/denilson/avr/PDFs/doc2486.pdf>]
 # <use shared/logo.pdf> [11] <use shared/logo.pdf> [12]
-# Of course, it only matches things from the "shared" subdir
-/^\(<use shared\/[^>]*> \[[0-9]*\] *\)+$/d
+/^\(\(<use [^>]*\.\(pdf\|png\|jpg\)\(, page [0-9]\+\)\?>\)\?\( *\[[0-9]\+\( *<[^>]*>\)\?\] *\)\?\)\+$/d
+
+# More included files:
+# [40] <../../hmc5883/HMC5883L.pdf, id=721, page=1, 614.295pt x 794.97pt>
+# <img/circuito-USBasp.pdf, id=430, 240.9pt x 349.305pt>
+/^\(\(\[[0-9]\+\] *\)\?<[^>]*\.\(pdf\|png\|jpg\), id=[^>]*> *\)\+$/d
 
 # Yeah, everybody knows there is a log file, no need to keep this line
 /^Transcript written on [^ ]*\.log\.$/d
 
-# I'm aware of this warning.
-/^pdfTeX warning: pdflatex (file .*\/doc2486.pdf)/d
-/found PDF version <1.6>, but at most version <1.5> allowed/d
+# I'm aware of this warning. I don't care.
+/^pdfTeX warning: pdflatex (file [^)]*): PDF inclusion: found PDF version <1.6>, but at most version <1.5> allowed/d
 
-# I don't care about this warning.
+# I'm aware of this warning. I don't care.
 /^Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding)/d
 /^(hyperref)[ \t]*removing `.*' on input line/d
