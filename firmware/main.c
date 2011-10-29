@@ -326,10 +326,9 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			// wValue: ReportType (highbyte), ReportID (lowbyte)
 			// we only have one report type, so don't look at wValue
 
-			// Pelo que entendi, isto é chamado durante a inicialização do
-			// dispositivo. Na verdade, uma das etapas finais da
-			// inicialização, depois que o ReportDescriptor já foi enviado.
-			// Retorna o estado inicial do dispositivo.
+			// This seems to be called as one of the final initialization
+			// steps of the device, after the ReportDescriptor has been sent.
+			// Returns the initial state of the device.
 			//LED_TOGGLE(GREEN_LED);
 			// Turning off because this will be called at least twice.
 			LED_TURN_OFF(GREEN_LED);

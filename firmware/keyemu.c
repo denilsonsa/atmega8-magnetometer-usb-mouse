@@ -122,7 +122,7 @@ static KeyAndModifier char_to_key[] PROGMEM = {  // {{{
 	{KEY_4        , MOD_SHIFT_LEFT}, // $
 	{KEY_5        , MOD_SHIFT_LEFT}, // %
 	{KEY_7        , MOD_SHIFT_LEFT}, // &
-	{0            , 0             }, // ´
+	{0            , 0             }, // '
 	{KEY_9        , MOD_SHIFT_LEFT}, // (
 	{KEY_0        , MOD_SHIFT_LEFT}, // )
 	{KEY_8        , MOD_SHIFT_LEFT}, // *
