@@ -446,9 +446,9 @@ são transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing}
 \cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
 
 A velocidade de um dispositivo é determinada por \textit{hardware}, de
-acordo com a posição do resistor de \textit{pull-up}
-	\footnote{Resistores de \textit{pull-up} ou de \textit{pull-down} servem
-	para manter uma via de dados num nível lógico conhecido enquanto nenhuma
+acordo com a posição do resistor de \textit{pull-up}\footnote{
+	Resistores de \textit{pull-up} ou de \textit{pull-down} servem para
+	manter uma via de dados num nível lógico conhecido enquanto nenhuma
 	transferência ocorre.  Normalmente possuem um valor relativamente alto
 	(de \SIrange{1.5}{15}{\kilo\ohm}) para drenar pouca corrente. Um
 	resistor de \textit{pull-up} conecta a via ao \VDD e a mantém no nível
@@ -540,11 +540,11 @@ volantes, pedais, leitores de códigos de barra, ou ainda novos dispositivos
 que não foram previstos inicialmente na especificação. \cite[p.~1]{usbhid}
 
 A classe \ac{USB} \ac{HID} tem como objetivos ser compacta (para reduzir o
-espaço necessário no firmware do dispositivo), ser flexível e extensível,
-ser genérica e auto-descritiva (de modo que cada dispositivo descreva suas
-características de forma padronizada para o \textit{host}). O driver da
-classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz de se
-comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
+espaço necessário no \textit{firmware} do dispositivo), ser flexível e
+extensível, ser genérica e auto-descritiva (de modo que cada dispositivo
+descreva suas características de forma padronizada para o \textit{host}). O
+driver da classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz
+de se comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
 
 A especificação do \ac{USB} \ac{HID} foi inicialmente lançada em janeiro de
 1996 (versão 1.0). Sua primeira revisão ficou disponível em abril de 1999
@@ -626,13 +626,13 @@ configuração do programa.
 \item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
 \item Clock máximo de \SI{16}{\mega\hertz} usando um cristal externo.
 \item Interface de comunicação serial I²C/TWI.
-\item Disponível no encapsulamento PDIP
-	\footnote{O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP},
-	é o ideal para se trabalhar numa protoboard, pois o circuito integrado
-	pode ser diretamente encaixado nela.}
-de 28 pinos, assim como QFP e QFN
-	\footnote{Para o produto final, em ambiente de produção industrial, o
-	ideal é usar um encapsulamento mais compacto, como \ac{QFP} ou \ac{QFN}}
+\item Disponível no encapsulamento PDIP\footnote{
+	O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP}, é o
+	ideal para se trabalhar numa protoboard, pois o circuito integrado pode
+	ser diretamente encaixado nela.}
+de 28 pinos, assim como QFP e QFN\footnote{
+	Para o produto final, em ambiente de produção industrial, o ideal é usar
+	um encapsulamento mais compacto, como \ac{QFP} ou \ac{QFN}}
 de 32 pinos.
 \end{itemize}
 
@@ -647,6 +647,13 @@ permitindo um desempenho máximo de 1 instrução por ciclo de \textit{clock}.
 \cite[p.~9]{ATmega8} Nem sempre esse desempenho é alcançado, pois algumas
 instruções (como as que acessam a memória \ac{SRAM} e os desvios) demoram
 pelo menos 2 ciclos. \cite[p.~282]{ATmega8}
+
+Todas as instruções da arquitetura AVR ocupam 16 ou 32 bits (2 ou 4 bytes).
+Por esse motivo, a memória \textit{Flash} é endereçada por \textit{words} de
+16 bits. Podemos dizer que o ATmega8 possui \num{8192} bytes de memória
+\textit{Flash}, ou de maneira equivalente, \num{4096} \textit{words}.
+\cite[p.~17]{ATmega8} A memória \ac{SRAM} e a memória \ac{EEPROM} são
+endereçadas por bytes. \cite[p.~18-19]{ATmega8}
 
 O microcontrolador ATmega8 inclui um módulo de comunicação serial \ac{I2C},
 porém, para evitar problemas de patentes e licenças, a \textit{Atmel
@@ -764,7 +771,7 @@ desejada. Esta foi a solução empregada neste projeto.
 
 O circuito usado para reduzir a tensão nas linhas de dados segue o mesmo
 esquema usado no projeto USBasp \cite{USBasp}, também disponível no arquivo
-\textit{circuits/with-zener.png} do \textit{driver} \VUSB \cite{vusbdrv}. É
+\texttt{circuits/with-zener.png} do \textit{driver} \VUSB \cite{vusbdrv}. É
 composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
 \GND, e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
 Zener.
@@ -820,16 +827,105 @@ propósito.
 \subsection{Barramento I²C}
 \label{sub:hardware_sensor_i2c}
 
-Por outro lado.
+% TODO: level-shifting do I²C
+TODO: Descrever o level shifting para I²C. \cite{AN97055} \cite{AN10441}
+Falar também do resistor de \textit{pull-up}.
 
-Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
 
-
-\chapter{Descrição do software}
+\chapter{Descrição do \textit{software}}
 \label{cap:software}
 
-\section{Bootloader}
+O \textit{firmware} deste projeto foi desenvolvido em ambiente Linux x86\_64,
+utilizando o compilador AVR-GCC versão 4.5.3, a biblioteca AVR-Libc versão
+1.7.0 e as ferramentas do projeto Binutils versão 2.21.1. O código-fonte foi
+escrito na linguagem C e é facilmente portável para outros
+microcontroladores da família AVR. Para gravação do \textit{firmware} no
+microcontrolador, foi usado o programa AVRDUDE.
+
+Todo o ambiente de desenvolvimento usado (AVR-GCC, Binutils, AVR-Libc,
+AVRDUDE) é composto por \textit{software} livre e é está disponível para os
+principais sistemas operacionais (FreeBSD, Linux, Mac OS X e Windows).
+\cite{avrlibcoverview}
+
+O \textit{firmware} deste projeto pode ser compilado em qualquer sistema
+operacional que tenha as ferramentas citadas, mesmo em outras versões,
+embora alguns ajustes no Makefile possam ser necessários.
+
+
+\section{Boot loader}
 \label{sec:bootloader}
+
+Durante o início do projeto, o ciclo de desenvolvimento podia ser resumido
+nestas etapas:
+
+\begin{enumerate}
+\item Compilar o código-fonte.
+\item Desconectar a \textit{protoboard} da \ac{USB}.
+\item Conectar o gravador de AVR na \ac{USB}.
+\item Gravar a nova versão do \textit{firmware}.
+\item Desconectar o gravador de AVR.
+\item Reconectar a \textit{protoboard} na \ac{USB}.
+\end{enumerate}
+
+Rapidamente esse processo se mostrou bastante demorado e ineficiente,
+atrasando os testes e a depuração do código recém-escrito, e portanto
+atrasando o desenvolvimento. Além disso, também causava um desgaste mecânico
+desnecessário na porta \ac{USB}. Embora esse desgaste seja desprezível a
+curto prazo, poderia se tornar um problema real para projetos de longo
+prazo.
+
+Visando agilizar e simplificar o ciclo de desenvolvimento, foi gravado um
+\textit{boot loader} na região de \textit{boot} do microcontrolador.
+
+Foi usado o USBaspLoader \cite{USBaspLoader} como \textit{boot loader}. Ele
+foi escolhido por ser \textit{open source} e por também usar o
+\textit{driver} \VUSB, o qual será descrito em mais detalhes na seção
+\ref{sec:vusb}.
+
+Um \textit{boot loader} é gravado nos endereços mais altos da memória
+\textit{Flash}. O microcontrolador ATmega8 tem suporte a \textit{boot
+loaders} de tamanhos \numlist{256;512;1024;2048} bytes.
+\cite[p.~213]{ATmega8} Após compilado, o USBaspLoader possui \num{2028}
+bytes, e portanto ocupa os \num{2048} bytes superiores da memória
+\textit{Flash}.
+
+Logo após um \textit{reset}, o ATmega8 normalmente começaria a execução do
+programa a partir do endereço mais baixo da memória. No entanto, quando se
+ativa o \textit{boot loader} (através dos \textit{fuse bits} do
+microcontrolador \cite[p.~216]{ATmega8}), a execução começa no endereço da
+região de \textit{boot}.
+
+Portanto, ao iniciar o microcontrolador, o USBaspLoader é executado antes do
+\textit{firmware} principal. Se uma determinada condição (configurável) for
+verdadeira, então o USBaspLoader assume o controle e se identifica como um
+gravador USBasp\footnote{
+	USBasp é um gravador de AVR com conexão USB que é implementado usando um
+	microcontrolador ATmega8 ou similar. \cite{USBasp}
+}.
+Caso essa condição seja falsa (antes ou durante a execução do USBaspLoader),
+então o \textit{firmware} principal é executado.
+
+Com o uso deste \textit{boot loader}, o ciclo de desenvolvimento foi
+reduzido para:
+
+\begin{enumerate}
+\item Compilar o código-fonte.
+\item Deixar ligada a chave conectada ao pino 26 (PORTC3) do
+microcontrolador.
+\item Apertar o botão de \textit{reset}.
+\item Gravar a nova versão do \textit{firmware}.
+\end{enumerate}
+
+Após receber uma nova versão do \textit{firmware} principal, o USBaspLoader
+automaticamente inicia a execução desse \textit{firmware} recém-gravado.
+
+Com o uso de um \textit{boot loader}, o ciclo de desenvolvimento tornou-se
+notavelmente mais rápido e dinâmico. Testar mudanças no \textit{firmware}
+passou a ser fácil, e os testes se tornaram mais frequentes.
+
+Como desvantagem, o espaço disponível na memória \textit{Flash} do
+microcontrolador foi reduzido de \num{8192} para \num{6144} bytes.
+
 
 \section{Comunicação I²C/TWI}
 \label{sec:twi}
@@ -851,6 +947,8 @@ Falar sobre o consumo de 100mA.
 Falar sobre os tipos de endpoints.
 Falar sobre limitações, como por exemplo não
 implementar o Suspend.
+
+Falar sobre o hardwareconfig.h
 
 Falar aqui também sobre a implementação de um teclado. Talvez numa
 subsection.
@@ -885,6 +983,9 @@ Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
 
 \subsection{Tamanho do firmware}
 \label{sec:firmware_size}
+
+Dentre outras coisas, falar sobre as flags de compilação, que são
+específicas para a versão 4.5 do GCC.
 
 \subsection{Gravar configurações na EEPROM}
 \label{sec:eeprom}
@@ -922,9 +1023,9 @@ Listar o que pode ser feito a partir deste projeto.
 \chapter{ATmega8 datasheet}
 \label{anx:atmega8_datasheet}
 
-Páginas 1-6, 9-10, 157-160, 235-236, 238-239, 280-284. \cite{ATmega8}
+Páginas 1-6, 9-10, 17-19, 157-160, 213, 216-217, 235-236, 238-239, 280-284. \cite{ATmega8}
 
-\includepdf[pages={1-6, 9-10, 157-160, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
+\includepdf[pages={1-6, 9-10, 17-19, 157-160, 213, 216-217, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
 
 
 \chapter{HMC5883L datasheet}
