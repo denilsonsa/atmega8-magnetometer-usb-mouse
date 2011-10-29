@@ -6,6 +6,8 @@
 % This adds support for Unicode chars.
 \usepackage{ucs}
 \usepackage[utf8x]{inputenc}
+% But should be avoided:
+% http://tex.stackexchange.com/questions/13067/utf8x-vs-utf8-inputenc
 
 \usepackage[brazil]{babel}
 
@@ -62,6 +64,11 @@
 
 % Required for including graphics
 \usepackage{graphicx}
+
+% Inserting PDF pages from other documents
+%\usepackage{pdfpages}
+% TODO: remove "draft" here!
+\usepackage[draft]{pdfpages}
 
 % SI Units
 % https://bitbucket.org/josephwright/siunitx/issue/100/undefined-control-sequence-bit-and-byte
@@ -187,18 +194,25 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom commands
+% http://tex.stackexchange.com/questions/1050/whats-the-difference-between-newcommand-and-newcommand
 
 % http://tex.stackexchange.com/questions/24132/overline-outside-of-math-mode
 \makeatletter
 \newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
 \makeatother
 
-\newcommand{\VBUS}{V\textsubscript{BUS}\xspace}
-\newcommand{\VCC}{V\textsubscript{CC}\xspace}
-\newcommand{\VDD}{V\textsubscript{DD}\xspace}
-\newcommand{\GND}{GND\xspace}
+\newcommand*{\VBUS}{V\textsubscript{BUS}\xspace}
+\newcommand*{\VCC}{V\textsubscript{CC}\xspace}
+\newcommand*{\VDD}{V\textsubscript{DD}\xspace}
+\newcommand*{\GND}{GND\xspace}
 % http://tex.stackexchange.com/questions/9691/avoid-hyphenation-in-2-d
-\newcommand{\VUSB}{\mbox{V-USB}\xspace}
+\newcommand*{\VUSB}{\mbox{V-USB}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Other notes
+
+% \linewidth is either \columnwidth in two-column mode or \textwidth in one-column mode.
+% http://tex.stackexchange.com/questions/275/how-to-find-the-textwidth-in-two-column-mode/3531#3531
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some metadata
@@ -767,6 +781,8 @@ linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2
 
 \section{Interface com o sensor\label{sec:hardware_sensor}}
 
+O sensor HMC5883L trabalha de \SIrange{2.16}{3.6}{\volt}
+
 Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
 
 
@@ -842,8 +858,22 @@ Listar o que pode ser feito a partir deste projeto.
 % How to add \url{} to "url=" entries from Pybliographic:
 % :%s/\(url\s*=\s*{\)\([^\\].*[^}]\)\(},\?\)/\1\\url{\2}\3/
 
+%%fakesection  Apendice
+\apendice
+
 %%fakesection  Anexo
 \anexo
+
+% Anexos não suportam \label
+%\chapter{Nome do anexo\label{cap:anexoalgumacoisa}}
+
+\chapter{ATmega8 datasheet summary}
+
+\includepdf[pages={-6}]{/home/denilson/avr/PDFs/2486S.pdf}
+
+\chapter{HMC5883L datasheet}
+
+\includepdf[pages={-}]{../../hmc5883/HMC5883L.pdf}
 
 \end{document}
 
