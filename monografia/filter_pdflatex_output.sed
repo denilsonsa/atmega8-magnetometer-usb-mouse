@@ -16,3 +16,11 @@
 
 # Yeah, everybody knows there is a log file, no need to keep this line
 /^Transcript written on [^ ]*\.log\.$/d
+
+# I'm aware of this warning.
+/^pdfTeX warning: pdflatex (file .*\/doc2486.pdf)/d
+/found PDF version <1.6>, but at most version <1.5> allowed/d
+
+# I don't care about this warning.
+/^Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding)/d
+/^(hyperref)[ \t]*removing `.*' on input line/d

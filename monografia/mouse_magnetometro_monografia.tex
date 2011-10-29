@@ -373,23 +373,28 @@ This will be the abstract, someday.
 \tableofcontents
 
 
-\chapter{Introdução\label{cap:introducao}}
+\chapter{Introdução}
+\label{cap:introducao}
 
 Falar sobre: motivação, resumo, possíveis aplicações (palestras,
 necessidades especiais, interatividade em jogos e exposições)
 
-\section{Trabalhos relacionados\label{sec:trabalhos_relacionados}}
+\section{Trabalhos relacionados}
+\label{sec:trabalhos_relacionados}
 
-\subsection{TrackIR\label{sub:trackir}}
+\subsection{TrackIR}
+\label{sub:trackir}
 
 % http://www.naturalpoint.com/trackir/
 
-\subsection{Wiimote\label{sub:wiimote}}
+\subsection{Wiimote}
+\label{sub:wiimote}
 
 % http://en.wikipedia.org/wiki/Wiimote
 % http://wiibrew.org/wiki/Wiimote
 
-\subsection{Eye-tracking\label{sub:eyetracking}}
+\subsection{Eye-tracking}
+\label{sub:eyetracking}
 
 % http://www.technologyreview.com/Infotech/18254/
 % http://hci.stanford.edu/research/GUIDe/applications.html
@@ -398,9 +403,11 @@ necessidades especiais, interatividade em jogos e exposições)
 % http://www.inference.phy.cam.ac.uk/dasher/Headmouse.html
 
 
-\chapter{Protocolos e componentes\label{cap:protocolos_e_componentes}}
+\chapter{Protocolos e componentes}
+\label{cap:protocolos_e_componentes}
 
-\section{USB\label{sec:usb}}
+\section{USB}
+\label{sec:usb}
 
 \ac{USB} é um protocolo que foi desenvolvido a partir do ano de 1994 pelas
 empresas \textit{Compaq}, \textit{Hewlett-Packard}, \textit{Intel},
@@ -512,7 +519,8 @@ ao escopo deste trabalho.
 % * * String Descriptor
 
 
-\section{USB HID\label{sec:usb_hid}}
+\section{USB HID}
+\label{sec:usb_hid}
 
 De modo a permitir a existência de dispositivos \textit{plug-and-play} --
 que funcionam assim que são ligados ao \textit{host}, sem necessidade de
@@ -548,7 +556,8 @@ chama dispositivos \textit{full speed} de \textit{high-speed}.
 \cite{usbhid}
 
 
-\section{I²C\label{sec:i2c}}
+\section{I²C}
+\label{sec:i2c}
 
 \ac{I2C} é um protocolo serial bidirecional desenvolvido em 1982 pela
 \textit{Philips Semiconductors} (atual \textit{NXP Semiconductors}). Foi
@@ -601,7 +610,8 @@ escolha do \textit{master}, e o \textit{slave} não tem como saber
 inicialmente quantos bytes serão requisitados.
 
 
-\section{Microcontrolador ATmega8\label{sec:atmega8}}
+\section{Microcontrolador ATmega8}
+\label{sec:atmega8}
 
 ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela Atmel
 Corporation. Suas características principais são \cite{ATmega8}:
@@ -652,7 +662,8 @@ microcontrolador. Essa solução será descrita em mais detalhes na seção
 \ref{sec:vusb}.
 
 
-\section{Sensor HMC5883L\label{sec:sensor}}
+\section{Sensor HMC5883L}
+\label{sec:sensor}
 
 HMC5883L é um magnetômetro fabricado pela \textit{Honeywell}. Um
 magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
@@ -684,7 +695,8 @@ SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 % seção onde se configura o sensor
 
 
-\chapter{Descrição do \textit{hardware}\label{cap:hardware}}
+\chapter{Descrição do \textit{hardware}}
+\label{cap:hardware}
 
 O núcleo do circuito é o microcontrolador ATmega8, o qual é responsável por
 ler os dados do sensor, fazer cálculos para converter os valores lidos, e
@@ -720,7 +732,7 @@ falta de necessidade, decidiu-se não usá-los para nenhuma outra função.
 Por fim, os pinos 2 e 4 (PD0 e PD2) estão ligados às vias USB~D- e USB~D+, e
 serão detalhados na seção \ref{sec:hardware_usb}; e os pinos 27 e 28 (SDA e
 SCL) estão ligados ao sensor através de um barramento \ac{I2C}, e serão
-detalhados na seção \ref{sec:hardware_sensor}.
+detalhados na seção \ref{sub:hardware_sensor_i2c}.
 
 \begin{figure}[h]
 \centering
@@ -732,7 +744,8 @@ detalhados na seção \ref{sec:hardware_sensor}.
 % TODO: Atualizar o diagrama do circuito!
 
 
-\section{Interface USB\label{sec:hardware_usb}}
+\section{Interface USB}
+\label{sec:hardware_usb}
 
 Um porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
 limita as vias de dados D+ e D- ao intervalo de \SIrange{2.8}{3.6}{\volt}.
@@ -779,18 +792,47 @@ linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2
 (PD0).
 
 
-\section{Interface com o sensor\label{sec:hardware_sensor}}
+\section{Interface com o sensor}
+\label{sec:hardware_sensor}
 
-O sensor HMC5883L trabalha de \SIrange{2.16}{3.6}{\volt}
+\subsection{Alimentação}
+\label{sub:hardware_sensor_alimentacao}
+
+O sensor HMC5883L trabalha com alimentação de \SIrange{2.16}{3.6}{\volt}.
+\cite[p.~2]{HMC5883L} Como a \ac{USB} fornece \SI{5}{\volt}, é necessário
+adicionar um circuito para reduzir a tensão até um nível adequado.
+
+A solução aqui empregada utiliza um diodo Zener de \SI{3.3}{\volt} e um
+resistor de \SI{470}{\ohm}. \cite{3vtipsandtricks} É bastante similar àquela
+descrita na seção \ref{sec:hardware_usb}, mudando apenas os valores dos
+componentes.
+
+O diodo Zener e o resistor estão ligados em série entre \VCC e \GND,
+drenando constantemente uma corrente de $ (\SI{5}{\volt} - \SI{3.3}{\volt})
+/ \SI{470}{\ohm} = \SI{3.6}{\milli\ampere} $ e mantendo a tensão de
+\SI{3.3}{\volt} em relação ao \GND entre esses dois componentes.
+
+Considerando que o sensor drena apenas \SI{0.1}{\milli\ampere} quando em
+uso \cite[p.~2]{HMC5883L}, a queda de tensão na alimentação quando em carga
+é desprezível, e portanto essa solução é bastante adequada para este
+propósito.
+
+\subsection{Barramento I²C}
+\label{sub:hardware_sensor_i2c}
+
+Por outro lado.
 
 Problemas com I²C. ``Fonte'' 3V3 para o sensor. Level shifting para I²C.
 
 
-\chapter{Descrição do software\label{cap:software}}
+\chapter{Descrição do software}
+\label{cap:software}
 
-\section{Bootloader\label{sec:bootloader}}
+\section{Bootloader}
+\label{sec:bootloader}
 
-\section{Comunicação I²C/TWI\label{sec:twi}}
+\section{Comunicação I²C/TWI}
+\label{sec:twi}
 
 Falar sobre como foi implementada.
 
@@ -801,7 +843,8 @@ comunicação serial e ainda mais um registrador interno chamado de
 \textit{address pointer}. Quando o \textit{master}...
 
 
-\section{Driver \VUSB\label{sec:vusb}}
+\section{Driver \VUSB}
+\label{sec:vusb}
 
 Falar que implementa USB 1.1 (eu acho que é 1.1), low speed.
 Falar sobre o consumo de 100mA.
@@ -812,11 +855,13 @@ implementar o Suspend.
 Falar aqui também sobre a implementação de um teclado. Talvez numa
 subsection.
 
-\section{Menu de configuração\label{sec:menu}}
+\section{Menu de configuração}
+\label{sec:menu}
 
 Talvez falar sobre o teclado aqui dentro, não sei.
 
-\section{Transformação de coordenadas\label{sec:coordenadas}}
+\section{Transformação de coordenadas}
+\label{sec:coordenadas}
 
 Falar sobre: ferramentas auxiliares, teoria, resultados.
 
@@ -824,28 +869,35 @@ Falar sobre calibração dos cantos.
 
 Falar sobre calibração do zero (ou deixar para falar isso depois).
 
-\section{Mouse USB\label{sec:mouse}}
+\section{Mouse USB}
+\label{sec:mouse}
 
 Falar sobre a implementação do mouse (que na verdade é absolute pointing
 device).
 
 Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
 
-\section{Outros problemas\label{sec:outros_problemas}}
+\section{Outros problemas}
+\label{sec:outros_problemas}
 
-\subsection{Debouncing dos botões\label{sec:debouncing}}
+\subsection{Debouncing dos botões}
+\label{sec:debouncing}
 
-\subsection{Tamanho do firmware\label{sec:firmware_size}}
+\subsection{Tamanho do firmware}
+\label{sec:firmware_size}
 
-\subsection{Gravar configurações na EEPROM\label{sec:eeprom}}
+\subsection{Gravar configurações na EEPROM}
+\label{sec:eeprom}
 
 Falar sobre gravar na EEPROM de maneira não bloqueante.
 
-\chapter{Conclusões\label{cap:conclusoes}}
+\chapter{Conclusões}
+\label{cap:conclusoes}
 
 Resultados alcançados. O que deu certo. O que não deu certo.
 
-\section{Trabalhos futuros\label{sec:trabalhos_futuros}}
+\section{Trabalhos futuros}
+\label{sec:trabalhos_futuros}
 
 Listar o que pode ser feito a partir deste projeto.
 
@@ -858,22 +910,30 @@ Listar o que pode ser feito a partir deste projeto.
 % How to add \url{} to "url=" entries from Pybliographic:
 % :%s/\(url\s*=\s*{\)\([^\\].*[^}]\)\(},\?\)/\1\\url{\2}\3/
 
+
 %%fakesection  Apendice
 \apendice
+
 
 %%fakesection  Anexo
 \anexo
 
-% Anexos não suportam \label
-%\chapter{Nome do anexo\label{cap:anexoalgumacoisa}}
 
-\chapter{ATmega8 datasheet summary}
+\chapter{ATmega8 datasheet}
+\label{cap:atmega8_datasheet}
 
-\includepdf[pages={-6}]{/home/denilson/avr/PDFs/2486S.pdf}
+Páginas 1-6, 9-10, 157-160, 235-236, 238-239, 280-284. \cite{ATmega8}
+
+\includepdf[pages={1-6, 9-10, 157-160, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
+
 
 \chapter{HMC5883L datasheet}
+\label{cap:hmc5883l_datasheet}
+
+Todas as páginas. \cite{HMC5883L}
 
 \includepdf[pages={-}]{../../hmc5883/HMC5883L.pdf}
+
 
 \end{document}
 
