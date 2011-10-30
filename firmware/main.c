@@ -240,10 +240,6 @@ __attribute__((externally_visible))
 // A value of zero means indefinite/infinity.
 static uchar idle_rate;
 
-// From UsbWiiGamePad/UsbWiiComboDev
-// This value is ignored.
-static unsigned char protocol_version;
-
 
 static void hardware_init(void) {  // {{{
 	// Configuring Watchdog to about 2 seconds
@@ -359,13 +355,6 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 
 		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
 			idle_rate = rq->wValue.bytes[1];
-
-		} else if (rq->bRequest == USBRQ_HID_GET_PROTOCOL) {
-			usbMsgPtr = &protocol_version;
-			return 1;
-
-		} else if (rq->bRequest == USBRQ_HID_SET_PROTOCOL) {
-			protocol_version = rq->wValue.bytes[1];
 		}
 
 	} else {
