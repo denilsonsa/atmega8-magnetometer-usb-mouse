@@ -80,6 +80,7 @@
 	range-phrase = { a },
 	output-decimal-marker = {,}
 }
+\DeclareSIUnit\gauss{G}
 
 % To find the total number of pages
 %\usepackage{lastpage}
@@ -92,13 +93,15 @@
 
 % LaTeX, as delivered, offers no means of handling bold "teletype" fonts
 % http://www.tex.ac.uk/cgi-bin/texfaq2html?label=bold-extras
-% This packages seems useless:
-%\usepackage{bold-extra}
+% http://tex.stackexchange.com/questions/33039/using-ttfamily-with-bfseries-or-how-to-enable-bold-in-fixed-width-font
 % And the solution is to load another fixed-width font:
 %\usepackage{courier}
 %\usepackage{couriers}
 %\usepackage{beramono}
+% Either load all fonts from this pack:
 \usepackage{txfonts}
+% Or load only the typewriter one.
+%\renewcommand{\ttdefault}{txtt}
 
 % For inserting source-code
 \usepackage{listings}
@@ -216,6 +219,10 @@
 \makeatletter
 \newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
 \makeatother
+
+% http://tex.stackexchange.com/questions/15009/macros-for-common-abbreviations
+\newcommand*{\eg}{e.g.\@\xspace}
+\newcommand*{\ie}{i.e.\@\xspace}
 
 \newcommand*{\VBUS}{V\textsubscript{BUS}\xspace}
 \newcommand*{\VCC}{V\textsubscript{CC}\xspace}
@@ -383,6 +390,8 @@ This will be the abstract, someday.
 \acro{ROM}{Read-Only Memory}
 \acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
 
+\acro{API}{Application Programming Interface}
+
 \end{acronym}
 
 
@@ -525,14 +534,30 @@ A quantidade de mudanças para suportar essa nova velocidade é grande, e foge
 ao escopo deste trabalho.
 
 % Não falei sobre:
-% * Endpoints e tipos de transferências
-% * *(control, interrupt, isochronous, bulk)
 % * Descriptors
 % * * Device Descriptor
 % * * Configuration Descriptor
 % * * Interface Descriptor
 % * * Endpoint Descriptor
 % * * String Descriptor
+
+\subsection{\textit{Endpoints}}
+\label{sub:usb_endpoints}
+
+Um \textit{endpoint} pode ser visto como um endereço lógico que pode receber
+dados do \textit{host} ou enviar dados para ele. Todo dispositivo \ac{USB}
+possui o \textit{endpoint 0}, usado pelo próprio protocolo para mensagens de
+controle e de \textit{status}. \cite[cap.~3]{usbinanutshell}
+
+Além do \textit{endpoint 0}, um dispositivo \ac{USB} normalmente possui no
+mínimo mais 1 \textit{endpoint}, usado para o objetivo fim do dispositivo.
+
+Há 4 tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
+
+TODO FROM HERE
+
+% * Endpoints e tipos de transferências
+% * *(control, interrupt, isochronous, bulk)
 
 
 \section{USB HID}
@@ -629,8 +654,9 @@ inicialmente quantos bytes serão requisitados.
 \section{Microcontrolador ATmega8}
 \label{sec:atmega8}
 
-ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela Atmel
-Corporation. Suas características principais são \cite{ATmega8}:
+ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela
+\textit{Atmel Corporation}. Suas características principais são:
+\cite{ATmega8}
 
 \begin{itemize}
 \item Arquitetura Harvard, com espaços de endereçamento distintos para 
@@ -693,8 +719,8 @@ magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
 eletrônica''.
 
 Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
-intensidade do campo magnético em 3 eixos perpendiculares ($X$, $Y$, $Z$)
-através de um \ac{ADC} de 12 bits, chegando a uma precisão de
+intensidade do campo magnético em 3 eixos perpendiculares (X, Y, Z) através
+de um \ac{ADC} de 12 bits, chegando a uma precisão de
 \SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}.
 \cite{HMC5883L}
 
@@ -714,22 +740,20 @@ SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 \label{fig:sensor_photos}
 \end{figure}
 
-% TODO: falar sobre o pino DRDY (talvez falar isso só nas conclusões, ou na
-% seção onde se configura o sensor
-
 
 \chapter{Descrição do \textit{hardware}}
 \label{cap:hardware}
 
 O núcleo do circuito é o microcontrolador ATmega8, o qual é responsável por
 ler os dados do sensor, fazer cálculos para converter os valores lidos, e
-enviar as coordenadas via USB.
+enviar as coordenadas via \ac{USB}.
 
 Um cristal de \SI{12}{\mega\hertz}, ligado aos pinos 9 e 10, define o
-\textit{clock} do microcontrolador. A implementação do protocolo \ac{USB},
-descrita na seção \ref{sec:vusb}, permite o uso de cristais de
-\SIlist[list-final-separator={ ou }]{12; 15; 16; 20}{\mega\hertz}. A escolha
-pelo cristal de \SI{12}{\mega\hertz} foi arbitrária.
+\textit{clock} do microcontrolador. O \textit{driver} usado para a
+implementação do protocolo \ac{USB}, descrito na seção \ref{sec:vusb},
+permite o uso de cristais de \SIlist[list-final-separator={ ou }]{12; 15;
+16; 20}{\mega\hertz}. A escolha pelo cristal de \SI{12}{\mega\hertz} foi
+arbitrária.
 
 O pino 1 (\textoverline{RESET}) possui um resistor de \textit{pull-up}
 (ligado ao \VCC) e um botão ligado ao \GND. Quando o botão é pressionado, o
@@ -953,10 +977,16 @@ que implementar uma máquina de estados para gerenciar os registradores do
 módulo de \ac{TWI} e a transmissão de dados. \cite[p.~168]{ATmega8} O
 exemplo de código disponível na página 170 do \textit{datasheet} do ATmega8
 utiliza a técnica de \textit{busy-wait} e não é adequado para o firmware
-deste projeto.
+deste projeto.\footnote{
+	De maneira geral, a técnica de \textit{busy-wait} (espera ocupada) deve
+	ser evitada porque bloqueia a execução do restante do código por tempo
+	indeterminado. Isso causaria, portanto, um \textit{watchdog reset}. Além
+	disso, a espera ocupada não garantiria que a função \texttt{usbPoll()}
+	fosse chamada em intervalos menores que \SI{50}{\milli\second}, conforme
+	descrito na seção \ref{sub:vusb_config}.}
 
 Reconhecendo a dificuldade de usar esse módulo de maneira eficiente, a
-própria Atmel publicou um documento e o código-fonte de um
+própria \textit{Atmel} publicou um documento e o código-fonte de um
 \textit{driver}\footnote{
 	Neste contexto, ``\textit{driver}'' significa um pedaço de
 	\textit{software} dentro do \textit{firmware} que controla um módulo de
@@ -1012,30 +1042,153 @@ ISR(TWI_vect)
 \section{Comunicação com o sensor}
 \label{sec:software_sensor}
 
-TODO FROM HERE.
+O sensor HMC5883L possui 13 registradores de 8 bits que podem ser acessados
+pela comunicação serial, e ainda mais um registrador interno chamado de
+\textit{address pointer}, o qual aponta para algum dos outros registradores
+e cujo valor não pode ser lido. \cite[p.~11]{HMC5883L}
 
-Falar sobre como foi implementada.
+Quando o \textit{master} inicia uma escrita, o primeiro byte recebido pelo
+sensor é considerado o endereço de um registrador, e esse endereço é salvo
+no \textit{address pointer}. Caso um segundo byte seja recebido, esse valor
+é salvo no registrador apontado pelo \textit{address pointer}.
 
-E depois falar sobre como se comunicar com o sensor (talvez em outra seção)
+Assim, para escrever num dos registradores de configuração do sensor, o
+\textit{firmware} do microcontrolador prepara um vetor de 3 bytes: o
+endereço do sensor (juntamente com o bit que define uma operação de
+escrita), o número do registrador de configuração que será modificado, e o
+valor a ser escrito no registrador. Esse vetor é repassado ao
+\textit{driver} de \ac{TWI} (descrito na seção \ref{sec:twi}), o qual copia
+esses bytes para um \textit{buffer} interno e inicia a comunicação
+assincronamente.
 
-Internamente, o sensor possui 13 registradores que podem ser acessados pela
-comunicação serial e ainda mais um registrador interno chamado de
-\textit{address pointer}. Quando o \textit{master}...
+Quando o \textit{master} inicia uma leitura, o sensor envia um byte com o
+valor contido no registrador apontado pelo \textit{address pointer} e
+incrementa o \textit{address pointer} para apontar para o próximo
+registrador. Caso outro byte seja requisitado (ainda na mesma transmissão,
+ou em outra transmissão), o processo se repete, enviado o valor contido no
+registrador apontado pelo \textit{address pointer} e incrementando-o. Desta
+forma, é possível ler o conteúdo de vários registradores adjacentes de
+maneira bem eficiente, com \textit{overhead} de comunicação mínimo.
+
+No entanto, a implementação do sensor não é perfeita, e em certos casos ao
+auto-incremento do \textit{address pointer} não funciona como esperado. Por
+exemplo, uma tentativa de ler todos os registradores (usando o
+auto-incremento para iterar automaticamente por todos eles) retorna valores
+diferentes (e inválidos) daqueles retornados por leituras individuais. De
+maneira geral, o auto-incremento funciona corretamente apenas para leitura
+dos 6 registradores de dados e para a leitura dos 3 registradores de
+identificação do sensor.
+
+Para ler os valores X, Y, Z do sensor, o microcontrolador começa realizando
+uma escrita no sensor, enviando o valor \texttt{0x03} como endereço do
+registrador. A seguir, realiza uma leitura de 6 bytes consecutivos. Por fim,
+esses 6 bytes lidos são convertidos numa \texttt{struct} de 3 variáveis
+inteiras de 16 bits.
+
+\subsection{Configuração do sensor}
+\label{sub:software_sensor_config}
+
+Durante a inicialização do \textit{firmware} do microcontrolador, os
+registradores de configuração do sensor são escritos.
+
+O sensor foi configurado para atualizar os registradores de dados 75 vezes
+por segundo, sendo que cada valor é a média de 8 amostras. O ganho do sensor
+foi configurado para ±\SI{1.3}{\gauss}\footnote{
+	O símbolo \si{\gauss} corresponde à unidade de medida de campo magnético
+	``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor, no entanto,
+	utiliza Ga como símbolo para essa unidade.
+}, o que corresponde a 1090 bits por gauss, ou \SI{0.92}{\milli\gauss} por
+bit. Este ganho foi escolhido por ser permitir a maior precisão possível das
+medidas sem causar \textit{overflow} no sensor.
+
+O sensor foi configurado para o modo de medição contínua, \ie, está
+continuamente medindo o campo magnético e atualizando os registradores de
+dados (75 vezes por segundo), mesmo que o microcontrolador não faça a
+leitura dessas medidas. Essa abordagem foi escolhida por simplificar a
+implementação.
+
+Por limitação do sensor, esse modo permite obter medições a uma taxa máxima
+de \SI{75}{\hertz}. Apesar disso, o sensor permite medições a até
+\SI{160}{\hertz} se for configurado para realizar medições individuais e o
+pino DRDY for monitorado. \cite[p.~12]{HMC5883L} Este pino normalmente fica
+no nível lógico 1, porém cai para 0 por \SI{250}{\micro\second} assim que
+uma nova medida é colocada nos registradores de dados. \cite[p.~3]{HMC5883L}
+Portanto, seria possível ligar esse pino DRDY a algum dos pinos de
+interrupção do microcontrolador e escrever uma rotina que leia os dados e
+inicie a próxima medição.
+
+Todavia, a \ac{PCB} usada neste projeto (figura \ref{fig:sensor_photos}) não
+possui um contato para o pino DRDY, e portanto não foi possível se
+aproveitar dessa técnica.
 
 
-\section{Driver \VUSB}
+\section{\textit{Driver} \VUSB}
 \label{sec:vusb}
 
-Falar que implementa USB 1.1 (eu acho que é 1.1), low speed.
-Falar sobre o consumo de 100mA.
-Falar sobre os tipos de endpoints.
-Falar sobre limitações, como por exemplo não
-implementar o Suspend.
+O \textit{driver} \VUSB foi desenvolvido pela \textit{Objective Development
+Software GmbH.} e é uma implementação em \textit{software} do protocolo
+\ac{USB}, funcionando em diversos microcontroladores da família AVR que não
+possuem um controlador \ac{USB} embutido. \cite{VUSBdriver}
 
-Falar sobre o hardwareconfig.h
+Por ser implementado em \textit{software}, o tempo de execução das rotinas
+do \textit{driver} é crucial, e essas rotinas foram implementadas (pelos
+autores do \textit{driver}) em \textit{assembly} para \textit{clocks} de
+\SIlist[list-final-separator={ ou }]{12; 15; 16; 20}{\mega\hertz} usando
+cristal, ou \SIlist[list-final-separator={ ou }]{12.8; 16.5}{\mega\hertz}
+usando o oscilador interno do microcontrolador. Não é possível usar o
+\textit{driver} com frequências diferentes destas. \cite{VUSBdriver}
 
-Falar aqui também sobre a implementação de um teclado. Talvez numa
-subsection.
+Apesar das rotinas internas estarem escritas em \textit{assembly}, o
+\textit{driver} disponibiliza uma \ac{API} bastante simples em linguagem C.
+
+O \textit{driver} implementa um dispositivo \ac{USB} 1.1 \textit{low speed},
+mas possui algumas limitações. Uma delas é assumir que não há erros durante
+a comunicação, pois não há tempo de CPU suficiente para implementar checagem
+de erros via \textit{software}. Além disso, as características elétricas dos
+pinos não atendem estritamente a especificação \ac{USB}. \cite{VUSBdriver}
+
+A especificação \ac{USB} também define que os dispositivos devem implementar
+um modo \textit{suspend}, no qual não devem consumir mais que
+\SI{500}{\micro\ampere}. \cite[cap.~2]{usbinanutshell} O \textit{driver} não
+implementa esse modo, mas explica em linhas gerais como seria possível
+implementá-lo. \cite[usbdrv.h]{VUSBdriver} Para este projeto, não foi
+implementado o suporte ao modo \textit{suspend}, pois não é uma tarefa
+trivial e está fora do escopo deste trabalho.
+
+Considerando as limitações citadas nos parágrafos anteriores, o dispositivo
+fruto deste projeto não é totalmente conformante com a especificação
+\ac{USB}. Por outro lado, essas limitações não são críticas, e o dispositivo
+funciona corretamente.
+
+
+\subsection{Configuração do \textit{driver} \VUSB}
+\label{sub:vusb_config}
+
+Toda a configuração do \textit{driver} \VUSB é feita no arquivo
+\texttt{usbconfig.h}. Como a maior parte da configuração é compartilhada com
+o \textit{boot loader}, foi criado um arquivo \texttt{hardwareconfig.h} que
+contém as configurações compartilhadas entre o \textit{firmware} principal e
+o \textit{boot loader} (tais como em quais pinos estão ligadas as linhas D-
+e D+), enquanto as configurações específicas foram mantidas no arquivo
+\texttt{usbconfig.h}.
+
+Para o \textit{firmware} principal, foi habilitado um \textit{interrupt-in
+endpoint} com intervalo \textit{polling} de \SI{10}{\milli\second} (o menor
+valor possível para dispositivos \textit{low speed})
+
+TODO FROM HERE (e revisar o parágrafo anterior)
+
+
+
+%Falar sobre o consumo de 100mA.
+%Falar sobre os tipos de endpoints.
+
+
+\section{Teclado USB}
+\label{sec:keyboard}
+
+Falar aqui sobre a implementação de um teclado.
+
 
 \section{Menu de configuração}
 \label{sec:menu}
@@ -1062,6 +1215,12 @@ Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
 \section{Outros problemas}
 \label{sec:outros_problemas}
 
+
+Em algum lugar (seção "outros problemas encontrados", por exemplo), citar o
+problema ao realizar muitas leituras muito rapidamente, cuja solução foi
+realizar leituras num timer.
+
+
 \subsection{Debouncing dos botões}
 \label{sec:debouncing}
 
@@ -1085,6 +1244,21 @@ Resultados alcançados. O que deu certo. O que não deu certo.
 \label{sec:trabalhos_futuros}
 
 Listar o que pode ser feito a partir deste projeto.
+
+
+TODO: falar sobre o pino DRDY
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_top.jpg}
+\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_bottom.jpg}
+\caption{Fotos de uma PCB com 5 contatos disponíveis}
+\label{fig:loveelectronics_photos}
+\end{figure}
+
+% TODO: falar sobre o pino DRDY (talvez falar isso só nas conclusões, ou na
+% seção onde se configura o sensor
+
 
 
 %%fakesection  Bibliografia
