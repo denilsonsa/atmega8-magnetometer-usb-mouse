@@ -106,6 +106,9 @@
 % For inserting source-code
 \usepackage{listings}
 
+% Translating "Listing"
+\renewcommand{\lstlistingname}{Listagem}
+
 % Setting the default options
 \lstset{
 	basicstyle=\ttfamily\footnotesize,
@@ -117,7 +120,8 @@
 	breakatwhitespace=true,
 	showspaces=false,
 	showstringspaces=false,
-	showlines=false
+	showlines=false,
+	captionpos=b
 }
 %	extendedchars=true,
 %	inputencoding=utf8x,
@@ -126,6 +130,9 @@
 %	frameround=rrrt,
 %	rulecolor=\color{black},
 %	rulesepcolor=\color{black},
+% These don't seem to work if the caption is at the bottom
+%	abovecaptionskip=\parskip,
+%	belowcaptionskip=\parskip
 
 
 % AVISO!!!  (copiado de outro projeto, mas não se aplica aqui)
@@ -392,6 +399,7 @@ This will be the abstract, someday.
 \acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
 
 \acro{API}{Application Programming Interface}
+\acro{BIOS}{Basic Input/Output System}
 
 \end{acronym}
 
@@ -860,8 +868,8 @@ desejada. Esta foi a solução empregada neste projeto.
 
 O circuito usado para reduzir a tensão nas linhas de dados segue o mesmo
 esquema usado no projeto USBasp \cite{USBasp}, também disponível no arquivo
-\texttt{circuits/with-zener.png} do \textit{driver} \VUSB \cite{vusbdrv}. É
-composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
+\texttt{circuits/with-zener.png} do \textit{driver} \VUSB \cite{VUSBdriver}.
+É composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
 \GND, e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
 Zener.
 
@@ -883,9 +891,9 @@ fora da especificação, também funcionou.
 Por fim, para o funcionamento correto do \textit{driver} \VUSB, é necessário
 ligar a linha USB~D+ ao pino INT0 do microcontrolador. Além disso, é preciso
 que as duas vias de dados estejam ligadas a pinos que pertençam à mesma
-porta do microcontrolador. \cite[usbconfig-prototype.h]{vusbdrv} Portanto, a
-linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2
-(PD0).
+porta do microcontrolador. \cite[usbconfig-prototype.h]{VUSBdriver}
+Portanto, a linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi
+ligada ao pino 2 (PD0).
 
 
 \section{Interface com o sensor}
@@ -1228,11 +1236,11 @@ outros parâmetros, como o nome do dispositivo, o nome do fabricante, o
 \textit{vendor-id} e o \textit{product-id}.
 
 Para um produto a ser comercializado, o fabricante precisa adquirir um
-\textit{vendor-id} juntamente com a \ac{USB-IF}, e pode escolher o
+\textit{vendor-id} juntamente com o \ac{USB-IF}, e pode escolher o
 \textit{product-id} que quiser. Para projetos criados por \textit{hobby} ou
 para fins acadêmicos, o custo e a burocracia para se adquirir tal número não
 é viável.\footnote{
-	O logotipo USB, é uma marca registrada da \ac{USB-IF}, e só pode ser
+	O logotipo USB, é uma marca registrada do \ac{USB-IF}, e só pode ser
 	usado em produtos que passaram nos testes dessa organização.
 	\cite{USBlogo} O custo para se adquirir um \textit{vendor-id} é de
 	pelo menos US\$~2.000,00. \cite{USBvendor}
@@ -1243,33 +1251,155 @@ Development Software GmbH.}.\footnote{
 	Este projeto se identifica como um dispositivo híbrido, funcionando ao
 	mesmo tempo como mouse e teclado. Não há nenhum par compartilhado de
 	\textit{vendor-id}:\textit{product-id} que seja adequado a este projeto.
-	\cite[USB-IDs-for-free.txt]{VUSBdriver} Após uma troca de e-mails com a 
-	\textit{Objective Development Software GmbH.}, e sabendo que o uso era
-	para fins acadêmicos, foi sugerido usar valores quaisquer, aleatórios
-	para esses campos.
+	\cite[USB-IDs-for-free.txt]{VUSBdriver} Após uma breve troca de e-mails
+	com a \textit{Objective Development Software GmbH.}, e sabendo que o uso
+	era para fins acadêmicos, foi sugerido usar valores quaisquer,
+	aleatórios para esses campos.
 }
 
-TODO FROM HERE (e revisar o parágrafo anterior)
-
-
-
-%Falar sobre o consumo de 100mA.
-%Falar sobre os tipos de endpoints.
+Uma vez configurados os parâmetros necessários nos cabeçalhos do
+\textit{driver}, usar sua \ac{API} na linguagem C foi bastante simples. É
+necessário chamar a função \texttt{usbInit()} na inicialização do
+\textit{firmware}, antes de habilitar as interrupções do microcontrolador, e
+é preciso chamar a função \texttt{usbPoll()} dentro do \textit{loop}
+principal do \textit{firmware}. É importante chamar essa função em
+intervalos menores que \SI{50}{\milli\second} para que o \textit{driver}
+funcione corretamente. Por fim, foi necessário implementar a função
+\texttt{usbFunctionSetup()}.
 
 
 \section{Teclado USB}
 \label{sec:keyboard}
 
-Falar aqui sobre a implementação de um teclado.
+Logo no início do projeto foi necessário testar se a comunicação \ac{USB}
+estava funcionando corretamente, validando o \textit{software} e o
+\textit{hardware}. Além disso, embora alguns \acp{LED} fossem suficientes
+para os testes iniciais de comunicação com o sensor, era preciso ter alguma
+forma de \textit{output} para exibir os dados lidos.
+
+A solução foi implementar um teclado \ac{USB} no microcontrolador. Essa
+implementação simula teclas sendo pressionadas de modo a escrever
+\textit{strings} na tela do computador. Em outras palavras, foi uma forma de
+se implementar o comando \textit{print} dentro do \textit{firmware}.
+
+Teclados e mouses \ac{USB} podem ser implementados como dispositivos de
+\textit{boot}. Tais dispositivos possuem um \textit{report descriptor}
+predeterminado, definido no padrão \ac{USB} \ac{HID}. Isso foi criado para
+permitir o uso de teclados e mouses mesmo nos estágios iniciais do
+\textit{boot} do computador, quando pode ser inviável ter uma implementação
+completa da especificação \ac{HID}. \cite[p.~59]{usbhid}
+
+O protocolo \textit{boot} obriga que o dispositivo se identifique ou como um
+teclado ou como um mouse, mas não como os dois. \cite[p.~9]{usbhid} Além
+disso, ele define um \textit{report descriptor} que suporta até 6 teclas
+pressionadas simultaneamente, além das teclas modificadoras
+\cite[p.~60]{usbhid}, o que é desnecessário para um
+teclado que vai apenas escrever \textit{strings}. Por todos esses motivos,
+foi decidido implementar um teclado que não suporta o protocolo
+\textit{boot}.
+
+O teclado implementado neste projeto utiliza o \textit{report descriptor}
+mostrado na listagem \ref{lst:report_keyboard}, o qual foi baseado no
+projeto HIDKeys \cite{HIDKeys}. O código do \textit{report descriptor} foi
+escrito utilizando a ferramenta HID Descriptor Tool \cite{hiddt}, disponível
+no próprio site do \ac{USB-IF}.
+
+\begin{ccode}[numbers=none, float=h, label={lst:report_keyboard},
+	caption={\textit{Report descriptor} do teclado USB}
+]
+	0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,        // USAGE (Keyboard)
+	0xa1, 0x01,        // COLLECTION (Application)
+	0x85, 0x01,	       //   REPORT_ID (1)
+	// Modifier keys
+	0x05, 0x07,        //   USAGE_PAGE (Keyboard)
+	0x19, 0xe0,        //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,        //   USAGE_MAXIMUM (Keyboard Right GUI)
+	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,        //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,        //   REPORT_SIZE (1)
+	0x95, 0x08,        //   REPORT_COUNT (8)
+	0x81, 0x02,        //   INPUT (Data,Var,Abs)
+	// Normal keys
+//	0x05, 0x07,        //   USAGE_PAGE (Keyboard)
+	0x19, 0x00,        //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0x65,        //   USAGE_MAXIMUM (Keyboard Application)
+//	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+	0x25, 0x65,        //   LOGICAL_MAXIMUM (101)
+	0x75, 0x08,        //   REPORT_SIZE (8)
+	0x95, 0x01,        //   REPORT_COUNT (1)
+	0x81, 0x00,        //   INPUT (Data,Ary,Abs)
+	0xc0,              // END_COLLECTION
+\end{ccode}
+
+O \textit{report} usado por este teclado possui 3 bytes. O primeiro deles é
+o \textit{Report ID} e tem valor 1, identificando que é um \textit{report}
+do teclado.\footnote{
+	Na seção \ref{sec:mouse}, o \textit{Report ID} do mouse é definido com
+	o valor 2.
+} No segundo byte, cada um dos 8 bits corresponde a uma tecla modificadora,
+embora o \textit{firmware} utilize apenas a tecla \textit{left shift}. O
+terceiro byte é a tecla sendo pressionada.
+
+Internamente, o teclado virtual do microcontrolador possui um
+\textit{buffer} de tamanho fixo que armazena a \textit{string} a ser
+digitada, e um ponteiro indicando o próximo caractere do \textit{buffer} que
+deve ser digitado. No \textit{loop} principal do \textit{firmware}, é
+checado se o \textit{interrupt-in endpoint} está pronto para enviar dados.
+Se estiver, e houver algum caractere ainda não digitado, o \textit{firmware}
+converte o caractere para o código da tecla correspondente e envia o
+\textit{report}.
+
+Letras maiúsculas e alguns símbolos ligam o bit correspondente à tecla
+\textit{left shift}, enquanto os outros caracteres desligam esse bit. Além
+disso, foi necessário detectar caracteres consecutivos que são convertidos
+para a mesma tecla (\eg, letras repetidas), e neste caso é enviado um
+\textit{report} indicando nenhuma tecla pressionada antes de enviar o
+\textit{report} correspondente ao caractere.
+
+A especificação \ac{USB} \ac{HID} Usage Tables define que o código de uma
+tecla mantém-se o mesmo, independente do que estiver impresso na tecla. Isto
+significa que a tecla ``Z'' de um teclado QWERTZ envia o mesmo código que a
+tecla ``Y'' de um teclado QWERTY. \cite[p.~53]{usbhut} Em outras palavras, a
+interpretação do código da tecla é de inteira responsabilidade do sistema
+operacional, através da configuração do \textit{layout} do teclado.  O
+teclado implementado neste projeto supõe estar configurado com
+\textit{layout} US ou BR-ABNT2.
+
+Por fim, foram implementadas no \textit{firmware} algumas funções para
+converter números inteiros em \textit{strings}, seja na base decimal ou na
+base hexadecimal. Algumas dessas rotinas utilizam outras funções já
+implementadas na AVR-Libc.
 
 
 \section{Menu de configuração}
 \label{sec:menu}
 
-Talvez falar sobre o teclado aqui dentro, não sei.
+Conforme mais funcionalidades estavam sendo implementadas no
+\textit{firmware} (algumas delas para fins de \textit{debug}), a quantidade
+delas superou rapidamente o número de botões presentes no circuito. Como
+consequência, ficou cada vez mais difícil de adicionar outra funcionalidade
+ou mesmo usar as já existentes. Foi sentida a necessidade de uma interface
+melhor, mais prática e mais intuitiva para o uso do \textit{firmware}.
+
+Essa foi a motivação para implementar um sistema de menus interativos. Esse
+sistema combina o teclado virtual previamente implementado (descrito na
+seção \ref{sec:keyboard}) com os 3 botões presentes na \textit{protoboard}
+(descritos no capítulo \ref{cap:hardware}).
+
+Um dos botões foi escolhido para funcionar como ``confirma'', enquanto os
+outros dois funcionam como ``próximo item'' e ``item anterior''.
+
+O sistema de menus é iniciado apertando o botão o botão ``confirma''.
+Enquanto dentro dos menus, o item atualmente selecionado é digitado na tela.
+Todas as principais funcionalidades do \textit{firmware} podem ser acessadas
+através dos menus.
+
 
 \section{Transformação de coordenadas}
 \label{sec:coordenadas}
+
+TODO: escrever esta seção
 
 Falar sobre: ferramentas auxiliares, teoria, resultados.
 
@@ -1277,36 +1407,64 @@ Falar sobre calibração dos cantos.
 
 Falar sobre calibração do zero (ou deixar para falar isso depois).
 
+
 \section{Mouse USB}
 \label{sec:mouse}
+
+TODO: escrever esta seção
 
 Falar sobre a implementação do mouse (que na verdade é absolute pointing
 device).
 
 Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
 
-\section{Outros problemas}
-\label{sec:outros_problemas}
+\section{Outras dificuldades}
+\label{sec:outras_dificuldades}
 
+TODO: escrever esta seção
 
 Em algum lugar (seção "outros problemas encontrados", por exemplo), citar o
 problema ao realizar muitas leituras muito rapidamente, cuja solução foi
 realizar leituras num timer.
 
 
-\subsection{Debouncing dos botões}
+\subsection{\textit{Debouncing} dos botões}
 \label{sec:debouncing}
+
+Um problema bem conhecido na eletrônica é o fenômeno de \textit{bouncing}.
+Botões são inerentemente mecânicos, e, ao serem pressionados, demora uma
+fração de segundo até que o contato seja estabilizado. Isso ocorre devido às
+características elásticas dos materiais que os compõem. Nesse curto
+intervalo de tempo, o botão oscila rapidamente entre os estados de aberto e
+fechado.
+
+Conhecendo esse problema, faz-se necessário aplicar alguma técnica de
+\textit{debouncing}. A solução empregada neste projeto foi inspirada na
+solução adotada pelo projeto TiltStick. \cite{TiltStick} Consiste em
+considerar a mudança de estado do botão apenas caso tenham-se passadas 8
+leituras consecutivas no novo estado. Isso foi implementado usando um byte
+para cada botão. A cada leitura, o valor do byte é deslocado 1 bit para a
+esquerda e a leitura atual é guardada no bit menos significativo. Caso o
+valor do byte seja igual a \texttt{0x00}, considera-se que o botão não está
+pressionado. Caso o valor seja igual a \texttt{0xFF}, considera-se que o
+botão está pressionado.\footnote{
+	No \textit{hardware}, o nível lógico 0 representa um botão pressionado.
+	Como é mais intuitivo pensar que 1 representa o botão pressionado e 0
+	botão solto, o valor lido pelo \textit{hardware} é invertido pela rotina
+	de leitura dos botões.
+} Qualquer outro valor é ignorado, e o botão mantém o estado anterior.
+
+
+\subsection{Gravar configurações na EEPROM}
+\label{sec:eeprom}
+
+Falar sobre gravar na EEPROM de maneira não bloqueante.
 
 \subsection{Tamanho do firmware}
 \label{sec:firmware_size}
 
 Dentre outras coisas, falar sobre as flags de compilação, que são
 específicas para a versão 4.5 do GCC.
-
-\subsection{Gravar configurações na EEPROM}
-\label{sec:eeprom}
-
-Falar sobre gravar na EEPROM de maneira não bloqueante.
 
 \chapter{Conclusões}
 \label{cap:conclusoes}
