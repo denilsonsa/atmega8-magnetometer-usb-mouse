@@ -361,6 +361,7 @@ This will be the abstract, someday.
 \begin{acronym}[EEPROM]
 
 \acro{USB}{Universal Serial Bus}
+\acro{USB-IF}{USB Implementers' Forum}
 \acro{HID}{Human Interface Device}
 
 \acro{NRZI}{Non-Return-to-Zero Inverted}
@@ -549,15 +550,52 @@ dados do \textit{host} ou enviar dados para ele. Todo dispositivo \ac{USB}
 possui o \textit{endpoint 0}, usado pelo próprio protocolo para mensagens de
 controle e de \textit{status}. \cite[cap.~3]{usbinanutshell}
 
-Além do \textit{endpoint 0}, um dispositivo \ac{USB} normalmente possui no
-mínimo mais 1 \textit{endpoint}, usado para o objetivo fim do dispositivo.
+Além do \textit{endpoint 0}, um dispositivo \ac{USB} normalmente possui pelo
+menos mais 1 \textit{endpoint}, usado para o objetivo fim do dispositivo.
 
 Há 4 tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
 
-TODO FROM HERE
+\begin{description}
+\item[Control] \hfill \\
+	Bidirecional, usado durante a inicialização do dispositivo para comandos
+	de controle do próprio protocolo \ac{USB}.
+\item[Interrupt]  \hfill \\
+	Unidirecional, latência garantida.
+\item[Isochronous] \hfill \\
+	Unidirecional, latência e largura de banda garantidas, sem garantia de
+	entrega, detecção de erros sem tentativa de reenvio. Apenas para
+	dispositivos \textit{full speed} e \textit{high speed}.
+\item[Bulk] \hfill \\
+	Unidirecional, sem garantia de latência ou de banda, porém com entrega
+	garantida e recuperação de erros. Apenas para dispositivos \textit{full
+	speed} e \textit{high speed}.
+\end{description}
 
-% * Endpoints e tipos de transferências
-% * *(control, interrupt, isochronous, bulk)
+\textit{Endpoints} do tipo \textit{bulk} são usados quando é importante
+transmitir dados corretamente, sem preocupação com o tempo necessário para
+concluir a transmissão. Dispositivos de armazenamento (como \textit{pen
+drives}) e \textit{scanners} de fotos fazem uso deste tipo de
+\textit{endpoint}.
+
+\textit{Endpoints} do tipo \textit{isochronous} são usados principalmente
+por dispositivos de \textit{streaming} multimídia (audio e vídeo), nos quais
+há um fluxo constante de dados e o tempo de entrega é crítico.
+
+\textit{Endpoints} do tipo \textit{interrupt} são usados para notificar o
+\textit{host} de eventos do dispositivo, ou para notificar o dispositivo a
+respeito de eventos do \textit{host}. Normalmente são mensagens curtas.
+Dispositivos de interface com o usuário, descritos na seção
+\ref{sec:usb_hid}, fazem uso deste tipo de \textit{endpoint}.
+
+Quando as mensagens são enviadas do \textit{host} para o dispositivo, o
+\textit{endpoint} é chamado de \textit{OUT}. Quando são do dispositivo para
+o \textit{host}, o \textit{endpoint} é chamado de \textit{IN}.
+
+É importante observar que um mesmo dispositivo pode ter múltiplos
+\textit{endpoints} de tipos diferentes. Por exemplo, um \textit{scanner}
+pode ter um \textit{endpoint} do tipo \textit{bulk-in} para transferir as
+imagens e um \textit{endpoint} do tipo \textit{interrupt-in} para notificar
+o \textit{host} quando o botão do dispositivo é apertado.
 
 
 \section{USB HID}
@@ -586,6 +624,17 @@ extensível, ser genérica e auto-descritiva (de modo que cada dispositivo
 descreva suas características de forma padronizada para o \textit{host}). O
 driver da classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz
 de se comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
+
+Eventos do dispositivo (\eg, um botão foi pressionado, ou o mouse foi
+movimentado) são enviados ao \textit{host} através de um
+\textit{interrupt-in endpoint}. Mensagens geradas pelo \textit{host} e que
+devem ser enviadas para o dispositivo (\eg, acender ou apagar um dos
+indicadores do teclado) podem utilizar um \textit{interrupt-out endpoint} ou
+o \textit{control endpoint}. \cite[p.~10]{usbhid}
+
+Essas mensagens enviadas ou recebidas pelo dispositivo são chamadas de
+\textit{reports}, e o formato delas é definido pelo próprio dispositivo,
+através do \textit{report descriptor}. \cite{usbhid}
 
 A especificação do \ac{USB} \ac{HID} foi inicialmente lançada em janeiro de
 1996 (versão 1.0). Sua primeira revisão ficou disponível em abril de 1999
@@ -1174,7 +1223,31 @@ e D+), enquanto as configurações específicas foram mantidas no arquivo
 
 Para o \textit{firmware} principal, foi habilitado um \textit{interrupt-in
 endpoint} com intervalo \textit{polling} de \SI{10}{\milli\second} (o menor
-valor possível para dispositivos \textit{low speed})
+valor possível para dispositivos \textit{low speed}). Também foram definidos
+outros parâmetros, como o nome do dispositivo, o nome do fabricante, o
+\textit{vendor-id} e o \textit{product-id}.
+
+Para um produto a ser comercializado, o fabricante precisa adquirir um
+\textit{vendor-id} juntamente com a \ac{USB-IF}, e pode escolher o
+\textit{product-id} que quiser. Para projetos criados por \textit{hobby} ou
+para fins acadêmicos, o custo e a burocracia para se adquirir tal número não
+é viável.\footnote{
+	O logotipo USB, é uma marca registrada da \ac{USB-IF}, e só pode ser
+	usado em produtos que passaram nos testes dessa organização.
+	\cite{USBlogo} O custo para se adquirir um \textit{vendor-id} é de
+	pelo menos US\$~2.000,00. \cite{USBvendor}
+}
+Portanto, para este projeto foi usado um par de
+\textit{vendor-id}:\textit{product-id} compartilhado pela \textit{Objective
+Development Software GmbH.}.\footnote{
+	Este projeto se identifica como um dispositivo híbrido, funcionando ao
+	mesmo tempo como mouse e teclado. Não há nenhum par compartilhado de
+	\textit{vendor-id}:\textit{product-id} que seja adequado a este projeto.
+	\cite[USB-IDs-for-free.txt]{VUSBdriver} Após uma troca de e-mails com a 
+	\textit{Objective Development Software GmbH.}, e sabendo que o uso era
+	para fins acadêmicos, foi sugerido usar valores quaisquer, aleatórios
+	para esses campos.
+}
 
 TODO FROM HERE (e revisar o parágrafo anterior)
 
