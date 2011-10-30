@@ -484,7 +484,7 @@ acordo com a posição do resistor de \textit{pull-up}\footnote{
 	Resistores de \textit{pull-up} ou de \textit{pull-down} servem para
 	manter uma via de dados num nível lógico conhecido enquanto nenhuma
 	transferência ocorre.  Normalmente possuem um valor relativamente alto
-	(de \SIrange{1.5}{15}{\kilo\ohm}) para drenar pouca corrente. Um
+	(de \SIrange{1.5}{10}{\kilo\ohm}) para drenar pouca corrente. Um
 	resistor de \textit{pull-up} conecta a via ao \VDD e a mantém no nível
 	lógico 1, enquanto um resistor de \textit{pull-down} conecta a via ao
 	\GND e a mantém no nível lógico 0.}
@@ -642,14 +642,15 @@ o \textit{control endpoint}. \cite[p.~10]{usbhid}
 
 Essas mensagens enviadas ou recebidas pelo dispositivo são chamadas de
 \textit{reports}, e o formato delas é definido pelo próprio dispositivo,
-através do \textit{report descriptor}. \cite{usbhid}
+através do \textit{report descriptor}, o qual é enviado ao \textit{host}
+durante a negociação inicial do protocolo \ac{USB}. \cite{usbhid}
 
-A especificação do \ac{USB} \ac{HID} foi inicialmente lançada em janeiro de
-1996 (versão 1.0). Sua primeira revisão ficou disponível em abril de 1999
-(versão 1.1). Sua segunda revisão, que também é a mais recente, foi lançada
-em junho de 2001 (versão 1.11). Apesar desta versão ter sido lançada após o
-\ac{USB} 2.0, a especificação do \ac{USB} \ac{HID} menciona apenas as duas
-velocidades de dispositivos presentes no \ac{USB} 1.x, e incorretamente
+A primeira versão da especificação do \ac{USB} \ac{HID} foi lançada em
+janeiro de 1996 (versão 1.0). Sua primeira revisão ficou disponível em abril
+de 1999 (versão 1.1). Sua segunda revisão, que também é a mais recente, foi
+lançada em junho de 2001 (versão 1.11). Apesar desta versão ter sido lançada
+após o \ac{USB} 2.0, a especificação do \ac{USB} \ac{HID} menciona apenas as
+duas velocidades de dispositivos presentes no \ac{USB} 1.x, e incorretamente
 chama dispositivos \textit{full speed} de \textit{high-speed}.
 \cite{usbhid}
 
@@ -840,12 +841,10 @@ detalhados na seção \ref{sub:hardware_sensor_i2c}.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=1.0\textwidth]{img/circuito-USBasp.pdf}
+\includegraphics[width=1.0\textwidth]{img/AVR-magnetometer-usb-mouse.pdf}
 \caption{Diagrama completo do circuito}
 \label{fig:circuito_completo}
 \end{figure}
-
-% TODO: Atualizar o diagrama do circuito!
 
 
 \section{Interface USB}
@@ -889,11 +888,11 @@ entanto, usa um resistor de \SI{2.2}{\kilo\ohm} \cite{USBasp}, que, mesmo
 fora da especificação, também funcionou.
 
 Por fim, para o funcionamento correto do \textit{driver} \VUSB, é necessário
-ligar a linha USB~D+ ao pino INT0 do microcontrolador. Além disso, é preciso
-que as duas vias de dados estejam ligadas a pinos que pertençam à mesma
-porta do microcontrolador. \cite[usbconfig-prototype.h]{VUSBdriver}
-Portanto, a linha D+ foi ligada ao pino 4 (PD2/INT0), e a linha D- foi
-ligada ao pino 2 (PD0).
+que a linha USB~D+ esteja ligada ao pino INT0 do microcontrolador. Além
+disso, é preciso que as duas vias de dados estejam ligadas a pinos que
+pertençam à mesma porta do microcontrolador.
+\cite[usbconfig-prototype.h]{VUSBdriver} Portanto, a linha D+ foi ligada ao
+pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2 (PD0).
 
 
 \section{Interface com o sensor}
@@ -1155,7 +1154,7 @@ foi configurado para ±\SI{1.3}{\gauss}\footnote{
 	``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor, no entanto,
 	utiliza Ga como símbolo para essa unidade.
 }, o que corresponde a 1090 bits por gauss, ou \SI{0.92}{\milli\gauss} por
-bit. Este ganho foi escolhido por ser permitir a maior precisão possível das
+bit. Este ganho foi escolhido por permitir a maior precisão possível das
 medidas sem causar \textit{overflow} no sensor.
 
 O sensor foi configurado para o modo de medição contínua, \ie, está
@@ -1214,8 +1213,10 @@ trivial e está fora do escopo deste trabalho.
 
 Considerando as limitações citadas nos parágrafos anteriores, o dispositivo
 fruto deste projeto não é totalmente conformante com a especificação
-\ac{USB}. Por outro lado, essas limitações não são críticas, e o dispositivo
-funciona corretamente.
+\ac{USB}, mas isso não causou problemas nos computadores onde o dispositivo
+foi testado, conforme resultados no capítulo \ref{cap:conclusoes}. Além
+disso, essas limitações não impediram que mais de 100 projetos tenham sido
+criados com sucesso. \cite{VUSBprojects}
 
 
 \subsection{Configuração do \textit{driver} \VUSB}
@@ -1235,8 +1236,8 @@ valor possível para dispositivos \textit{low speed}). Também foram definidos
 outros parâmetros, como o nome do dispositivo, o nome do fabricante, o
 \textit{vendor-id} e o \textit{product-id}.
 
-Para um produto a ser comercializado, o fabricante precisa adquirir um
-\textit{vendor-id} juntamente com o \ac{USB-IF}, e pode escolher o
+Para um produto \ac{USB} ser comercializado, o fabricante precisa adquirir
+um \textit{vendor-id} juntamente com o \ac{USB-IF}, e pode escolher o
 \textit{product-id} que quiser. Para projetos criados por \textit{hobby} ou
 para fins acadêmicos, o custo e a burocracia para se adquirir tal número não
 é viável.\footnote{
@@ -1264,8 +1265,10 @@ necessário chamar a função \texttt{usbInit()} na inicialização do
 é preciso chamar a função \texttt{usbPoll()} dentro do \textit{loop}
 principal do \textit{firmware}. É importante chamar essa função em
 intervalos menores que \SI{50}{\milli\second} para que o \textit{driver}
-funcione corretamente. Por fim, foi necessário implementar a função
-\texttt{usbFunctionSetup()}.
+funcione corretamente. Por fim, também foi necessário implementar a função
+\texttt{usbFunctionSetup()}, responsável por responder a algumas das
+mensagens recebidas no \textit{control endpoint 0} (as outras mensagens são
+respondidas diretamente pelo \textit{driver}). \cite{WikiDotDriverApi}
 
 
 \section{Teclado USB}
@@ -1321,10 +1324,10 @@ no próprio site do \ac{USB-IF}.
 	0x95, 0x08,        //   REPORT_COUNT (8)
 	0x81, 0x02,        //   INPUT (Data,Var,Abs)
 	// Normal keys
-//	0x05, 0x07,        //   USAGE_PAGE (Keyboard)
+	0x05, 0x07,        //   USAGE_PAGE (Keyboard)
 	0x19, 0x00,        //   USAGE_MINIMUM (Reserved (no event indicated))
 	0x29, 0x65,        //   USAGE_MAXIMUM (Keyboard Application)
-//	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
 	0x25, 0x65,        //   LOGICAL_MAXIMUM (101)
 	0x75, 0x08,        //   REPORT_SIZE (8)
 	0x95, 0x01,        //   REPORT_COUNT (1)
@@ -1390,10 +1393,12 @@ seção \ref{sec:keyboard}) com os 3 botões presentes na \textit{protoboard}
 Um dos botões foi escolhido para funcionar como ``confirma'', enquanto os
 outros dois funcionam como ``próximo item'' e ``item anterior''.
 
-O sistema de menus é iniciado apertando o botão o botão ``confirma''.
-Enquanto dentro dos menus, o item atualmente selecionado é digitado na tela.
-Todas as principais funcionalidades do \textit{firmware} podem ser acessadas
-através dos menus.
+O sistema de menus é iniciado apertando o botão o botão ``confirma'', e o
+item atualmente selecionado é digitado na tela usando a funcionalidade do
+teclado \ac{USB} (já descrito na seção \ref{sec:keyboard}). Todas as
+principais funcionalidades do \textit{firmware} podem ser acessadas através
+dos menus, simplificando o uso do dispositivo (tanto para o usuário final
+quanto para o desenvolvedor).
 
 
 \section{Transformação de coordenadas}
