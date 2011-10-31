@@ -1531,9 +1531,9 @@ quanto para o desenvolvedor).
 \section{Transformação de coordenadas}
 \label{sec:coordenadas}
 
-O principal desafio teórico deste projeto é transformar os vetores
-tridimensionais lidos do sensor em coordenadas bidimensionais da tela do
-computador. Não existe uma única solução para este problema, e foi preciso
+O principal desafio teórico deste projeto foi transformar os vetores
+tridimensionais lidos do sensor em coordenadas bidimensionais na tela do
+computador. Não existe uma única solução para este problema e foi preciso
 explorar algumas abordagens antes de decidir qual delas seria implementada
 no microcontrolador.
 
@@ -1543,28 +1543,170 @@ no microcontrolador.
 
 Com o objetivo de experimentar e avaliar as diferentes abordagens para a
 transformação de coordenadas, foram desenvolvidas algumas ferramentas
-auxiliares em linguagem Python. A escolha da linguagem foi motivada pela
-facilidade e rapidez de se escrever protótipos, assim como pela grande
-biblioteca já disponível.
+na linguagem Python. A escolha da linguagem foi motivada pela facilidade e
+rapidez de se escrever protótipos e pela extensa e abrangente biblioteca
+disponível.
 
-A primeira ferramenta foi chamada de \textt{generate\_sphere\_vectors.py} e
+A primeira ferramenta foi chamada de \texttt{generate\_sphere\_vectors.py} e
 serve para simular leituras do sensor. Esta ferramenta imprime na saída
-padrão vetores 3D que cobrem metade da superfície de uma esfera. Também
-imprime 4 vetores correspondentes aos cantos da tela, vetores esses usados
-nos cálculos explicados nas seções <XX> e <XX>.
-% TODO \ref{sec:SECAO} e \ref{sec:SECAO}.
+padrão uma lista de vetores 3D que cobrem pouco menos da metade da
+superfície de uma esfera. Também imprime 4 vetores correspondentes aos
+cantos da tela, os quais são usados nos cálculos explicados nas seções
+\ref{sub:coord_geometria} e \ref{sub:coord_lineq}.  A listagem
+\ref{lst:generate_sphere_vectors} mostra um trecho da saída desta
+ferramenta. A figura \ref{fig:half_sphere} mostra um gráfico dos vetores 3D
+impressos por esta ferramenta.
 
 \begin{lstlisting}[numbers=none, float=h, label={lst:generate_sphere_vectors},
-caption={\texttt{./generate\_sphere\_vectors.py}}
+caption={Primeiras linhas da saída do programa \texttt{generate\_sphere\_vectors.py}}
 ]
-TODO...
+topleft
+172     69      75
+topright
+172     -69     75
+bottomright
+172     -69     -75
+bottomleft
+172     69      -75
+0       141     141
+2       141     141
+5       141     141
+7       141     141
+10      141     141
 \end{lstlisting}
+
+\begin{figure}[h]
+\centering
+% ./generate_sphere_vectors.py -C | ./matplotlib_3d_plot.py -p -q -f 8 -s 3.5 3.5 -o ../monografia/img/half_sphere.png
+\includegraphics{img/half_sphere.png}
+%\includegraphics[width=0.5\textwidth]{img/half_sphere.png}
+\caption{Visualização gráfica da saída do programa \texttt{generate\_sphere\_vectors.py}}
+\label{fig:half_sphere}
+\end{figure}
+
+A segunda ferramenta foi chamada de \texttt{convert\_coordinates.py} e
+implementa os algoritmos de transformação de coordenadas explicados nas
+seções \ref{sub:coord_geometria} e \ref{sub:coord_lineq}.  Esta ferramenta
+lê vetores 3D a partir da entrada padrão e imprime na saída padrão as
+coordenadas 2D correspondentes, calculadas de acordo com o algoritmo
+selecionado. Um exemplo de entrada e saída para esta ferramenta pode ser
+visto na listagem \ref{lst:convert_coordinates}
+
+\begin{lstlisting}[numbers=none, float=h, label={lst:convert_coordinates},
+caption={Entrada para o programa \texttt{convert\_coordinates.py}, e a saída correspondente}
+]
+topleft
+172     69      75
+topright
+172     -69     75
+bottomright
+172     -69     -75
+bottomleft
+172     69      -75
+198     24      -3                      0.348924 0.517374
+198     -3      24                      0.518884 0.36101
+190     -44     45                      0.788635 0.228421
+\end{lstlisting}
+
+A terceira ferramenta foi chamada de \texttt{draw\_points.py} e serve para
+visualizar graficamente as coordenadas 2D. Esta ferramenta desenha um ponto
+na tela para cada par de coordenadas lido da entrada padrão. A figura
+\ref{fig:draw_points} mostra a saída desta ferramenta para os três pontos da
+listagem \ref{lst:convert_coordinates}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/draw_points_example.png}
+\caption{Exemplo de saída do programa \texttt{draw\_points.py}}
+\label{fig:draw_points}
+\end{figure}
+
+Essas três ferramentas podem ser usadas separadamente ou encadeadas através
+de um \textit{pipeline}.\footnote{
+	Neste contexto, um \textit{pipeline} significa ligar a saída padrão de
+	um programa à entrada padrão do programa seguinte.
+}
+
+
+\subsection{Usando geometria e ângulos}
+\label{sub:coord_geometria}
+
+Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
+4 vetores no espaço tais que:
+
+\begin{itemize}
+\item O vetor $A$ aponta na direção do canto superior esquerdo da tela.
+\item O vetor $B$ aponta na direção do canto superior direito da tela.
+\item O vetor $C$ aponta na direção do canto inferior direito da tela.
+\item O vetor $D$ aponta na direção do canto inferior esquerdo da tela.
+\end{itemize}
+
+Também é definido o vetor $P$ como sendo a direção apontada pelo usuário. O
+objetivo da transformação de coordenadas é mapear o vetor $P$ em coordenadas
+$(x, y)$ contidas no plano da tela do computador. Todos esses vetores podem
+ser vistos na figura \ref{fig:geometria_ABCD1}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/geometria_ABCD1.pdf}
+\caption{Definição dos vetores 3D}
+\label{fig:geometria_ABCD1}
+\end{figure}
+
+Uma vez definido o problema, a etapa seguinte foi quebrá-lo em subproblemas.
+Em vez de tentar calcular diretamente as coordenadas 2D relativas ao vetor
+$P$, calcula-se a projeção de P em cada uma das bordas da tela, para a
+seguir interpolar as coordenadas $(x, y)$ a partir das bordas, conforme a
+figura \ref{fig:geometria_ABCD2}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/geometria_ABCD2.pdf}
+\caption{As coordenadas 2D podem ser interpoladas a partir da projeção de
+$P$ em cada borda}
+\label{fig:geometria_ABCD2}
+\end{figure}
+
+Para tal, primeiramente calcula-se o vetor unitário $N$, normal ao plano de
+$A$ e $B$. São então calculados $P_N$, a componente de $P$ paralela ao vetor
+$N$; e $P'$, a componente de $P$ contida no plano de $A$ e $B$.
+
+\begin{eqnarray*}
+N & = & \frac{A \times B}{ || A \times B || }   \\
+P_N & = & (N \cdot P) N   \\
+P' & = & P - P_N
+\end{eqnarray*}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/geometria_ABCD3.pdf}
+\caption{O vetor $P'$ é a componente de $P$ contida no plano de $A$ e $B$}
+\label{fig:geometria_ABCD3}
+\end{figure}
+
+Uma vez tendo $P'$, a etapa final é calcular sua posição na borda delimitada
+por $A$ e $B$.  TODO FROM HERE
+
+
+\subsection{Usando sistema de equações lineares}
+\label{sub:coord_lineq}
+
+De maneira similar à abordagem descrita na seção \ref{sub:coord_geometria},
+esta abordagem também precisa calibrar os cantos da tela. Entretanto, apenas
+os vetores $A$, $B$ e $D$ serão usados.
 
 TODO: escrever esta seção.
 
-Falar sobre: ferramentas auxiliares, teoria, resultados.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/lineq.pdf}
+\caption{O vetor $P$ pode ser representado como $A + x(B-A) + y(D-A)$}
+\label{fig:lineq}
+\end{figure}
 
-Falar sobre calibração dos cantos.
+Falar sobre: teoria, resultados.
+
+Falar sobre calibração dos cantos. (?)
 
 
 \section{Mouse USB}

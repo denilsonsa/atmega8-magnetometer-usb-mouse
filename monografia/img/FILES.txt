@@ -22,3 +22,9 @@ sensor_other_pcb_top.jpg:
 AVR-magnetometer-usb-mouse.svg:
 AVR-magnetometer-usb-mouse.pdf:
 	Drawing I did in Inkscape.
+
+draw_points_example.png:
+	From projection/draw_points.py
+
+half_sphere.png:
+	From projection/matplotlib_3d_plot.py
