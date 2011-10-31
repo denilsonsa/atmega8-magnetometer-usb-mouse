@@ -176,35 +176,37 @@ class State(object):
             #  0 + beta *Clinha  =>  the pointed direction (already projected)
             # We know these two lines are at the same plane.
             # So, we use a 2D coordinate system like this:
-            x = (A)/norm(A)
-            y = (B-A)/norm(B-A)
-            # It is not orthogonal, but it is a valid system.
-            # And the base vectors are unitary.
-            # This is important for projecting using dot()
+            x = A
+            y = cross(x, N)
+            x /= norm(x)
+            y /= norm(y)
+            # Orthogonal base, and the base vectors are unitary.
 
             # Projecting Clinha to this sytem:
             Cx = dot(Clinha, x)
             Cy = dot(Clinha, y)
 
-            #  A   => (norm(A), 0)
-            #  B-A => (0, norm(B-A))
+            Ax = dot(A, x)
+            Ay = dot(A, y)
+
+            BAx = dot(B-A, x)
+            BAy = dot(B-A, y)
+
             #  A + alpha*(B-A)  =  0 + beta*Clinha
-            #
-            #  norm(A) + alpha*(0) =  0 + beta * Cx
-            beta = norm(A) / Cx
+            M = array([
+                [BAx, -Cx],
+                [BAy, -Cy],
+            ])
+            constant = array([-Ax, -Ay])
 
-            #  0 + alpha*(norm(B-A))  =  0 + beta*Cy
-            alpha = beta * Cy / norm(B-A)
+            try:
+                X = numpy.linalg.solve(M, constant)
+                # alpha = X[0]
+                # beta = X[1]
+                return X[0]
 
-            if self.DEBUG:
-                print "x", x
-                print "y", y
-                print "Cx", Cx
-                print "Cy", Cy
-                print "beta", beta
-                print "alpha", alpha
-
-            return alpha
+            except numpy.linalg.LinAlgError:
+                return None
 
     def interpolation_using_2_edges(self, pointer, using):
         # This is a very bad approximation

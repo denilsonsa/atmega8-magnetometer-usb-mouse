@@ -31,7 +31,7 @@ for abertura in {10..90..5} ; do
 	#| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_cleq.png"
 
 	# Python program
-	for a in {1..11} ; do
+	for a in {1..13} ; do
 		./generate_sphere_vectors.py -P ${P} -T ${T} -p ${p} -t ${t} \
 		| ./convert_coordinates.py -a ${a} \
 		| ./draw_points.py -p -s ${DOT_SIZE} -q -o "${IMAGE_DIR}/P${P}T${T}p${p}t${t}_a${a}.png"
