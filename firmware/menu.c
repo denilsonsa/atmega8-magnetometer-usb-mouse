@@ -91,14 +91,23 @@ static const MenuItem error_menu_items[] PROGMEM = {
 static const char     main_menu_1[] PROGMEM = "1. Calibrate zero\n";
 static const char     main_menu_2[] PROGMEM = "2. Calibrate corners\n";
 static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+
+#if ENABLE_FULL_MENU
 static const char     main_menu_4[] PROGMEM = "4. Keyboard test\n";
 static const char     main_menu_5[] PROGMEM = "5. << quit menu\n";
 #define               main_menu_total_items 5
+#else
+static const char     main_menu_5[] PROGMEM = "4. << quit menu\n";
+#define               main_menu_total_items 4
+#endif
+
 static const MenuItem main_menu_items[] PROGMEM = {
 	{main_menu_1, UI_ZERO_MENU},
 	{main_menu_2, UI_CORNERS_MENU},
 	{main_menu_3, UI_SENSOR_MENU},
+#if ENABLE_FULL_MENU
 	{main_menu_4, UI_KEYBOARD_TEST_WIDGET},
+#endif
 	{main_menu_5, 0}
 };
 // }}}
@@ -107,7 +116,7 @@ static const MenuItem main_menu_items[] PROGMEM = {
 static const char     zero_menu_1[] PROGMEM = "1.1. Print zero\n";
 static const char     zero_menu_2[] PROGMEM = "1.2. Recalibrate zero\n";
 static const char     zero_menu_3[] PROGMEM = "1.3. Toggle zero compensation\n";
-static const char     zero_menu_4[] PROGMEM = "1.4. << main menu\n";
+static const char     zero_menu_4[] PROGMEM = "1.4. << back\n";
 #define               zero_menu_total_items 4
 static const MenuItem zero_menu_items[] PROGMEM = {
 	{zero_menu_1, UI_ZERO_PRINT_WIDGET},
@@ -117,7 +126,9 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 };
 
 // Other messages:
-static const char zero_calibration[] PROGMEM = "Move the sensor to get the maximum and minimum value of each axis. Press the button to finish.\n";
+#if ENABLE_FULL_MENU
+static const char zero_calibration_instructions[] PROGMEM = "Move the sensor to get the maximum and minimum value for each axis. Press the button to finish.\n";
+#endif
 static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is ";
 static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
@@ -129,7 +140,7 @@ static const char     corners_menu_2[] PROGMEM = "2.2. Set topleft\n";
 static const char     corners_menu_3[] PROGMEM = "2.3. Set topright\n";
 static const char     corners_menu_4[] PROGMEM = "2.4. Set bottomleft\n";
 static const char     corners_menu_5[] PROGMEM = "2.5. Set bottomright\n";
-static const char     corners_menu_6[] PROGMEM = "2.6. << main menu\n";
+static const char     corners_menu_6[] PROGMEM = "2.6. << back\n";
 #define               corners_menu_total_items 6
 static const MenuItem corners_menu_items[] PROGMEM = {
 	{corners_menu_1, UI_CORNERS_PRINT_WIDGET},
@@ -152,23 +163,35 @@ static const PGM_P corners_names[4] PROGMEM = {
 // }}}
 
 // Sensor data menu  {{{
+#if ENABLE_FULL_MENU
 static const char     sensor_menu_1[] PROGMEM = "3.1. Print sensor identification\n";
 static const char     sensor_menu_2[] PROGMEM = "3.2. Print X,Y,Z once\n";
 static const char     sensor_menu_3[] PROGMEM = "3.3. Print X,Y,Z continually\n";
-static const char     sensor_menu_4[] PROGMEM = "3.4. << main menu\n";
+static const char     sensor_menu_4[] PROGMEM = "3.4. << back\n";
 #define               sensor_menu_total_items 4
+#else
+static const char     sensor_menu_2[] PROGMEM = "3.1. Print X,Y,Z once\n";
+static const char     sensor_menu_3[] PROGMEM = "3.2. Print X,Y,Z continually\n";
+static const char     sensor_menu_4[] PROGMEM = "3.3. << back\n";
+#define               sensor_menu_total_items 3
+#endif
+
 static const MenuItem sensor_menu_items[] PROGMEM = {
+#if ENABLE_FULL_MENU
 	{sensor_menu_1, UI_SENSOR_ID_WIDGET},
+#endif
 	{sensor_menu_2, UI_SENSOR_XYZ_ONCE_WIDGET},
 	{sensor_menu_3, UI_SENSOR_XYZ_CONT_WIDGET},
 	{sensor_menu_4, 0}
 };
 
 // Error message:
-static const char  error_sensor_string[] PROGMEM = "Error reading the sensor!\n";
+static const char  error_sensor_string[] PROGMEM = "Sensor reading error\n";
 // }}}
 
+#if ENABLE_FULL_MENU
 static const char keyboard_test_string[] PROGMEM = "AAaaAAaaZz 0123456789 !@#$%&*() -_ =+ ,< .> ;: /?\n";
+#endif
 
 // Data used by ui_load_menu_items()  {{{
 typedef struct MenuLoadingInfo {
@@ -391,8 +414,10 @@ void ui_main_code() {  // {{{
 						break;
 					}
 
+#if ENABLE_FULL_MENU
 					// Print instructions
-					output_pgm_string(zero_calibration);
+					output_pgm_string(zero_calibration_instructions);
+#endif
 
 					// Must disable zero compensation before calibration
 					sens->e.zero_compensation = 0;
@@ -543,6 +568,7 @@ void ui_main_code() {  // {{{
 				break;  // }}}
 
 
+#if ENABLE_FULL_MENU
 			////////////////////
 			case UI_SENSOR_ID_WIDGET:  // {{{
 				if (string_output_pointer != NULL) {
@@ -570,6 +596,7 @@ void ui_main_code() {  // {{{
 					ui_pop_state();
 				}
 				break;  // }}}
+#endif
 
 			////////////////////
 			case UI_SENSOR_XYZ_ONCE_WIDGET:  // {{{
@@ -605,6 +632,7 @@ void ui_main_code() {  // {{{
 				}
 				break;  // }}}
 
+#if ENABLE_FULL_MENU
 			////////////////////
 			case UI_KEYBOARD_TEST_WIDGET:  // {{{
 				if (string_output_pointer == NULL) {
@@ -612,6 +640,7 @@ void ui_main_code() {  // {{{
 					ui_pop_state();
 				}
 				break;  // }}}
+#endif
 
 			default:
 				// Fallback in case of errors
