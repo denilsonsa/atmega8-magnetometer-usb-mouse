@@ -120,8 +120,21 @@ def main():
     # Default font size is 12
     matplotlib.rcParams['font.size'] = args.fontsize
 
+    # This is not necessary, but doesn't hurt.
+    pyplot.close()
+
     fig = pyplot.figure()
     fig.set_size_inches(args.size)
+
+    # Reducing the margins
+    pyplot.subplots_adjust(left=0, right=1, bottom=0, top=1)
+    # Default values:
+    # left  = 0.125  # the left side of the subplots of the figure
+    # right = 0.9    # the right side of the subplots of the figure
+    # bottom = 0.1   # the bottom of the subplots of the figure
+    # top = 0.9      # the top of the subplots of the figure
+    # wspace = 0.2   # the amount of width reserved for blank space between subplots
+    # hspace = 0.2   # the amount of height reserved for white space between subplots
 
     #ax = fig.gca(projection='3d')
     ax = fig.add_subplot(111, projection='3d')
