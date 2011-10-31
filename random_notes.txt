@@ -68,3 +68,6 @@ Resistor de pull-up da USB:
 	p. 141 do usb_20.pdf define como 1K5 ± 5%
 	USBasp usa 2K2.
 	Eu usei 2K2.
+
+Sobre escrever números como dígitos
+	http://www.useit.com/alertbox/writing-numbers.html

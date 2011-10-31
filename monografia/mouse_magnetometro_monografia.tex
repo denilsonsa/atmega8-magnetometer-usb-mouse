@@ -58,6 +58,14 @@
 % http://tex.stackexchange.com/questions/17730/newcommand-and-spacing
 \usepackage{xspace}
 
+% This package detects footnotes that are split over several pages, and
+% writes a warning to the log file.
+\usepackage{fnbreak}
+
+% http://tex.stackexchange.com/questions/32208/footnote-runs-onto-second-page
+% http://www.tex.ac.uk/cgi-bin/texfaq2html?label=splitfoot
+%\interfootnotelinepenalty=10000
+
 % Avoid floats and figures from crossing a section boundary
 % http://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions#Keeping_floats_in_their_place
 \usepackage[section]{placeins}
@@ -367,39 +375,31 @@ This will be the abstract, someday.
 
 \begin{acronym}[EEPROM]
 
-\acro{USB}{Universal Serial Bus}
-\acro{USB-IF}{USB Implementers' Forum}
-\acro{HID}{Human Interface Device}
-
-\acro{NRZI}{Non-Return-to-Zero Inverted}
-\acro{SE0}{Single-Ended 0}
-\acro{SE1}{Single-Ended 1}
-
-\acro{I2C}[I²C]{Inter-Integrated Circuit}
-\acro{TWI}{Two-Wire Interface}
-
-\acro{SCL}{Serial Clock}
-\acro{SDA}{Serial Data}
-
-\acro{PDIP}{Plastic Dual In-line Package}
-\acro{DIP}{Dual In-line Package}
-\acro{QFP}{Quad Flat Package}
-\acro{QFN}{Quad-Flat No-leads Package}
-\acro{LCC}{Leaded Chip Carrier}
-
-\acro{PCB}{Printed Circuit Board}
-\acro{LED}{Light-Emitting Diode}
 \acro{ADC}{Analog-to-Digital Converter}
-
-\acro{ISP}{In-System Programmer}
-\acro{ICSP}{In-Circuit Serial Programmer}
-
-\acro{SRAM}{Static Random-Access Memory}
-\acro{ROM}{Read-Only Memory}
-\acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
-
 \acro{API}{Application Programming Interface}
 \acro{BIOS}{Basic Input/Output System}
+\acro{DIP}{Dual In-line Package}
+\acro{EEPROM}{Electrically Erasable Programmable Read-Only Memory}
+\acro{HID}{Human Interface Device}
+\acro{I2C}[I²C]{Inter-Integrated Circuit}
+\acro{ICSP}{In-Circuit Serial Programmer}
+\acro{ISP}{In-System Programmer}
+\acro{LCC}{Leaded Chip Carrier}
+\acro{LED}{Light-Emitting Diode}
+\acro{NRZI}{Non-Return-to-Zero Inverted}
+\acro{PCB}{Printed Circuit Board}
+\acro{PDIP}{Plastic Dual In-line Package}
+\acro{QFN}{Quad-Flat No-leads Package}
+\acro{QFP}{Quad Flat Package}
+\acro{ROM}{Read-Only Memory}
+\acro{SCL}{Serial Clock}
+\acro{SDA}{Serial Data}
+\acro{SE0}{Single-Ended 0}
+\acro{SE1}{Single-Ended 1}
+\acro{SRAM}{Static Random-Access Memory}
+\acro{TWI}{Two-Wire Interface}
+\acro{USB-IF}{USB Implementers' Forum}
+\acro{USB}{Universal Serial Bus}
 
 \end{acronym}
 
@@ -419,7 +419,7 @@ can't be done is generally interrupted by someone doing it.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-%Neste capítulo são apresentadas blah blah
+%TODO Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -464,21 +464,30 @@ necessidades especiais, interatividade em jogos e exposições)
 \end{flushright}{\small \par}
 \vfill{}
 
-%Neste capítulo são apresentadas blah blah
+%TODO Neste capítulo são apresentadas blah blah
 \newpage
 
 
 \section{USB}
 \label{sec:usb}
 
-\ac{USB} é um protocolo que foi desenvolvido a partir do ano de 1994 pelas
-empresas \textit{Compaq}, \textit{Hewlett-Packard}, \textit{Intel},
-\textit{Lucent}, \textit{Microsoft}, \textit{NEC} e \textit{Philips}. Foi
-motivado pela inexistência de um barramento bidirecional de baixo custo para
-periféricos de baixa e média velocidade, assim como a falta de flexibilidade
-dos barramentos até então existentes, os quais eram projetados para usos
-bastante específicos, sendo impossível reutilizá-los para outros
-periféricos. \cite{usb20}
+%\ac{USB} é um protocolo que foi desenvolvido a partir do ano de 1994 pelas
+%empresas \textit{Compaq}, \textit{Hewlett-Packard}, \textit{Intel},
+%\textit{Lucent}, \textit{Microsoft}, \textit{NEC} e \textit{Philips}. Foi
+%motivado pela inexistência de um barramento bidirecional de baixo custo para
+%periféricos de baixa e média velocidade, assim como a falta de flexibilidade
+%dos barramentos até então existentes, os quais eram projetados para usos
+%bastante específicos, sendo impossível reutilizá-los para outros
+%periféricos. \cite{usb20}
+
+A partir do ano de 1994, as empresas \textit{Compaq},
+\textit{Hewlett-Packard}, \textit{Intel}, \textit{Lucent},
+\textit{Microsoft}, \textit{NEC} e \textit{Philips} desenvolveram um
+protocolo chamado \ac{USB}. Essa iniciativa foi motivada pela inexistência
+de um barramento bidirecional de baixo custo para periféricos de baixa e
+média velocidade. Além disso, a falta de flexibilidade dos barramentos até
+então existentes não permitia reutilizá-los para outros periféricos, pois
+eram projetados para usos bastante específicos. \cite{usb20}
 
 A primeira versão do \ac{USB}, conhecida como ``USB 1.0'', foi oficialmente
 lançada em janeiro de 1996 e definiu duas velocidades: \textit{low speed}
@@ -501,11 +510,12 @@ funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
 \label{fig:usb_connectors}
 \end{figure}
 
-Uma conexão \ac{USB} é formada por 4 vias, sendo duas para alimentação
-(\VBUS = \SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados
-são transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing}
-(um ``zero'' é inserido após 6 bits ``um'' consecutivos).
-\cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
+Uma conexão \ac{USB} é formada por 4 vias (conforme pode ser visto na figura
+\ref{fig:usb_connectors}), sendo duas para alimentação (\VBUS =
+\SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados são
+transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing} (um
+``zero'' é inserido após 6 bits ``um'' consecutivos). \cite[p.~157]{usb20}
+\cite[cap.~2]{usbinanutshell}
 
 A velocidade de um dispositivo é determinada por \textit{hardware}, de
 acordo com a posição do resistor de \textit{pull-up}\footnote{
@@ -526,11 +536,11 @@ enquanto dispositivos \textit{full speed} possuem  um resistor de
 Dispositivos \textit{high speed}, introduzidos no \ac{USB} 2.0, inicialmente
 se identificam como \textit{full speed} (com um resistor de \textit{pull-up}
 ligado ao D+), mas removem o resistor após uma negociação realizada durante
-o durante o USB \textit{reset}, caso o \textit{host} também suporte
-\textit{high speed}.  Caso contrário, o resistor será mantido e o
-dispositivo funcionará em \textit{full speed}. Essa negociação incial
-permite a compatibilidade entre dispositivos USB 2.0 \textit{high speed} e
-\textit{hosts} USB 1.x. \cite[p.~142]{usb20} \cite[cap.~2]{usbinanutshell}
+o USB \textit{reset}, caso o \textit{host} também suporte \textit{high
+speed}. Caso contrário, o resistor será mantido e o dispositivo funcionará
+em \textit{full speed}. Essa negociação incial permite a compatibilidade
+entre dispositivos USB 2.0 \textit{high speed} e \textit{hosts} USB 1.x.
+\cite[p.~142]{usb20} \cite[cap.~2]{usbinanutshell}
 
 \begin{figure}[h]
 \centering
@@ -540,35 +550,35 @@ permite a compatibilidade entre dispositivos USB 2.0 \textit{high speed} e
 \end{figure}
 
 A conexão de equipamentos \ac{USB} segue uma topologia de estrela em
-camadas, que também pode ser entendida como uma árvore. No centro da estrela
-(ou na raiz da árvore) temos obrigatoriamente o \textit{host}, que
-normalmente é um computador. Por definição, o \textit{host} contém um
-\textit{root hub}. Cada cabo \ac{USB} é uma conexão ponto-a-ponto que liga
-um \textit{hub} da camada imediatamente acima a um dispositivo na camada
-imediatamente abaixo. Um dispositivo pode ser um outro \textit{hub} ou então
-uma função. Por limitações de tempo de propagação, o número máximo de
-camadas é 7, incluindo a camada que contém o \textit{host}.
-\cite[p.~16]{usb20}
+camadas, que também pode ser entendida como uma árvore (conforme figura
+\ref{fig:usb_topology}). No centro da estrela (ou na raiz da árvore) temos
+obrigatoriamente o \textit{host}, que normalmente é um computador. Por
+definição, o \textit{host} contém um \textit{root hub}. Cada cabo \ac{USB} é
+uma conexão ponto-a-ponto que liga um \textit{hub} da camada imediatamente
+acima a um dispositivo na camada imediatamente abaixo. Um dispositivo pode
+ser um outro \textit{hub} ou então uma função. Por limitações de tempo de
+propagação, o número máximo de camadas é 7, incluindo a camada que contém o
+\textit{host}.  \cite[p.~16]{usb20}
 
-A especificação \ac{USB} define dois tipos de conectores (conforme ilustrado
-na figura \ref{fig:usb_connectors}). Um cabo \ac{USB} possui uma ponta de
-cada tipo, sendo que o plugue do tipo A é conectado ao \textit{hub} da
-camada acima, e o plugue do tipo B é conectado ao dispositivo da camada
-abaixo. Posteriormente, foram também especificados conectores de tamanho
-mais reduzido (Mini e Micro), mas os conceitos continuam os mesmos.
+A especificação \ac{USB} define dois tipos de conectores (ilustrados na
+figura \ref{fig:usb_connectors}). Um cabo \ac{USB} possui uma ponta de cada
+tipo, sendo que o plugue do tipo A é conectado ao \textit{hub} da camada
+acima, e o plugue do tipo B é conectado ao dispositivo da camada abaixo.
+Posteriormente, foram também especificados conectores de tamanho mais
+reduzido (Mini e Micro), mas os conceitos continuam os mesmos.
 
 O protocolo de comunicação do \ac{USB} pode ser entendido como uma
 arquitetura \textit{master/slave}, na qual o \textit{host} é o
 \textit{master} e os dispositivos têm o papel de \textit{slave}. Só há um
-\textit{host} por barramento \ac{USB}, e ele é responsável por iniciar e
-gerenciar cada transação.  Como consequência, a maior parte da lógica está
+\textit{host} por barramento \ac{USB} e ele é responsável por iniciar e
+gerenciar cada transação. Como consequência, a maior parte da lógica está
 centralizada no \textit{host}, simplificando bastante a implementação de
 dispositivos que se conectam ao barramento \ac{USB}. \cite{usbinanutshell}
 
 Em novembro de 2008, foi lançada a especificação do USB 3.0, que introduziu
 uma quarta velocidade: \textit{super speed} (\SI{5}{\giga\bit\per\second}).
-A quantidade de mudanças para suportar essa nova velocidade é grande, e foge
-ao escopo deste trabalho.
+A quantidade de mudanças para suportar essa nova velocidade é grande e foge
+do escopo deste trabalho.
 
 % Não falei sobre:
 % * Descriptors
@@ -587,7 +597,7 @@ possui o \textit{endpoint 0}, usado pelo próprio protocolo para mensagens de
 controle e de \textit{status}. \cite[cap.~3]{usbinanutshell}
 
 Além do \textit{endpoint 0}, um dispositivo \ac{USB} normalmente possui pelo
-menos mais 1 \textit{endpoint}, usado para o objetivo fim do dispositivo.
+menos mais um \textit{endpoint}, usado para o objetivo fim do dispositivo.
 
 Há 4 tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
 
@@ -648,7 +658,7 @@ dessa classe.
 
 Dispositivos de interface com seres humanos fazem parte da classe
 \textit{USB \ac{HID}} e abrangem principalmente teclados, mouses e
-joysticks. No entanto, essa classe foi projetada de forma genérica, e inclui
+joysticks. No entanto, essa classe foi projetada de forma genérica e inclui
 outros tipos de dispositivos com necessidades similares, tais como medidores
 de temperatura, controles de um painel (botões, alavancas, ajustes),
 volantes, pedais, leitores de códigos de barra, ou ainda novos dispositivos
@@ -661,7 +671,7 @@ descreva suas características de forma padronizada para o \textit{host}). O
 driver da classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz
 de se comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
 
-Eventos do dispositivo (\eg, um botão foi pressionado, ou o mouse foi
+Eventos do dispositivo (\eg, um botão foi pressionado ou o mouse foi
 movimentado) são enviados ao \textit{host} através de um
 \textit{interrupt-in endpoint}. Mensagens geradas pelo \textit{host} e que
 devem ser enviadas para o dispositivo (\eg, acender ou apagar um dos
@@ -669,7 +679,7 @@ indicadores do teclado) podem utilizar um \textit{interrupt-out endpoint} ou
 o \textit{control endpoint}. \cite[p.~10]{usbhid}
 
 Essas mensagens enviadas ou recebidas pelo dispositivo são chamadas de
-\textit{reports}, e o formato delas é definido pelo próprio dispositivo,
+\textit{reports}. O formato delas é definido pelo próprio dispositivo,
 através do \textit{report descriptor}, o qual é enviado ao \textit{host}
 durante a negociação inicial do protocolo \ac{USB}. \cite{usbhid}
 
@@ -833,12 +843,15 @@ SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 
 \vfill{}
 \begin{flushright}{}
-``\emph{TODO: insert quote here!}''\\
-{\small Someone}
+``\emph{Models are a bunch of equations; physics is what happens when you
+drop a hammer on your big toe. They are not the same. Just ask your big
+toe.}''\\
+{\small Ken Matusow}
+% https://plus.google.com/107033731246200681024/posts/BryKKA16sH6
 \end{flushright}{\small \par}
 \vfill{}
 
-%Neste capítulo são apresentadas blah blah
+%TODO Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -881,6 +894,9 @@ Por fim, os pinos 2 e 4 (PD0 e PD2) estão ligados às vias USB~D- e USB~D+, e
 serão detalhados na seção \ref{sec:hardware_usb}; e os pinos 27 e 28 (SDA e
 SCL) estão ligados ao sensor através de um barramento \ac{I2C}, e serão
 detalhados na seção \ref{sub:hardware_sensor_i2c}.
+
+Um diagrama do circuito completo pode ser visto na figura
+\ref{fig:circuito_completo}.
 
 \begin{figure}[h]
 \centering
@@ -1021,7 +1037,7 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 	então o transistor entra em condução e o lado de menor tensão é puxado
 	para zero através do transistor.
 
-\end{itemize}
+\end{description}
 
 
 \chapter{Descrição do \textit{software}}
@@ -1035,7 +1051,7 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 \end{flushright}{\small \par}
 \vfill{}
 
-%Neste capítulo são apresentadas blah blah
+%TODO Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -1515,33 +1531,57 @@ quanto para o desenvolvedor).
 \section{Transformação de coordenadas}
 \label{sec:coordenadas}
 
-TODO: escrever esta seção
+O principal desafio teórico deste projeto é transformar os vetores
+tridimensionais lidos do sensor em coordenadas bidimensionais da tela do
+computador. Não existe uma única solução para este problema, e foi preciso
+explorar algumas abordagens antes de decidir qual delas seria implementada
+no microcontrolador.
+
+
+\subsection{Ferramentas auxiliares}
+\label{sub:ferramentas}
+
+Com o objetivo de experimentar e avaliar as diferentes abordagens para a
+transformação de coordenadas, foram desenvolvidas algumas ferramentas
+auxiliares em linguagem Python. A escolha da linguagem foi motivada pela
+facilidade e rapidez de se escrever protótipos, assim como pela grande
+biblioteca já disponível.
+
+A primeira ferramenta foi chamada de \textt{generate\_sphere\_vectors.py} e
+serve para simular leituras do sensor. Esta ferramenta imprime na saída
+padrão vetores 3D que cobrem metade da superfície de uma esfera. Também
+imprime 4 vetores correspondentes aos cantos da tela, vetores esses usados
+nos cálculos explicados nas seções <XX> e <XX>.
+% TODO \ref{sec:SECAO} e \ref{sec:SECAO}.
+
+\begin{lstlisting}[numbers=none, float=h, label={lst:generate_sphere_vectors},
+caption={\texttt{./generate\_sphere\_vectors.py}}
+]
+TODO...
+\end{lstlisting}
+
+TODO: escrever esta seção.
 
 Falar sobre: ferramentas auxiliares, teoria, resultados.
 
 Falar sobre calibração dos cantos.
 
-Falar sobre calibração do zero (ou deixar para falar isso depois).
-
 
 \section{Mouse USB}
 \label{sec:mouse}
 
-TODO: escrever esta seção
+TODO: Falar sobre o mouse
 
 Falar sobre a implementação do mouse (que na verdade é absolute pointing
 device).
 
+Falar sobre "mouse smoothing"
+
 Talvez aqui, talvez numa outra (sub)seção, falar sobre o fluxo da main().
+
 
 \section{Outras dificuldades}
 \label{sec:outras_dificuldades}
-
-TODO: escrever esta seção
-
-Em algum lugar (seção "outros problemas encontrados", por exemplo), citar o
-problema ao realizar muitas leituras muito rapidamente, cuja solução foi
-realizar leituras num timer.
 
 
 \subsection{\textit{Debouncing} dos botões}
@@ -1576,6 +1616,22 @@ botão está pressionado.\footnote{
 
 TODO: Falar sobre gravar na EEPROM de maneira não bloqueante.
 
+
+\subsection{Calibração do ``zero'' do sensor}
+\label{sec:zerocal}
+
+TODO: Falar sobre calibração do zero (ou deixar para falar isso depois).
+
+
+\subsection{Problemas na comunicação com o sensor}
+\label{sec:problema_comunicacao_sensor}
+
+TODO: problema ao realizar muitas leituras muito rapidamente, cuja solução
+foi realizar leituras num timer.
+
+Citar também o "USB Reset".
+
+
 \subsection{Tamanho do firmware}
 \label{sec:firmware_size}
 
@@ -1601,7 +1657,7 @@ específicas para a versão 4.5 do GCC.
 \end{flushright}{\small \par}
 \vfill{}
 
-%Neste capítulo são apresentadas blah blah
+%TODO Neste capítulo são apresentadas blah blah
 \newpage
 
 
