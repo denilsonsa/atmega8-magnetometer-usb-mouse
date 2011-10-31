@@ -923,9 +923,62 @@ propósito.
 \subsection{Barramento I²C}
 \label{sub:hardware_sensor_i2c}
 
-% TODO: level-shifting do I²C
-TODO: Descrever o level shifting para I²C. \cite{AN97055} \cite{AN10441}
-Falar também do resistor de \textit{pull-up}.
+Se o microcontrolador e o sensor trabalhassem na mesma tensão, o barramento
+\ac{I2C} seria apenas um par de fios ligando os pinos correspondentes dos
+dois componentes, e dois resistores de \textit{pull-up}, um em cada fio.
+
+Todavia, os dois componentes não trabalham na mesma tensão. A primeira
+abordagem para este problema é verificar em suas especificações elétricas se
+as tensões de cada um estão dentro da faixa aceitável para o outro.
+\cite[p.~9]{AN97055} A tensão máxima de alimentação para o sensor é de
+\SI{3.6}{\volt} \cite[p.~2]{HMC5883L}, e tensão máxima tolerada no pino de
+alimentação é de \SI{4.8}{\volt} \cite[p.~3]{HMC5883L}, que é abaixo da
+tensão de \SI{5}{\volt} do microcontrolador. Isso significa que não é
+prudente ligar os dois componentes diretamente.\footnote{
+	Considerando que o sensor foi comprado pela Internet e demorou mais de
+	2 meses para ser entregue, é importante tomar cuidados extras para não
+	queimá-lo.
+}
+
+Neste caso, faz-se necessário adicionar um circuito para converter o nível
+lógico 1 entre \SI{5}{\volt} e \SI{3.3}{\volt}. Essa conversão precisa
+funcionar nas duas direções, pois o barramento é bidirecional.
+
+A solução adotada utiliza dois resistores de \textit{pull-up} e um
+transistor MOSFET de canal N para cada uma das vias do barramento. É uma
+solução proposta pela própria \textit{Philips/NXP}, desenvolvedora do padrão
+\ac{I2C}. \cite[p.~10]{AN97055} \cite{AN10441} Vários modelos diferentes de
+transistor MOSFET podem ser usados para este fim. Neste projeto, foi usado o
+modelo 2N7000. Os resistores de \textit{pull-up} usados foram de
+\SI{2.2}{\kilo\ohm}.
+
+Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
+\cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
+
+\begin{description}
+\item[Nenhum dos dois dispositivos está puxando o barramento para zero] \hfill \\
+	O lado de baixa tensão está em \SI{3.3}{\volt} devido ao resistor de
+	\textit{pull-up}. A diferença de potencial entre os terminais
+	\textit{gate} e \textit{source} do transistor é zero, e portanto ele não
+	está conduzindo. Desta forma, o lado de tensão mais alta está em
+	\SI{5}{\volt} devido ao resistor de \textit{pull-up}. Neste estado, os
+	dois lados do barramento estão no nível lógico 1, apesar das tensões
+	diferentes.
+
+\item[O dispositivo de menor tensão está puxando o barramento para zero] \hfill \\
+	A diferença de potencial entre os terminais \textit{gate} e
+	\textit{source} é \SI{3.3}{\volt}, e o transistor entra em condução. O
+	lado de tensão mais alta é também puxado para zero, através do
+	transistor em condução.
+
+\item[O dispositivo de maior tensão está puxando o barramento para zero] \hfill \\
+	O lado de menor tensão é também puxado para baixo através do diodo
+	interno do transistor MOSFET. Isso ocorre até que diferença de potencial
+	entre \textit{gate} e \textit{source} fique grande o suficiente, quando
+	então o transistor entra em condução e o lado de menor tensão é puxado
+	para zero através do transistor.
+
+\end{itemize}
 
 
 \chapter{Descrição do \textit{software}}
@@ -1557,6 +1610,22 @@ Todas as páginas. \cite{HMC5883L}
 Páginas 1, 4. \cite{3vtipsandtricks}
 
 \includepdf[pages={1, 4}]{../../level-shifting/en026368.pdf}
+
+
+\chapter{Bi-directional level shifter for I²C-bus and other systems}
+\label{anx:AN97055_pdf}
+
+Páginas 7-16. \cite{AN97055}
+
+\includepdf[pages={7-16}]{../../level-shifting/AN97055.pdf}
+
+
+\chapter{Level shifting techniques in I²C-bus design}
+\label{anx:AN10441_pdf}
+
+Páginas 3-4. \cite{AN10441}
+
+\includepdf[pages={3-4}]{../../level-shifting/AN10441.pdf}
 
 
 \chapter{AVR315: Using the TWI module as I²C master}

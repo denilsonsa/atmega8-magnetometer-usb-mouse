@@ -18,9 +18,11 @@
    version="1.0"
    sodipodi:docname="AVR-magnetometer-usb-mouse.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/denilson/Arte/AVR and PIC microcontrollers/AVR-magnetometer-usb-mouse.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/home/denilson/Arte/AVR and PIC microcontrollers/AVR-magnetometer-usb-mouse-hi.png"
+   inkscape:export-xdpi="360"
+   inkscape:export-ydpi="360">
+  <title
+     id="title3370">ATmega8 magnetometer USB mouse</title>
   <defs
      id="defs4">
     <marker
@@ -132,9 +134,9 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <cc:license
-           rdf:resource="http://web.resource.org/cc/PublicDomain" />
-        <dc:title></dc:title>
-        <dc:date>2007-10-31</dc:date>
+           rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
+        <dc:title>ATmega8 magnetometer USB mouse</dc:title>
+        <dc:date>2011-10-30</dc:date>
         <dc:creator>
           <cc:Agent>
             <dc:title>Denilson Figueiredo de Sá</dc:title>
@@ -146,13 +148,13 @@
         <dc:description />
       </cc:Work>
       <cc:License
-         rdf:about="http://web.resource.org/cc/PublicDomain">
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Reproduction" />
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Distribution" />
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
       </cc:License>
     </rdf:RDF>
   </metadata>
@@ -1118,7 +1120,7 @@
        y="0"
        xlink:href="#capacitor"
        id="use4066"
-       transform="translate(-25,0)"
+       transform="translate(-27.5,0)"
        width="280"
        height="260" />
     <use
@@ -1252,18 +1254,18 @@
     <text
        xml:space="preserve"
        style="font-size:4px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
-       x="95"
+       x="92.5"
        y="130"
        id="text4177"
        sodipodi:linespacing="100%"><tspan
          id="tspan4179"
          sodipodi:role="line"
-         x="95"
+         x="92.5"
          y="130">4.7µF</tspan></text>
     <path
        id="path4190"
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 90,133.75 0,1.25 m 0,0 0,1.25 M 88.75,135 90,135 m 0,0 1.25,0"
+       d="m 87.5,133.75 0,1.25 m 0,0 0,1.25 m -1.25,-1.25 1.25,0 m 0,0 1.25,0"
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"

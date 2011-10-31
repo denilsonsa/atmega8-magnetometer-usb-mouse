@@ -1,4 +1,5 @@
-USB.svg: (USB.png)
+USB.svg:
+USB.png:
 	http://en.wikipedia.org/wiki/File:USB.svg
 	GNU Free Documentation License
 	Creative Commons Attribution-Share Alike
@@ -13,3 +14,11 @@ usb_bus_topology.svg: (usb_bus_topology.pdf)
 sensor_back.jpg:
 sensor_front.jpg:
 	Photos from the sensor. I took these photos.
+
+sensor_other_pcb_bottom.jpg:
+sensor_other_pcb_top.jpg:
+	Photos from https://www.loveelectronics.co.uk/products/140/3-axis-magnetometer---hmc5883-breakout-board
+
+AVR-magnetometer-usb-mouse.svg:
+AVR-magnetometer-usb-mouse.pdf:
+	Drawing I did in Inkscape.
