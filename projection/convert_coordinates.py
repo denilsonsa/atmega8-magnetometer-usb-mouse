@@ -169,6 +169,42 @@ class State(object):
 
             # Return the proportion
             return dist_AC / dist_AB
+        elif using == 'exact':
+            # We need to find the exact intersection between AB and Clinha
+            # We have two parametric lines:
+            #  A + alpha*(B-A)   =>  all points from the edge
+            #  0 + beta *Clinha  =>  the pointed direction (already projected)
+            # We know these two lines are at the same plane.
+            # So, we use a 2D coordinate system like this:
+            x = (A)/norm(A)
+            y = (B-A)/norm(B-A)
+            # It is not orthogonal, but it is a valid system.
+            # And the base vectors are unitary.
+            # This is important for projecting using dot()
+
+            # Projecting Clinha to this sytem:
+            Cx = dot(Clinha, x)
+            Cy = dot(Clinha, y)
+
+            #  A   => (norm(A), 0)
+            #  B-A => (0, norm(B-A))
+            #  A + alpha*(B-A)  =  0 + beta*Clinha
+            #
+            #  norm(A) + alpha*(0) =  0 + beta * Cx
+            beta = norm(A) / Cx
+
+            #  0 + alpha*(norm(B-A))  =  0 + beta*Cy
+            alpha = beta * Cy / norm(B-A)
+
+            if self.DEBUG:
+                print "x", x
+                print "y", y
+                print "Cx", Cx
+                print "Cy", Cy
+                print "beta", beta
+                print "alpha", alpha
+
+            return alpha
 
     def interpolation_using_2_edges(self, pointer, using):
         # This is a very bad approximation
@@ -215,6 +251,9 @@ class State(object):
         BC = self.single_edge_interpolation(self.topright   , self.bottomright, pointer, using)
         DC = self.single_edge_interpolation(self.bottomright, self.bottomleft , pointer, using)
         AD = self.single_edge_interpolation(self.bottomleft , self.topleft    , pointer, using)
+
+        if self.DEBUG:
+            print "AB, BC, DC, AD", AB, BC, DC, AD
 
         if None in [AB, BC, DC, AD]:
             return (None, None)
@@ -293,8 +332,8 @@ def parse_args():
         '-a', '--algorithm',
         action='store',
         type=int,
-        default=6,
-        choices=tuple(range(1,1+11)),
+        default=7,
+        choices=tuple(range(1,1+13)),
         help='Use a different algorithm for 3D->2D conversion, read the source code to learn the available algorithms'
     )
     parser.add_argument(
@@ -392,19 +431,23 @@ def main():
                 x, y = state.interpolation_using_2_edges(pointer, using='tan')
             elif options.algorithm == 5:
                 x, y = state.interpolation_using_2_edges(pointer, using='dist')
-
             elif options.algorithm == 6:
-                x, y = state.interpolation_using_4_edges(pointer, using='angle')
-            elif options.algorithm == 7:
-                x, y = state.interpolation_using_4_edges(pointer, using='cos')
-            elif options.algorithm == 8:
-                x, y = state.interpolation_using_4_edges(pointer, using='sin')
-            elif options.algorithm == 9:
-                x, y = state.interpolation_using_4_edges(pointer, using='tan')
-            elif options.algorithm == 10:
-                x, y = state.interpolation_using_4_edges(pointer, using='dist')
+                x, y = state.interpolation_using_2_edges(pointer, using='exact')
 
+            elif options.algorithm == 7:
+                x, y = state.interpolation_using_4_edges(pointer, using='angle')
+            elif options.algorithm == 8:
+                x, y = state.interpolation_using_4_edges(pointer, using='cos')
+            elif options.algorithm == 9:
+                x, y = state.interpolation_using_4_edges(pointer, using='sin')
+            elif options.algorithm == 10:
+                x, y = state.interpolation_using_4_edges(pointer, using='tan')
             elif options.algorithm == 11:
+                x, y = state.interpolation_using_4_edges(pointer, using='dist')
+            elif options.algorithm == 12:
+                x, y = state.interpolation_using_4_edges(pointer, using='exact')
+
+            elif options.algorithm == 13:
                 x, y = state.interpolation_using_linear_equations(pointer)
 
             if state.DEBUG:
