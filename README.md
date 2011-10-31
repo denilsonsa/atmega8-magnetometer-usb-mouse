@@ -36,24 +36,11 @@ project.
     5. If you want to use a bootloader, set `BOOTLOADER_ENABLED` to `1`. Make
        sure your device has enough space to hold the main firmware together
        with the bootloader.
-    6. Set `ENABLE_KEYBOARD` and `ENABLE_MOUSE` to `1` or `0`, according to
-       what you want in the final firmware. Remember that 8KiB of ROM is not
-       big enough to hold both features together.
+    6. Set `ENABLE_KEYBOARD`, `ENABLE_MOUSE` and `ENABLE_FULL_MENU` to `1` or
+       `0`, according to what you want in the final firmware. Look at the
+       comments in that file for more detailed information.
 
 5. Run `make writefuse` to write the fuse bits.
-
-### More information about `ENABLE_KEYBOARD` and `ENABLE_MOUSE` ###
-
-If your hardware has enough ROM (Flash) space to hold the firmware with those
-two options enabled together, just enable them both and have fun!
-
-However, if your hardware has only 8KiB of ROM (e.g. ATmega8), then you can't
-enable both. So, you should first compile a firmware with `ENABLE_KEYBOARD=1`
-and `ENABLE_MOUSE=0`, write it to the microcontroller and use the built-in
-menus to setup the calibration values. After that is done, rebuild the
-firmware with `ENABLE_KEYBOARD=0` and `ENABLE_MOUSE=1`. This second firmware
-contains the useful code that emulates a mouse, while the former one had only
-the configuration/debugging/calibration code.
 
 ### Writing the bootloader (optional) ###
 

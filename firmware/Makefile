@@ -29,6 +29,49 @@ ENABLE_MOUSE = 1
 ENABLE_KEYBOARD = 0
 ENABLE_FULL_MENU = 0
 
+# ENABLE_MOUSE:
+#   Enables the mouse-emulation code. Required if you want the firmware to work
+#   as a mouse.
+# ENABLE_KEYBOARD:
+#   Enables the keyboard-emulation code and the built-in configuration menu.
+#   Required for configuring the device. Also useful for testing and
+#   development.
+# ENABLE_FULL_MENU:
+#   If disabled, removes a few less important items from the built-in menus.
+#   Only makes sense when ENABLE_KEYBOARD is 1.
+#
+#
+# Little table of firmware size, as of revision 289:212427c3d121
+#
+# MOUSE  KEYBOARD  FULL_MENU  "make combine"  "make all"
+#   0       0         0/1       2872 bytes    2954 bytes  (useless)
+#   0       1          0        5418 bytes    5524 bytes
+#   0       1          1        5882 bytes    6018 bytes
+#   1       0         0/1       5568 bytes    5662 bytes
+#   1       1          0        8146 bytes    8152 bytes  (no space for bootloader)
+#   1       1          1       !8552 bytes   !8642 bytes  (doesn't fit into 8K)
+#
+#
+# Too many choices? I'll make this simple for you, just answer these questions:
+#
+# * How much memory does your device have?
+# |-> More than 8K, it's better than ATmega8
+# |   * Then enable everything and don't worry about size!
+# '-> Exactly 8K, it's the ATmega8
+#     * Go to the next question.
+#
+# * Do you want a bootloader?
+# |-> YES, I want the bootloader!
+# |   * Disable the mouse support and write the firmware with keyboard support
+# |     and the full menu.
+# |   * Use the built-in menu to configure the device.
+# |   * After you're done with the configuration, enable the mouse support and
+# |     disable the keyboard support, and rewrite the firmware.
+# |   * If you need to reconfigure, you need to repeat all these steps again.
+# '-> NO, I don't need a bootloader!
+#     * Enable the mouse and the keyboard support, but disable the full menu.
+#     * Enjoy! It fits into 8K.
+
 
 ### Configurations that depend on the value of BOOTLOADER_ENABLED ###
 
