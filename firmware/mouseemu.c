@@ -17,6 +17,9 @@
 // HID report
 MouseReport mouse_report;
 
+float mouse_smooth_x;
+float mouse_smooth_y;
+
 
 void init_mouse_emulation() {  // {{{
 	// According to avr-libc FAQ, the compiler automatically initializes
@@ -192,8 +195,14 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		return 0;
 	}
 
-	final_x = (int) round(sol[1] * 32767);
-	final_y = (int) round(sol[2] * 32767);
+	//final_x = (int) round(sol[1] * 32767);
+	//final_y = (int) round(sol[2] * 32767);
+
+	// Implemeting a simple mouse-smoothing algorithm
+	mouse_smooth_x = mouse_smooth_x * 0.875 + sol[1] * 0.125;
+	mouse_smooth_y = mouse_smooth_y * 0.875 + sol[2] * 0.125;
+	final_x = (int) round(mouse_smooth_x * 32767);
+	final_y = (int) round(mouse_smooth_y * 32767);
 
 	if (
 		   final_x < 0
