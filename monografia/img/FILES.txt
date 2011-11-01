@@ -27,4 +27,9 @@ draw_points_example.png:
 	From projection/draw_points.py
 
 half_sphere.png:
-	From projection/matplotlib_3d_plot.py
+	./generate_sphere_vectors.py -C | ./matplotlib_3d_plot.py -p -q -f 8 -s 3.5 3.5 -o ../monografia/img/half_sphere.png
+
+zerocal_{off,on}.{svg,png,pdf}:
+	./matplotlib_3d_plot.py -p -q -f 8 -s 3.5 3.5 --2d yz -x 350 zerocal_off.txt -o zerocal_off.svg -o zerocal_off.pdf -o zerocal_off.png
+	./matplotlib_3d_plot.py -p -q -f 8 -s 3.5 3.5 --2d yz -x 350 zerocal_on.txt  -o zerocal_on.svg  -o zerocal_on.pdf  -o zerocal_on.png
+
