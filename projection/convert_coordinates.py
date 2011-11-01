@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # vi:ts=4 sw=4 et
 
+# This code is not very pretty, but works.
+
 import numpy
 import re
 import sys

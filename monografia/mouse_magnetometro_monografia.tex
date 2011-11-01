@@ -1564,10 +1564,9 @@ serve para simular leituras do sensor. Esta ferramenta imprime na saída
 padrão uma lista de vetores 3D que cobrem pouco menos da metade da
 superfície de uma esfera. Também imprime 4 vetores correspondentes aos
 cantos da tela, os quais são usados nos cálculos explicados nas seções
-\ref{sub:coord_geometria} e \ref{sub:coord_lineq}.  A listagem
+\ref{sub:coord_geometria} e \ref{sub:coord_lineq}. A listagem
 \ref{lst:generate_sphere_vectors} mostra um trecho da saída desta
-ferramenta. A figura \ref{fig:half_sphere} mostra um gráfico dos vetores 3D
-impressos por esta ferramenta.
+ferramenta.
 
 \begin{lstlisting}[numbers=none, float=h, label={lst:generate_sphere_vectors},
 caption={Primeiras linhas da saída do programa \texttt{generate\_sphere\_vectors.py}}
@@ -1586,6 +1585,12 @@ bottomleft
 7       141     141
 10      141     141
 \end{lstlisting}
+
+A figura \ref{fig:half_sphere} mostra um gráfico dos vetores 3D
+impressos por esta ferramenta. Esse gráfico corresponde à região de
+\SIrange{-90}{90}{\degree} de longitude e \SIrange{-45}{45}{\degree} de
+latitude. Há um espaçamento de \SI{1}{\degree} de longitude e
+\SI{2}{\degree} de latitude entre os vetores.
 
 \begin{figure}[h]
 \centering
@@ -1635,12 +1640,12 @@ listagem \ref{lst:convert_coordinates}.
 
 Essas três ferramentas podem ser usadas separadamente ou encadeadas através
 de um \textit{pipeline}.\footnote{
-	Neste contexto, um \textit{pipeline} significa ligar a saída padrão de
-	um programa à entrada padrão do programa seguinte.
+	\textit{Pipeline} significa ligar a saída padrão de um programa à
+	entrada padrão do programa seguinte.
 }
 
 
-\subsection{Usando geometria}
+\subsection{Transformação usando geometria}
 \label{sub:coord_geometria}
 
 Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
@@ -1780,7 +1785,7 @@ Os resultados de cada abordagem estão listados na seção
 \end{align}
 
 
-\subsection{Usando sistema de equações lineares}
+\subsection{Transformação usando sistema de equações lineares}
 \label{sub:coord_lineq}
 
 Para esta abordagem é necessário calibrar 3 dos 4 cantos da tela. São
@@ -1821,9 +1826,9 @@ A + x (B-A) + y (D-A) & = z P  \\
 x (B-A) + y (D-A) - z P & = -A
 \end{align}
 
-Para melhores resultados nessa abordagem, a tela cujos três cantos são
-delimitados por $A$, $B$ e $D$ deve ter um formato de paralelogramo (ou um
-retângulo, que é um caso particular do paralelogramo).
+%Para melhores resultados nessa abordagem, a tela cujos três cantos são
+%delimitados por $A$, $B$ e $D$ deve ter um formato de paralelogramo (ou um
+%retângulo, que é um caso particular do paralelogramo).
 
 
 \subsection{Resultados}
@@ -1833,60 +1838,115 @@ As abordagens descritas nas seções \ref{sub:coord_geometria} e
 \ref{sub:coord_lineq} foram testadas experimentalmente usando o conjunto de
 ferramentas da seção \ref{sub:ferramentas}.
 
-TODO: colocar os resultados
+Cada uma das abordagens foi testada 5 vezes usando o mesmo conjunto de
+vetores representados pela figura \ref{fig:half_sphere}, apenas variando a
+calibração do cantos da tela. Isso permitiu analisar o comportamento de cada
+algoritmo sob diferentes condições.
+
+Os vetores de calibração escolhidos para cada teste possuem aberturas de
+\SIlist{30;45;60;75;85}{\degree}, tanto na latitude como na longitude. Essa
+abertura é ilustrada na figura \ref{fig:latitude_longitude}.
 
 \begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{img/latitude_longitude.pdf}
+\caption{Os dois ângulos de abertura para os vetores de calibração}
+\label{fig:latitude_longitude}
+\end{figure}
+
+As figuras de \ref{fig:resultado_exact} a \ref{fig:resultado_lineq} mostram
+o resultado de cada abordagem.
+
+\begin{figure}
 \centering
 \resultadoimagens{12}
 \caption{Cálculo exato do $\alpha$}
 \label{fig:resultado_exact}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
 \resultadoimagens{7}
 \caption{Razão entre ângulos}
 \label{fig:resultado_angulo}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
 \resultadoimagens{11}
 \caption{Razão entre distâncias}
 \label{fig:resultado_dist}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
 \resultadoimagens{9}
 \caption{Razão entre senos}
 \label{fig:resultado_sin}
 \end{figure}
 
-\begin{figure}[h]
+%\clearpage
+
+\begin{figure}
 \centering
 \resultadoimagens{8}
 \caption{Razão entre cossenos}
 \label{fig:resultado_cos}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
 \resultadoimagens{10}
 \caption{Razão entre tangentes}
 \label{fig:resultado_tan}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 \centering
 \resultadoimagens{13}
 \caption{Sistema linear de 3 variáveis}
 \label{fig:resultado_lineq}
 \end{figure}
 
+É possível observar que, com exceção da razão entre cossenos
+(\ref{fig:resultado_cos}), todas as abordagens tiveram um bom resultado para
+aberturas pequenas, de até \SI{30}{\degree} ou \SI{45}{\degree}. As
+distorções somente são acentuadas para aberturas maiores, a partir de
+\SI{30}{\degree} ou \SI{60}{\degree}.
 
-\section{Mouse USB}
-\label{sec:mouse}
+A razão entre ângulos (\ref{fig:resultado_angulo}) e a razão entre
+distâncias (\ref{fig:resultado_dist}) apresentaram comportamentos muito
+parecidos. A região central da tela sofreu pouca deformação, enquanto as
+regiões próximas das bordas apresentaram distorções bastante acentuadas.
+
+A razão entre senos (\ref{fig:resultado_sin}) apresentou um comportamento
+próximo da razão entre ângulos e da razão entre distâncias, porém com
+deformações mais acentuadas tanto na região central como na região
+periférica.
+
+As coordenadas transformadas usando a razão entre cossenos
+(\ref{fig:resultado_cos}) apresentaram uma rotação de
+\SIrange{15}{25}{\degree} em todas as aberturas testadas. Por outro lado,
+foi a abordagem com menor distorção nas bordas.
+
+A razão entre tangentes (\ref{fig:resultado_tan}) só obteve bons resultados
+para aberturas pequenas. Para aberturas maiores, as distorções são
+extremamente acentuadas. Isso não é surpresa, visto que a função tangente
+tende para o infinito quando a abertura tende para \SI{90}{\degree}.
+
+O cálculo exato do escalar $\alpha$ obteve o melhor resultado geral,
+apresentando muito pouca deformação na região central assim como uma área de
+distorções periféricas relativamente pequena, significativamente menor que a
+área das outras abordagens.
+
+Por fim, a abordagem usando um sistema linear de 3 equações
+(\ref{fig:resultado_lineq}) apresentou distorções cada vez mais acentuadas
+conforme os ângulos de abertura ficavam maiores. Essas distorções ocorrem
+por se mapear uma região da esfera num plano, e portanto são relativamente
+pequenas quando a região da esfera é suficientemente reduzida.
+
+
+\section{Mouse USB} \label{sec:mouse}
 
 TODO: Falar sobre o mouse
 
@@ -2019,7 +2079,14 @@ TODO: falar sobre o pino DRDY
 %%fakesection  Apendice
 \apendice
 
-% Aproximadamente 84 páginas.
+\chapter{\texttt{convert\_coordinates.py}}
+\label{ape:convert_coordinates}
+
+% 12 páginas só para este arquivo.
+% Reduzindo o espaço entre as linhas, reduz para 8 páginas
+\lstinputlisting[language=Python, lineskip=-0.4\baselineskip]{../projection/convert_coordinates.py}
+
+% Aproximadamente 84 páginas ou mais.
 % Mais páginas, se inserir um pagebreak/chapter antes de cada arquivo.
 %\lstinputlisting[language=C]{../firmware/avr315/TWI_Master.h}
 %\lstinputlisting[language=C]{../firmware/avr315/TWI_Master.c}
