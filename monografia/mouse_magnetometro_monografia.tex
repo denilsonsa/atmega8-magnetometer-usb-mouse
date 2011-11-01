@@ -49,6 +49,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Other packages
 
+% http://en.wikibooks.org/wiki/LaTeX/Advanced_Mathematics
+\usepackage{amsmath}
+\DeclareMathOperator{\angulo}{ang}
+
 % Adding \textsubscript{}
 % LaTeX already has \textsuperscript, but lacks \textsubscript.
 % http://en.wikibooks.org/wiki/LaTeX/Formatting#Text_mode_superscript_and_subscript
@@ -245,6 +249,14 @@
 \newcommand*{\GND}{GND\xspace}
 % http://tex.stackexchange.com/questions/9691/avoid-hyphenation-in-2-d
 \newcommand*{\VUSB}{\mbox{V-USB}\xspace}
+
+\newcommand*{\resultadoimagens}[1]{
+	\includegraphics[width=0.19\textwidth]{../projection/images/P30T30p0t0_a#1.png}
+	\includegraphics[width=0.19\textwidth]{../projection/images/P45T45p0t0_a#1.png}
+	\includegraphics[width=0.19\textwidth]{../projection/images/P60T60p0t0_a#1.png}
+	\includegraphics[width=0.19\textwidth]{../projection/images/P75T75p0t0_a#1.png}
+	\includegraphics[width=0.19\textwidth]{../projection/images/P85T85p0t0_a#1.png}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Other notes
@@ -755,7 +767,7 @@ ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela
 \cite{ATmega8}
 
 \begin{itemize}
-\item Arquitetura Harvard, com espaços de endereçamento distintos para 
+\item Arquitetura Harvard, com espaços de endereçamento distintos para
 instruções e para variáveis.
 \item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
 \item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de
@@ -1628,7 +1640,7 @@ de um \textit{pipeline}.\footnote{
 }
 
 
-\subsection{Usando geometria e ângulos}
+\subsection{Usando geometria}
 \label{sub:coord_geometria}
 
 Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
@@ -1643,8 +1655,9 @@ Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
 
 Também é definido o vetor $P$ como sendo a direção apontada pelo usuário. O
 objetivo da transformação de coordenadas é mapear o vetor $P$ em coordenadas
-$(x, y)$ contidas no plano da tela do computador. Todos esses vetores podem
-ser vistos na figura \ref{fig:geometria_ABCD1}
+$(x, y)$ contidas no plano da tela do computador. As magnitudes dos vetores
+não são importantes, apenas a direção é considerada. Todos esses vetores
+podem ser vistos na figura \ref{fig:geometria_ABCD1}
 
 \begin{figure}[h]
 \centering
@@ -1657,7 +1670,8 @@ Uma vez definido o problema, a etapa seguinte foi quebrá-lo em subproblemas.
 Em vez de tentar calcular diretamente as coordenadas 2D relativas ao vetor
 $P$, calcula-se a projeção de P em cada uma das bordas da tela, para a
 seguir interpolar as coordenadas $(x, y)$ a partir das bordas, conforme a
-figura \ref{fig:geometria_ABCD2}.
+figura \ref{fig:geometria_ABCD2}. Essa decisão foi tomada porque o
+quadrilátero $ABCD$ não é necessariamente um retângulo.
 
 \begin{figure}[h]
 \centering
@@ -1667,15 +1681,20 @@ $P$ em cada borda}
 \label{fig:geometria_ABCD2}
 \end{figure}
 
-Para tal, primeiramente calcula-se o vetor unitário $N$, normal ao plano de
-$A$ e $B$. São então calculados $P_N$, a componente de $P$ paralela ao vetor
-$N$; e $P'$, a componente de $P$ contida no plano de $A$ e $B$.
+Para calcular essa projeção de $P$, primeiramente calcula-se o vetor
+unitário $N$ \eqref{eq:normal}, normal ao plano de $A$ e $B$. São então
+calculados $P_N$ \eqref{eq:Pnormal}, a componente de $P$ paralela ao vetor
+$N$; e $P'$ \eqref{eq:Plinha}, a componente de $P$ contida no plano de $A$ e
+$B$. Isso é ilustrado na figura \ref{fig:geometria_ABCD3}.
 
-\begin{eqnarray*}
-N & = & \frac{A \times B}{ || A \times B || }   \\
-P_N & = & (N \cdot P) N   \\
-P' & = & P - P_N
-\end{eqnarray*}
+\begin{align}
+\label{eq:normal}
+N   & = \frac{A \times B}{ || A \times B || }   \\
+\label{eq:Pnormal}
+P_N & = (N \cdot P) N                           \\
+\label{eq:Plinha}
+P'  & = P - P_N
+\end{align}
 
 \begin{figure}[h]
 \centering
@@ -1685,17 +1704,103 @@ P' & = & P - P_N
 \end{figure}
 
 Uma vez tendo $P'$, a etapa final é calcular sua posição na borda delimitada
-por $A$ e $B$.  TODO FROM HERE
+por $A$ e $B$. Essa posição é definida como um escalar $\alpha$ entre $0$ e
+$1$, sendo que $0$ indica que $P'$ é coincidente com o vetor $A$, e $1$
+indica que $P'$ é coincidente com o vetor $B$. Valores fora desse intervalo
+indicam que $P'$ está fora do setor angular delimitado por $A$ e $B$.
+
+Como $A$, $B$ e $P'$ estão no mesmo plano, o valor exato de $\alpha$ pode
+ser calculado através de um sistema linear de duas variáveis $\alpha$ e
+$\beta$, o qual pode ser representado com uma única equação vetorial
+\eqref{eq:sistemaPlinhaVetorial} ou decomposto em suas duas equações
+escalares \eqref{eq:sistemaPlinhaEscalar}.
+
+\begin{align}
+\label{eq:sistemaPlinhaVetorial}
+A   + \alpha (B-A)   & = \beta P'
+\end{align}
+
+\begin{align}
+\label{eq:sistemaPlinhaEscalar}
+A_x + \alpha (B-A)_x & = \beta P'_x  \\
+A_y + \alpha (B-A)_y & = \beta P'_y  \nonumber
+\end{align}
+
+As bases do espaço bidimensional correspondente ao plano dos vetores $A$,
+$B$ e $P'$ podem ser definidas como os vetores $X$ e $Y$ unitários
+ortogonais \eqref{eq:sistemaPlinhaBases}. Todos os pontos desse plano podem
+ser representados por uma combinação linear entre os vetores $X$ e $Y$.
+
+
+\begin{align}
+\label{eq:sistemaPlinhaBases}
+X & = \frac{A}{ || A || }                     \\
+Y & = \frac{A \times N}{ || A \times N || }   \nonumber
+\end{align}
+
+Por fim, resolvendo o sistema linear definido em
+\eqref{eq:sistemaPlinhaVetorial} e \eqref{eq:sistemaPlinhaEscalar}, obtemos
+o valor exato de $\alpha$ correspondente a uma das bordas da tela. Repetindo
+os cálculos para as outras bordas, podemos calcular $(x,y)$ através de uma
+interpolação linear \eqref{eq:interpolacao_linear}.
+
+\begin{align}
+\label{eq:interpolacao_linear}
+x(y) & = y (DC - AB) + AB  \\
+y(x) & = x (BC - AD) + AD  \nonumber \\
+x    & = \frac{AD  (DC - AB) + AB}{1 - (BC - AD)  (DC - AB)}  \nonumber
+\end{align}
+
+
+Além disso, também foram experimentados cálculos aproximados para $\alpha$,
+usando
+razão entre ângulos \eqref{eq:alpha_angulo},
+razão entre distâncias \eqref{eq:alpha_dist},
+razão entre senos \eqref{eq:alpha_sin},
+razão entre cossenos \eqref{eq:alpha_cos},
+razão entre tangentes \eqref{eq:alpha_tan}.
+Os resultados de cada abordagem estão listados na seção
+\ref{sub:coord_resultados}.
+
+\begin{align}
+\label{eq:alpha_angulo}
+\alpha & = \frac{\angulo(A, P')}{\angulo(A, B)} \\
+\label{eq:alpha_dist}
+\alpha & = \frac{
+		\left| \dfrac{A}{|A|} - \dfrac{P'}{|P'|} \right|
+	}{
+		\left| \dfrac{A}{|A|} - \dfrac{B }{|B |} \right|
+	}  \\
+\label{eq:alpha_sin}
+\alpha & = \frac{\sin(\angulo(A, P'))}{\sin(\angulo(A, B))} \\
+\label{eq:alpha_cos}
+\alpha & = \frac{\cos(\angulo(A, P'))}{\cos(\angulo(A, B))} \\
+\label{eq:alpha_tan}
+\alpha & = \frac{\tan(\angulo(A, P'))}{\tan(\angulo(A, B))}
+\end{align}
 
 
 \subsection{Usando sistema de equações lineares}
 \label{sub:coord_lineq}
 
-De maneira similar à abordagem descrita na seção \ref{sub:coord_geometria},
-esta abordagem também precisa calibrar os cantos da tela. Entretanto, apenas
-os vetores $A$, $B$ e $D$ serão usados.
+Para esta abordagem é necessário calibrar 3 dos 4 cantos da tela. São
+definidos 3 vetores no espaço tais que:
 
-TODO: escrever esta seção.
+\begin{itemize}
+\item O vetor $A$ aponta na direção do canto superior esquerdo da tela.
+\item O vetor $B$ aponta na direção do canto superior direito da tela.
+\item O vetor $D$ aponta na direção do canto inferior esquerdo da tela.
+\end{itemize}
+
+Também é definido o vetor $P$ como sendo a direção apontada pelo usuário.
+Esta abordagem transforma o vetor $P$ diretamente em coordenadas $(x, y)$
+contidas no plano da tela do computador através da solução de um sistema
+linear de 3 variáveis.
+
+Esse sistema decorre da observação de que qualquer ponto da tela pode ser
+representado como ponto $A$ somado de um deslocamento horizontal na direção
+$B-A$ e um deslocamento vertical na direção $D-A$, conforme figura
+\ref{fig:lineq}.
 
 \begin{figure}[h]
 \centering
@@ -1704,9 +1809,80 @@ TODO: escrever esta seção.
 \label{fig:lineq}
 \end{figure}
 
-Falar sobre: teoria, resultados.
+O sistema pode ser representado na forma vetorial conforme equações
+\eqref{eq:lineq_inicial} e \eqref{eq:lineq_vetorial}. As coordenadas $(x,
+y)$, já no plano da tela do computador, são a solução desse sistema. A
+componente $z$ é descartada.
 
-Falar sobre calibração dos cantos. (?)
+\begin{align}
+\label{eq:lineq_inicial}
+A + x (B-A) + y (D-A) & = z P  \\
+\label{eq:lineq_vetorial}
+x (B-A) + y (D-A) - z P & = -A
+\end{align}
+
+Para melhores resultados nessa abordagem, a tela cujos três cantos são
+delimitados por $A$, $B$ e $D$ deve ter um formato de paralelogramo (ou um
+retângulo, que é um caso particular do paralelogramo).
+
+
+\subsection{Resultados}
+\label{sub:coord_resultados}
+
+As abordagens descritas nas seções \ref{sub:coord_geometria} e
+\ref{sub:coord_lineq} foram testadas experimentalmente usando o conjunto de
+ferramentas da seção \ref{sub:ferramentas}.
+
+TODO: colocar os resultados
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{12}
+\caption{Cálculo exato do $\alpha$}
+\label{fig:resultado_exact}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{7}
+\caption{Razão entre ângulos}
+\label{fig:resultado_angulo}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{11}
+\caption{Razão entre distâncias}
+\label{fig:resultado_dist}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{9}
+\caption{Razão entre senos}
+\label{fig:resultado_sin}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{8}
+\caption{Razão entre cossenos}
+\label{fig:resultado_cos}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{10}
+\caption{Razão entre tangentes}
+\label{fig:resultado_tan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\resultadoimagens{13}
+\caption{Sistema linear de 3 variáveis}
+\label{fig:resultado_lineq}
+\end{figure}
 
 
 \section{Mouse USB}
@@ -1716,6 +1892,8 @@ TODO: Falar sobre o mouse
 
 Falar sobre a implementação do mouse (que na verdade é absolute pointing
 device).
+
+Falar como são calibrados os cantos da tela (um parágrafo só)
 
 Falar sobre "mouse smoothing"
 
