@@ -176,21 +176,21 @@ class State(object):
             #  0 + beta *Clinha  =>  the pointed direction (already projected)
             # We know these two lines are at the same plane.
             # So, we use a 2D coordinate system like this:
-            x = A
-            y = cross(x, N)
-            x /= norm(x)
-            y /= norm(y)
-            # Orthogonal base, and the base vectors are unitary.
+            X = A
+            Y = cross(X, N)
+            X /= norm(X)
+            Y /= norm(Y)
+            # The base vectors are unitary and orthogonal.
 
             # Projecting Clinha to this sytem:
-            Cx = dot(Clinha, x)
-            Cy = dot(Clinha, y)
+            Cx = dot(Clinha, X)
+            Cy = dot(Clinha, Y)
 
-            Ax = dot(A, x)
-            Ay = dot(A, y)
+            Ax = dot(A, X)
+            Ay = dot(A, Y)
 
-            BAx = dot(B-A, x)
-            BAy = dot(B-A, y)
+            BAx = dot(B-A, X)
+            BAy = dot(B-A, Y)
 
             #  A + alpha*(B-A)  =  0 + beta*Clinha
             M = array([
@@ -200,10 +200,10 @@ class State(object):
             constant = array([-Ax, -Ay])
 
             try:
-                X = numpy.linalg.solve(M, constant)
-                # alpha = X[0]
-                # beta = X[1]
-                return X[0]
+                sol = numpy.linalg.solve(M, constant)
+                # alpha = sol[0]
+                # beta = sol[1]
+                return sol[0]
 
             except numpy.linalg.LinAlgError:
                 return None
