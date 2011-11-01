@@ -471,8 +471,12 @@ necessidades especiais, interatividade em jogos e exposições)
 
 \vfill{}
 \begin{flushright}{}
-``\emph{TODO: insert quote here!}''\\
-{\small Someone}
+``\emph{I loved music, and in my ninth year at MIT, I decided to buy a hi-fi
+set. I figured that all I needed to do was look at the specifications. So I
+bought what looked like the best one, turned it on, and turned it off in
+five minutes, the sound was so poor.}''\\
+{\small Amar Gopal Bose}
+% http://www.brainyquote.com/quotes/quotes/a/amarbose355388.html
 \end{flushright}{\small \par}
 \vfill{}
 
@@ -1060,6 +1064,7 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 \begin{flushright}{}
 ``\emph{Premature optimization is the root of all evil.}''\\
 {\small Donald Ervin Knuth}
+% http://en.wikiquote.org/wiki/Donald_Knuth
 \end{flushright}{\small \par}
 \vfill{}
 
@@ -1753,7 +1758,9 @@ interpolação linear \eqref{eq:interpolacao_linear}.
 \label{eq:interpolacao_linear}
 x(y) & = y (DC - AB) + AB  \\
 y(x) & = x (BC - AD) + AD  \nonumber \\
-x    & = \frac{AD  (DC - AB) + AB}{1 - (BC - AD)  (DC - AB)}  \nonumber
+x    & = \frac{AD  (DC - AB) + AB}{1 - (BC - AD)  (DC - AB)}  \nonumber \\
+\intertext{onde}
+AB, BC, DC, AD & = \text{valor de $\alpha$ para cada borda} \nonumber
 \end{align}
 
 
@@ -1782,6 +1789,15 @@ Os resultados de cada abordagem estão listados na seção
 \alpha & = \frac{\cos(\angulo(A, P'))}{\cos(\angulo(A, B))} \\
 \label{eq:alpha_tan}
 \alpha & = \frac{\tan(\angulo(A, P'))}{\tan(\angulo(A, B))}
+\end{align}
+
+O ângulo entre dois vetores pode ser calculado como mostrado em
+\eqref{eq:angulo}.
+
+\begin{align}
+\label{eq:angulo}
+\angulo(A,B) & = \arccos( \cos(\theta) )    \\
+             & = \arccos\left( \frac{A \cdot B}{|A||B|} \right)  \nonumber
 \end{align}
 
 
