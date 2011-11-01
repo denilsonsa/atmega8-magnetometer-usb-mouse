@@ -185,8 +185,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 
 	// sol[0] is discarded
 
-	if (
-		   sol[1] < 0.0
+	if (   sol[1] < 0.0
 		|| sol[1] > 1.0
 		|| sol[2] < 0.0
 		|| sol[2] > 1.0
@@ -208,8 +207,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	final_x = (int) round(mouse_smooth_x * 32767);
 	final_y = (int) round(mouse_smooth_y * 32767);
 
-	if (
-		   final_x < 0
+	if (   final_x < 0
 		|| final_x > 32767
 		|| final_y < 0
 		|| final_y > 32767
@@ -262,7 +260,6 @@ static uchar mouse_update_axes() {  // {{{
 		// If no data is available, I just leave the previous data in there.
 		//
 		// Note: Windows correctly ignores the invalid values.
-
 		return 0;
 	}
 
