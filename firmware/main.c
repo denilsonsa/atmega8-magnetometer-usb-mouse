@@ -227,6 +227,11 @@ __attribute__((externally_visible))
 ////////////////////////////////////////////////////////////
 // Main code                                             {{{
 
+// Disabling idle rate because it is useless here. And because it saves quite
+// a few bytes.
+#define ENABLE_IDLE_RATE 0
+
+#if ENABLE_IDLE_RATE
 // As defined in section 7.2.4 Set_Idle Request
 // of Device Class Definition for Human Interface Devices (HID) version 1.11
 // pages 52 and 53 (or 62 and 63) of HID1_11.pdf
@@ -239,6 +244,7 @@ __attribute__((externally_visible))
 // This value is measured in multiples of 4ms.
 // A value of zero means indefinite/infinity.
 static uchar idle_rate;
+#endif
 
 
 static void hardware_init(void) {  // {{{
@@ -349,12 +355,14 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			}
 #endif
 
+#if ENABLE_IDLE_RATE
 		} else if (rq->bRequest == USBRQ_HID_GET_IDLE) {
 			usbMsgPtr = &idle_rate;
 			return 1;
 
 		} else if (rq->bRequest == USBRQ_HID_SET_IDLE) {
 			idle_rate = rq->wValue.bytes[1];
+#endif
 		}
 
 	} else {
@@ -367,8 +375,11 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 void
 __attribute__ ((noreturn))
 main(void) {  // {{{
-	int idle_counter = 0;
 	uchar sensor_probe_counter = 0;
+
+#if ENABLE_IDLE_RATE
+	int idle_counter = 0;
+#endif
 
 	cli();
 
@@ -448,6 +459,7 @@ main(void) {  // {{{
 			}
 		}  // }}}
 
+#if ENABLE_IDLE_RATE
 		// Timer is set to 1.365ms
 		if (TIFR & (1<<TOV0)) {  // {{{
 			// Implementing the idle rate...
@@ -470,6 +482,7 @@ main(void) {  // {{{
 				}
 			}
 		}  // }}}
+#endif
 
 		// MAIN code. Code that emulates the mouse or implements the menu
 		// system.

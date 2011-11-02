@@ -35,7 +35,8 @@ SensorEepromData X_EEMEM eeprom_sensor = {
 		{-90, 209, 11}, // topright
 		{137, 48, 160}, // bottomleft
 		{-112, 56, 170} // bottomright
-	}
+	},
+	1 // mouse_smoothing
 };
 
 
