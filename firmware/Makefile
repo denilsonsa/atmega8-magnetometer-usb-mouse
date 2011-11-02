@@ -41,15 +41,15 @@ ENABLE_FULL_MENU = 0
 #   Only makes sense when ENABLE_KEYBOARD is 1.
 #
 #
-# Little table of firmware size, as of revision 289:212427c3d121
+# Little table of firmware size, as of revision next to 309:a13540b0c33f
 #
 # MOUSE  KEYBOARD  FULL_MENU  "make combine"  "make all"
-#   0       0         0/1       2872 bytes    2954 bytes  (useless)
-#   0       1          0        5418 bytes    5524 bytes
-#   0       1          1        5882 bytes    6018 bytes
-#   1       0         0/1       5568 bytes    5662 bytes
-#   1       1          0        8146 bytes    8152 bytes  (no space for bootloader)
-#   1       1          1       !8552 bytes   !8642 bytes  (doesn't fit into 8K)
+#   0       0         0/1       2792 bytes    2870 bytes  (useless)
+#   0       1          0        5544 bytes    5492 bytes
+#   0       1          1        5852 bytes    6016 bytes
+#   1       0         0/1       5540 bytes    5644 bytes
+#   1       1          0        8172 bytes    8180 bytes  (no space for bootloader)
+#   1       1          1       !8462 bytes   !8700 bytes  (doesn't fit into 8K)
 #
 #
 # Too many choices? I'll make this simple for you, just answer these questions:

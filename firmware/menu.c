@@ -131,10 +131,15 @@ static const MenuItem zero_menu_items[] PROGMEM = {
 // Other zerocal messages:
 #if ENABLE_FULL_MENU
 static const char zero_calibration_instructions[] PROGMEM = "Move the sensor to get the maximum and minimum value for each axis. Press the button to finish.\n";
-#endif
 static const char zero_compensation_prefix[] PROGMEM = "Zero compensation is ";
 static const char zero_compensation_suffix_on[] PROGMEM = "ENABLED\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "DISABLED\n";
+#else
+//static const char zero_calibration_instructions[] PROGMEM = "";
+static const char zero_compensation_prefix[] PROGMEM = "Zero comp. is ";
+static const char zero_compensation_suffix_on[] PROGMEM = "ON\n";
+static const char zero_compensation_suffix_off[] PROGMEM = "OFF\n";
+#endif
 
 // Other mouse smoothing messages:
 #if ENABLE_FULL_MENU
