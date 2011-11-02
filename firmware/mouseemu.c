@@ -47,8 +47,8 @@ static uchar mouse_update_buttons() {  // {{{
 
 
 static uchar mouse_axes_no_conversion() {  // {{{
-	// Get X, Y, Z data from the sensor, discard the Z component, and directly
-	// use X, Y as the mouse position.
+	// Get X, Y, Z data from the sensor, discard the Z component and
+	// directly use X, Y as the mouse position.
 	// Only useful for debugging.
 
 	SensorData *sens = &sensor;
@@ -179,10 +179,9 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	// The matrix is now in "row echelon form" (it is a triangular matrix).
 	// Instead of using a loop for back-substituting all 3 elements from
 	// sol[], I'm calculating only 2 of them, as only those are needed.
+
 	sol[2] = m[2][3] / m[2][2];
-
 	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
-
 	// sol[0] is discarded
 
 	if (   sol[1] < 0.0

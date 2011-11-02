@@ -1093,7 +1093,7 @@ operacional que tenha as ferramentas citadas, mesmo em outras versões,
 embora alguns ajustes no Makefile possam ser necessários.
 
 
-\section{Boot loader}
+\section{\textit{Boot loader}}
 \label{sec:bootloader}
 
 Durante o início do projeto, o ciclo de desenvolvimento podia ser resumido
@@ -2241,11 +2241,17 @@ figura \ref{fig:zerocal}.
 %Citar também o "USB Reset".
 
 
-\subsection{Tamanho do firmware}
-\label{sub:firmware_size}
-
-TODO: Dentre outras coisas, falar sobre as flags de compilação, que são
-específicas para a versão 4.5 do GCC.
+%\subsection{Tamanho do firmware}
+%\label{sub:firmware_size}
+%
+%Um desafio constante durante o projeto foi manter o tamanho do
+%\textit{firmware} abaixo de 8192 bytes (tamanho da memória Flash do
+%microcontrolador, conforme descrito na seção \ref{sec:atmega8}), e,
+%adicionalmente, abaixo de 6144 bytes (espaço total disponível após o uso do
+%\textit{boot loader}, conforme seção \ref{sec:bootloader}).
+%
+%TODO: Dentre outras coisas, falar sobre as flags de compilação, que são
+%específicas para a versão 4.5 do GCC.
 
 
 \chapter{Conclusões}
@@ -2285,8 +2291,8 @@ TODO: falar sobre o pino DRDY
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_top.jpg}
-\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_bottom.jpg}
+\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_front.jpg}
+\includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_back.jpg}
 \caption{Fotos de uma PCB com 5 contatos disponíveis}
 \label{fig:loveelectronics_photos}
 \end{figure}
