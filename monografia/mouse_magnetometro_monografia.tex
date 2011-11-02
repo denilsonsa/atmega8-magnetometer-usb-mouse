@@ -359,8 +359,11 @@ Aprovado por:
 %\pretextualchapter{Dedicatória}
 % TODO: escrever dedicatória (opcional)
 
-%\pretextualchapter{Agradecimentos}
-% TODO: escrever agradecimentos
+\pretextualchapter{Agradecimentos}
+
+TODO: escrever agradecimentos
+
+Acredite, haverá agradecimenos aqui nesta página.
 
 
 \begin{resumo}
@@ -496,6 +499,11 @@ onde não há um apoio para um mouse convencional.
 movimentar um mouse. O pequeno sensor pode ser preso à cabeça ou qualquer
 outra parte do corpo.
 \end{itemize}
+
+Todo o material desenvolvido neste projeto está também disponível
+\textit{online} em repositórios Mercurial e Git: \\
+\url{https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse} \\
+\url{https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse}
 
 
 \section{Trabalhos relacionados}
@@ -2418,16 +2426,71 @@ figura \ref{fig:zerocal}.
 \section{Resultados alcançados}
 \label{sec:resultados}
 
-TODO: O projeto obteve sucesso em seus objetivos.
+De maneira geral, o projeto obteve grande sucesso em seus objetivos. O
+dispositivo funciona como esperado e é fácil de usar.
 
-Resultados alcançados. O que deu certo. O que não deu certo.
+O \textit{boot loader} (seção \ref{sec:bootloader}) se mostrou extremamente
+prático durante o desenvolvimento, e é uma excelente ferramenta para ser
+usada em projetos futuros.
+
+O \textit{driver} V-USB (seção \ref{sec:vusb}) se confirmou como uma opção
+bastante prática para desenvolver dispositivos \ac{USB} \textit{low speed}.
+A implementação de um \ac{USB} \ac{HID} neste projeto funcionou como
+esperado: o comportamento foi \textit{plug-and-play}, funcionando
+imediatamente nos sistemas operacionais testados -- Linux, Mac OS X e
+Windows -- sem precisar de qualquer intervenção manual.
+
+A escolha de um microcontrolador AVR também foi bem sucedida, considerando a
+quantidade e a qualidade das ferramentas disponíveis para essa arquitetura.
+
+Por outro lado, a escolha do microcontrolador ATmega8 foi um pouco
+restritiva devido à sua memória \textit{Flash} relativamente pequena. Foi
+necessário desabilitar partes do \textit{firmware} durante o
+desenvolvimento para que ele pudesse coexistir com o \textit{boot loader} na
+memória. Ao final do projeto, alguns itens menos importantes do menu de
+configurações foram desabilitados para que o \textit{firmware} pudesse caber
+inteiro na memória.
+
+Apesar da implementação de um menu (seção \ref{sec:menu}) ter aumentado
+substancialmente o tamanho do \textit{firmware}, ele foi fundamental para
+tornar intuitiva a configuração dos parâmetros do dispositivo. Dado que se
+tenha espaço suficiente, pode-se até incluir instruções de uso no sistema de
+menus, dispensando quase que totalmente a necessidade de um manual de
+instruções para o usuário.
+
+%O \textit{driver} de comunicação \ac{I2C} (seção \ref{sec:twi}) foi bastante
+%prático de usar, porém sua rotina de interrupção precisa ser melhorada
+
+%O método usado para conversão de coordenadas não é perfeito, mas atende às
+%necessidades.
+
+Limitações nas medidas do sensor puderam ser observadas como oscilações na
+posição do ponteiro do mouse. Mesmo depois de implementado um algoritmo de
+suavização (seção \ref{sub:mouse_smoothing}), o ponteiro ainda oscilava de
+maneira perceptível, embora com amplitude bastante reduzida.
+
+Por fim, o uso individual de um magnetômetro para controlar o ponteiro do
+mouse possui suas limitações. Como o campo magnético da Terra é
+aproximadamente paralelo à superfície (exceto nos pólos), o dispositivo
+deste projeto só funciona satisfatoriamente se o usuário estiver de frente
+para o Norte ou para o Sul. Caso o usuário esteja de frente para o Leste ou
+Oeste, os movimentos verticais serão altamente comprometidos. Isso acontece
+porque o esse tipo de movimento será provocado por uma rotação do sensor num
+eixo paralelo ao campo magnético, e esse tipo de movimento não causa
+variação na leitura do sensor (ou causa uma variação muito pequena).
+
 
 \section{Trabalhos futuros}
 \label{sec:trabalhos_futuros}
 
-Listar o que pode ser feito a partir deste projeto.
+Apesar deste projeto funcionar como esperado, ainda pode ser refinado de
+várias formas.
 
-TODO: falar sobre o pino DRDY
+O sensor usado neste projeto, conforme descrito na seção
+\ref{sub:software_sensor_config}, permite no máximo 75 medições por segundo
+no modo de medição contínua. Seria possível alcançar até 160 medições por
+segundo caso a \ac{PCB} onde o sensor foi colocado tivesse um contato para o
+pino DRDY, como mostra a figura \ref{fig:loveelectronics_photos}.
 
 \begin{figure}[h]
 \centering
@@ -2437,6 +2500,19 @@ TODO: falar sobre o pino DRDY
 \label{fig:loveelectronics_photos}
 \end{figure}
 
+Outra opção de trabalho futuro é trocar o sensor HMC5883L por algum outro
+com medições mais precisas. Isso tem potencial de diminuir as oscilações do
+ponteiro, aumentando a precisão durante o uso do dispositivo.
+
+Podem ainda ser feitos estudos teóricos e experimentais sobre diferentes
+algoritmos de transformação de coordenadas. Com um microcontrolador com mais
+memória, seria possível implementar algoritmos mais complexos.
+
+Finalmente, a adição de um segundo sensor do tipo acelerômetro ou giroscópio
+eliminaria a restrição de estar virado para o Norte ou para o Sul. Seria
+necessário estudar novas abordagens para a transformação de coordenadas,
+visto que as abordagens investigadas neste projeto utilizam dados vindos de
+apenas um sensor.
 
 
 %%fakesection  Bibliografia
