@@ -16,7 +16,7 @@ AVRDUDE_PARAMS = -c usbasp
 
 # Should we reserve space for the bootloader?
 # This option also sets the correct FUSE bytes.
-BOOTLOADER_ENABLED = 1
+BOOTLOADER_ENABLED = 0
 
 # BOOTLOADER_ADDRESS is 1800 for 8k devices, 3800 for 16k and 7800 for 32k.
 # The datasheet says the start address is at 0xC00, but that is indexed in
@@ -26,7 +26,7 @@ BOOTLOADER_ADDRESS = 1800
 # In order to fit into ATmega8 8K program space, some pieces of the firmware
 # must be disabled.
 ENABLE_MOUSE = 1
-ENABLE_KEYBOARD = 0
+ENABLE_KEYBOARD = 1
 ENABLE_FULL_MENU = 0
 
 # ENABLE_MOUSE:
