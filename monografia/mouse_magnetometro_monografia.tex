@@ -78,9 +78,7 @@
 \usepackage{graphicx}
 
 % Inserting PDF pages from other documents
-%\usepackage{pdfpages}
-% TODO: remove "draft" here!
-\usepackage[draft]{pdfpages}
+\usepackage{pdfpages}
 
 % SI Units
 % https://bitbucket.org/josephwright/siunitx/issue/100/undefined-control-sequence-bit-and-byte
@@ -366,11 +364,14 @@ Aprovado por:
 
 
 \begin{resumo}
-O resumo será escrito aqui.
+Este projeto tem como objetivo implementar um dispositivo USB de interface
+humano-computador do tipo \textit{absolute pointing device}, utilizando um
+microcontrolador AVR ATmega8 de 8 bits e um magnetômetro.
 \end{resumo}
 
 \begin{abstract}
-This will be the abstract, someday.
+This project implements a USB HID absolute pointing device, using an ATmega8
+AVR 8-bit microcontroller and a magnetometer.
 \end{abstract}
 
 
@@ -439,25 +440,150 @@ can't be done is generally interrupted by someone doing it.}''\\
 \section{Motivação e objetivos}
 \label{sec:motivacao}
 
-Falar sobre: motivação, resumo, possíveis aplicações (palestras,
-necessidades especiais, interatividade em jogos e exposições)
+Este projeto implementa um dispositivo \acs{USB} do tipo \textit{absolute
+pointing device} que pode ser utilizado para controlar o ponteiro do mouse
+na tela do computador seguindo os movimentos de um sensor.
+
+O sensor empregado neste projeto é um magnetômetro, também conhecido como
+bússola digital, o qual permite medir a direção e a intensidade do campo
+magnético. Desta forma, é possível saber a direção (em relação à Terra) para
+onde o sensor está sendo apontado. A partir dessa informação é calculada
+a posição desejada para o ponteiro do mouse.
+
+Todos os cálculos são realizados por um microcontrolador ATmega8, no qual
+também foi implementado o protocolo \acs{USB} \acs{HID}. Assim, o
+dispositivo fruto deste projeto pode ser usado em qualquer computador sem a
+necessidade da instalação de \textit{drivers} específicos no sistema
+operacional.
+
+A ideia para este projeto surgiu da apresentação ``Google I/O 2011: The
+Secrets of Google Pac-Man: A Game Show'', na qual o palestrante Marcin
+Wichary utiliza um \textit{iPod touch}\footnote{
+	\textit{iPod touch} é um reprodutor multimídia portátil bastante similar
+	ao telefone celular \textit{iPhone}, porém sem todos os recursos deste.
+	O \textit{iPod touch} possui um acelerômetro e um giroscópio embutidos,
+	mas não possui um magnetômetro.
+} preso ao seu pulso para controlar um objeto no telão através dos
+movimentos de seu braço. \cite[2min29s a 4min40s]{GoogleIO2011} O software
+que rodava no \textit{iPod touch} durante a palestra era uma página escrita
+em HTML5 e JavaScript, a qual se comunicava com um servidor NodeJS através
+de uma conexão Wi-Fi. Conforme ele movia seu braço, os dados do acelerômetro
+eram enviados para o servidor, que por sua vez os repassava para o
+computador que estava ligado ao projetor.
+
+Um \textit{iPod touch} é um equipamento bastante poderoso, mas também é
+relativamente grande e caro\footnote{
+	R\$~729,00 no site do fabricante. \cite{AppleStoreiPodTouch}
+}. Não é muito prático deixar um dispositivo desse tamanho preso ao braço ou
+a qualquer outra parte do corpo. Além disso, não é possível controlar um
+computador diretamente através dele, é necessário instalar tanto no
+\textit{iPod} como no computador algum \textit{software} específico para
+essa funcionalidade.
+
+Diante dessas observações, este projeto foi iniciado, objetivando ser mais
+barato, menor e mais simples de usar.
+
+Uma vez concluído e posteriormente refinado, este projeto pode ser aplicado
+para diversos fins. Estas são algumas das aplicações possíveis:
+
+\begin{itemize}
+\item Pode ser utilizado durante apresentações, permitindo ao palestrante
+apontar regiões do telão através do gesto natural de se apontar com a mão.
+\item Pode ser utilizado em situações onde um mouse não é viável, situações
+onde não há um apoio para um mouse convencional.
+\item Pode ser utilizado em exposições interativas, entretenimento e jogos.
+\item Pode ser utilizado por pessoas que não podem ou não conseguem
+movimentar um mouse. O pequeno sensor pode ser preso à cabeça ou qualquer
+outra parte do corpo.
+\end{itemize}
+
 
 \section{Trabalhos relacionados}
 \label{sec:trabalhos_relacionados}
 
-\subsection{TrackIR}
-\label{sub:trackir}
-
-% http://www.naturalpoint.com/trackir/
 
 \subsection{Wiimote}
 \label{sub:wiimote}
 
-% http://en.wikipedia.org/wiki/Wiimote
-% http://wiibrew.org/wiki/Wiimote
+Wiimote é o nome dado aos controles do vídeo-game Wii, fabricado pela
+Nintendo. É um controle sem fio com acelerômetro embutido, capaz de detectar
+movimentos, e também funciona como um mouse dentro da interface do
+vídeo-game, bastando apontá-lo para a tela. Para isso, é necessário colocar
+acima ou abaixo da tela uma \textit{sensor bar}, que nada mais é do que um
+conjunto de \acsp{LED} infravermelhos. \cite{WikipediaWiimote}
 
-\subsection{Eye-tracking}
-\label{sub:eyetracking}
+Cada Wiimote possui uma câmera infravermelha na sua região frontal. A
+posição do ponteiro é calculada através da posição dos \acsp{LED}, capturada
+pela câmera do controle.
+
+O funcionamento esperado do dispositivo implementado neste projeto --
+controlar o ponteiro na tela simplesmente apontando um dispositivo de
+\textit{hardware} para a posição desejada -- é muito similar ao Wiimote,
+embora com tecnologias distintas.
+
+
+\subsection{SmartNav, TrackIR, HeadMouse}
+\label{sub:naturalpoint}
+
+A empresa NaturalPoint criou um produto chamado SmartNav \cite{SmartNav}
+para controlar o ponteiro do mouse através de gestos. O produto é composto
+de uma câmera colocada acima do monitor e um software proprietário para
+Windows ou Mac OS X. A câmera possui \acsp{LED} infravermelhos embutidos e
+consegue captar os pontos onde essa luz foi refletida. O usuário deve colar
+um pequeno pedaço de papel reflexivo em sua cabeça, boné, ou qualquer outra
+parte do corpo. O software no computador, então, processa a imagem da câmera
+e a transforma em movimentos do ponteiro do mouse.
+
+A mesma empresa também lançou um produto chamado TrackIR \cite{TrackIR} que
+funciona de maneira similar, porém é voltado para o mercado de jogos. Neste
+caso, em vez de controlar o ponteiro do mouse, os movimentos da cabeça são
+enviados diretamente para o jogo, onde são traduzidos para movimentos da
+câmera virtual dentro do ambiente simulado. Para obter 6 graus de liberdade
+nos movimentos, o usuário precisa colocar na cabeça uma armação contendo 3
+pontos reflexivos ou 3 \acsp{LED} infravermelhos.
+
+Ambos os produtos exigem que o usuário fique na frente de uma câmera e
+exigem um software proprietário instalado e configurado na máquina. O
+produto TrackIR está à venda a partir de US\$~99,95, enquanto o SmartNav
+está à venda a partir de US\$~399,00
+
+A empresa Origin Instruments tem um produto chamado HeadMouse
+\cite{HeadMouse} cujo funcionamento é muito muito similar ao SmartNav, mas
+não requer nenhum software instalado. Esse produto se identifica como um
+mouse \acs{USB} e portanto funciona em qualquer sistema. Está à venda por
+US\$~995,00.
+
+
+\subsection{Projetos baseados em acelerômetro}
+\label{sub:acelerometro}
+
+WiSHABI \cite{WiSHABI} é um projeto de dispositivo sem fio \acs{USB} que
+pode funcionar como teclado ou mouse, e faz leituras a partir de um
+acelerômetro. Foi implementado usando dois microcontroladores ATmega8.
+
+``USB Wireless Tilt Mouse + Minesweeper'' \cite{USBWirelessTiltMouse} é um
+outro projeto de mouse sem fio baseado num acelerômetro. Utiliza
+microcontroladores ATmega32 ou ATmega644.
+
+TiltStick \cite{TiltStick} é um projeto que implementa um joystick \acs{USB}
+baseado em leituras de um acelerômetro.
+
+Em comum, todos esses projetos usam microcontroladores de 8 bits da família
+AVR e implementam um dispositivo \acs{USB} \acs{HID} através do
+\textit{driver} V-USB.
+
+
+%\subsection{\textit{Eye-tracking}}
+%\label{sub:eyetracking}
+
+% LC Technologies, Inc.
+% http://www.eyegaze.com/content/assistive-technology
+%
+% Tobii Technology
+% http://www.tobii.com/
+%
+% EyeTech Digital Systems, Inc.
+% http://www.eyetechds.com/
 
 % http://www.technologyreview.com/Infotech/18254/
 % http://hci.stanford.edu/research/GUIDe/applications.html
@@ -2279,13 +2405,14 @@ figura \ref{fig:zerocal}.
 \section{Resultados alcançados}
 \label{sec:resultados}
 
+TODO: O projeto obteve sucesso em seus objetivos.
+
 Resultados alcançados. O que deu certo. O que não deu certo.
 
 \section{Trabalhos futuros}
 \label{sec:trabalhos_futuros}
 
 Listar o que pode ser feito a partir deste projeto.
-
 
 TODO: falar sobre o pino DRDY
 
@@ -2296,9 +2423,6 @@ TODO: falar sobre o pino DRDY
 \caption{Fotos de uma PCB com 5 contatos disponíveis}
 \label{fig:loveelectronics_photos}
 \end{figure}
-
-% TODO: falar sobre o pino DRDY (talvez falar isso só nas conclusões, ou na
-% seção onde se configura o sensor
 
 
 
