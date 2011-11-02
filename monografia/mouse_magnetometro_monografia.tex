@@ -1851,19 +1851,12 @@ indicam que $P'$ está fora do setor angular delimitado por $A$ e $B$.
 
 Como $A$, $B$ e $P'$ estão no mesmo plano, o valor exato de $\alpha$ pode
 ser calculado através de um sistema linear de duas variáveis $\alpha$ e
-$\beta$, o qual pode ser representado com uma única equação vetorial
-\eqref{eq:sistemaPlinhaVetorial} ou decomposto em suas duas equações
-escalares \eqref{eq:sistemaPlinhaEscalar}.
+$\beta$, o qual pode ser representado com a equação vetorial
+\eqref{eq:sistemaPlinhaVetorial}.
 
 \begin{align}
 \label{eq:sistemaPlinhaVetorial}
 A   + \alpha (B-A)   & = \beta P'
-\end{align}
-
-\begin{align}
-\label{eq:sistemaPlinhaEscalar}
-A_x + \alpha (B-A)_x & = \beta P'_x  \\
-A_y + \alpha (B-A)_y & = \beta P'_y  \nonumber
 \end{align}
 
 As bases do espaço bidimensional correspondente ao plano dos vetores $A$,
@@ -1871,18 +1864,39 @@ $B$ e $P'$ podem ser definidas como os vetores $X$ e $Y$ ortonormais
 \eqref{eq:sistemaPlinhaBases}. Todos os pontos desse plano podem ser
 representados por uma combinação linear entre os vetores $X$ e $Y$.
 
-
 \begin{align}
 \label{eq:sistemaPlinhaBases}
 X & = \frac{A}{ || A || }                     \\
 Y & = \frac{A \times N}{ || A \times N || }   \nonumber
 \end{align}
 
+Definidas as bases do espaço bidimensional, as componentes de $A$, $(B-A)$ e
+$P'$ nesse espaço podem ser calculadas usando produto interno.
+\eqref{eq:sistemaPlinhaComponentes}
+
+\begin{alignat}{2}
+\label{eq:sistemaPlinhaComponentes}
+A_X     & = A \cdot X     & \qquad A_Y     & = A \cdot Y      \\
+(B-A)_X & = (B-A) \cdot X & \qquad (B-A)_Y & = (B-A) \cdot Y  \nonumber \\
+P'_X    & = P' \cdot X    & \qquad P'_Y    & = P' \cdot Y     \nonumber
+\end{alignat}
+
+A equação vetorial \eqref{eq:sistemaPlinhaVetorial} pode ser reescrita em
+como duas equações escalares \eqref{eq:sistemaPlinhaEscalar}, utilizando as
+componentes definidas em \eqref{eq:sistemaPlinhaComponentes}.
+
+\begin{align}
+\label{eq:sistemaPlinhaEscalar}
+A_X + \alpha (B-A)_X & = \beta P'_X  \\
+A_Y + \alpha (B-A)_Y & = \beta P'_Y  \nonumber
+\end{align}
+
 Por fim, resolvendo o sistema linear definido em
 \eqref{eq:sistemaPlinhaVetorial} e \eqref{eq:sistemaPlinhaEscalar}, obtemos
-o valor exato de $\alpha$ correspondente a uma das bordas da tela. Repetindo
-os cálculos para as outras bordas, podemos calcular $(x,y)$ através de uma
-interpolação linear \eqref{eq:interpolacao_linear}.
+o valor exato de $\alpha$ correspondente a uma das bordas da tela.
+
+Repetindo os cálculos para as outras bordas, podemos calcular $(x,y)$
+através de uma interpolação linear \eqref{eq:interpolacao_linear}.
 
 \begin{align}
 \label{eq:interpolacao_linear}
@@ -1893,9 +1907,8 @@ x    & = \frac{AD  (DC - AB) + AB}{1 - (BC - AD)  (DC - AB)}  \nonumber \\
 AB, BC, DC, AD & = \text{valor de $\alpha$ para cada borda} \nonumber
 \end{align}
 
-
-Além disso, também foram experimentados cálculos aproximados para $\alpha$,
-usando
+Além do cálculo do valor exato de $\alpha$, também foram experimentados
+cálculos aproximados para $\alpha$, usando
 razão entre ângulos \eqref{eq:alpha_angulo},
 razão entre distâncias \eqref{eq:alpha_dist},
 razão entre senos \eqref{eq:alpha_sin},
