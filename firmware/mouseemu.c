@@ -184,26 +184,26 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
 	// sol[0] is discarded
 
-	if (sensor.e.mouse_smoothing) {
-		// Implemeting a simple mouse-smoothing algorithm
-		mouse_smooth_x = mouse_smooth_x * 0.875 + sol[1] * 0.125;
-		mouse_smooth_y = mouse_smooth_y * 0.875 + sol[2] * 0.125;
-		// These values are too much, they introduce a noticeable delay:
-		//mouse_smooth_x = mouse_smooth_x * 0.9375 + sol[1] * 0.0625;
-		//mouse_smooth_y = mouse_smooth_y * 0.9375 + sol[2] * 0.0625;
-	} else {
-		mouse_smooth_x = sol[1];
-		mouse_smooth_y = sol[2];
-	}
-
-	if (   sol[1] < 0.0
-		|| sol[1] > 1.0
-		|| sol[2] < 0.0
-		|| sol[2] > 1.0
+	if (   sol[1] < -0.25
+		|| sol[1] >  1.25
+		|| sol[2] < -0.25
+		|| sol[2] >  1.25
 	) {
 		// Out-of-bounds
 		return 0;
 	}
+
+	// Implemeting a simple mouse-smoothing algorithm
+	mouse_smooth_x = mouse_smooth_x * 0.875 + sol[1] * 0.125;
+	mouse_smooth_y = mouse_smooth_y * 0.875 + sol[2] * 0.125;
+	// These values are too much, they introduce a noticeable delay:
+	//mouse_smooth_x = mouse_smooth_x * 0.9375 + sol[1] * 0.0625;
+	//mouse_smooth_y = mouse_smooth_y * 0.9375 + sol[2] * 0.0625;
+
+	if      (mouse_smooth_x < 0.0)  mouse_smooth_x = 0.0;
+	else if (mouse_smooth_x > 1.0)  mouse_smooth_x = 1.0;
+	if      (mouse_smooth_y < 0.0)  mouse_smooth_y = 0.0;
+	else if (mouse_smooth_y > 1.0)  mouse_smooth_y = 1.0;
 
 	final_x = (int) round(mouse_smooth_x * 32767);
 	final_y = (int) round(mouse_smooth_y * 32767);

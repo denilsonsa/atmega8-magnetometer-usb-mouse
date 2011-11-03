@@ -50,17 +50,16 @@
 #define UI_ZERO_PRINT_WIDGET              0x10
 #define UI_ZERO_CAL_WIDGET                0x11
 #define UI_ZERO_TOGGLE_WIDGET             0x12
-#define UI_SMOOTHING_TOGGLE_WIDGET        0x13
-#define UI_CORNERS_PRINT_WIDGET           0x14
-#define UI_CORNERS_SET_TOPLEFT_WIDGET     0x15
-#define UI_CORNERS_SET_TOPRIGHT_WIDGET    0x16
-#define UI_CORNERS_SET_BOTTOMLEFT_WIDGET  0x17
-#define UI_CORNERS_SET_BOTTOMRIGHT_WIDGET 0x18
-#define UI_CORNERS_SET_ANYTHING_WIDGET    0x19
-#define UI_SENSOR_ID_WIDGET               0x1A
-#define UI_SENSOR_XYZ_ONCE_WIDGET         0x1B
-#define UI_SENSOR_XYZ_CONT_WIDGET         0x1C
-#define UI_KEYBOARD_TEST_WIDGET           0x1D
+#define UI_CORNERS_PRINT_WIDGET           0x13
+#define UI_CORNERS_SET_TOPLEFT_WIDGET     0x14
+#define UI_CORNERS_SET_TOPRIGHT_WIDGET    0x15
+#define UI_CORNERS_SET_BOTTOMLEFT_WIDGET  0x16
+#define UI_CORNERS_SET_BOTTOMRIGHT_WIDGET 0x17
+#define UI_CORNERS_SET_ANYTHING_WIDGET    0x18
+#define UI_SENSOR_ID_WIDGET               0x19
+#define UI_SENSOR_XYZ_ONCE_WIDGET         0x1A
+#define UI_SENSOR_XYZ_CONT_WIDGET         0x1B
+#define UI_KEYBOARD_TEST_WIDGET           0x1C
 // }}}
 
 typedef struct MenuItem {  // {{{
@@ -89,29 +88,29 @@ static const MenuItem error_menu_items[] PROGMEM = {
 // }}}
 
 // Main menu, with all main options  {{{
-static const char     main_menu_1[] PROGMEM = "1. Zero\n";
-static const char     main_menu_2[] PROGMEM = "2. Corners\n";
-static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
-static const char     main_menu_4[] PROGMEM = "4. Toggle smoothing\n";
-
 #if ENABLE_FULL_MENU
-static const char     main_menu_5[] PROGMEM = "5. Keyboard test\n";
-static const char     main_menu_6[] PROGMEM = "6. << quit menu\n";
-#define               main_menu_total_items 6
-#else
-static const char     main_menu_6[] PROGMEM = "5. << quit menu\n";
+static const char     main_menu_1[] PROGMEM = "1. Zero calibration\n";
+static const char     main_menu_2[] PROGMEM = "2. Corner calibration\n";
+static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+static const char     main_menu_4[] PROGMEM = "4. Keyboard test\n";
+static const char     main_menu_5[] PROGMEM = "5. << quit menu\n";
 #define               main_menu_total_items 5
+#else
+static const char     main_menu_1[] PROGMEM = "1. Zero\n";
+static const char     main_menu_2[] PROGMEM = "2. Corner\n";
+static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+static const char     main_menu_5[] PROGMEM = "4. << quit menu\n";
+#define               main_menu_total_items 4
 #endif
 
 static const MenuItem main_menu_items[] PROGMEM = {
 	{main_menu_1, UI_ZERO_MENU},
 	{main_menu_2, UI_CORNERS_MENU},
 	{main_menu_3, UI_SENSOR_MENU},
-	{main_menu_4, UI_SMOOTHING_TOGGLE_WIDGET},
 #if ENABLE_FULL_MENU
-	{main_menu_5, UI_KEYBOARD_TEST_WIDGET},
+	{main_menu_4, UI_KEYBOARD_TEST_WIDGET},
 #endif
-	{main_menu_6, 0}
+	{main_menu_5, 0}
 };
 // }}}
 
@@ -141,14 +140,6 @@ static const char zero_compensation_suffix_on[] PROGMEM = "ON\n";
 static const char zero_compensation_suffix_off[] PROGMEM = "OFF\n";
 #endif
 
-// Other mouse smoothing messages:
-#if ENABLE_FULL_MENU
-static const char mouse_smoothing_prefix[] PROGMEM = "Mouse smoothing is ";
-#else
-static const char mouse_smoothing_prefix[] PROGMEM = "It is ";
-#endif
-#define mouse_smoothing_suffix_on   zero_compensation_suffix_on
-#define mouse_smoothing_suffix_off  zero_compensation_suffix_off
 // }}}
 
 // Corner calibration menu  {{{
@@ -516,34 +507,6 @@ void ui_main_code() {  // {{{
 
 				ui_pop_state();
 				ui_enter_widget(UI_ZERO_PRINT_WIDGET);
-				break;  // }}}
-
-
-			////////////////////
-			case UI_SMOOTHING_TOGGLE_WIDGET:  // {{{
-				if (string_output_pointer != NULL) {
-					// Do nothing, let's wait the previous output...
-				} else {
-					// Toggling current state
-					sens->e.mouse_smoothing = !sens->e.mouse_smoothing;
-
-					// Saving to EEPROM
-					int_eeprom_write_block(
-						&sens->e.mouse_smoothing,
-						&eeprom_sensor.mouse_smoothing,
-						1
-					);
-
-					strcat_P(string_output_buffer, mouse_smoothing_prefix);
-					if (sens->e.mouse_smoothing) {
-						strcat_P(string_output_buffer, mouse_smoothing_suffix_on);
-					} else {
-						strcat_P(string_output_buffer, mouse_smoothing_suffix_off);
-					}
-
-					string_output_pointer = string_output_buffer;
-					ui_pop_state();
-				}
 				break;  // }}}
 
 

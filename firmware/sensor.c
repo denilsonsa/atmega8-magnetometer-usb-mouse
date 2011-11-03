@@ -35,8 +35,7 @@ SensorEepromData X_EEMEM eeprom_sensor = {
 		{-90, 209, 11}, // topright
 		{137, 48, 160}, // bottomleft
 		{-112, 56, 170} // bottomright
-	},
-	1 // mouse_smoothing
+	}
 };
 
 
@@ -315,7 +314,6 @@ void sensor_init_configuration() {  // {{{
 
 	// Reading from the EEPROM:
 	eeprom_read_block(&sensor.e, &eeprom_sensor, sizeof(SensorEepromData));
-
 
 	sensor_set_register_value(
 		SENSOR_REG_CONF_A,

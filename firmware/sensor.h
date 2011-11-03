@@ -35,9 +35,6 @@ typedef struct SensorEepromData {
 
 	// Calibration corners (screen)
 	XYZVector corners[4];
-
-	// Boolean to enable mouse smoothing
-	uchar mouse_smoothing;
 } SensorEepromData;
 
 typedef struct SensorData {
