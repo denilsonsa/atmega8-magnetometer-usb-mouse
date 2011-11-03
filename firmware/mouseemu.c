@@ -194,8 +194,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	}
 
 	// Implemeting a simple mouse-smoothing algorithm
-	mouse_smooth_x = mouse_smooth_x * 0.875 + sol[1] * 0.125;
-	mouse_smooth_y = mouse_smooth_y * 0.875 + sol[2] * 0.125;
+	mouse_smooth_x = mouse_smooth_x * 0.9 + sol[1] * 0.1;
+	mouse_smooth_y = mouse_smooth_y * 0.9 + sol[2] * 0.1;
 	// These values are too much, they introduce a noticeable delay:
 	//mouse_smooth_x = mouse_smooth_x * 0.9375 + sol[1] * 0.0625;
 	//mouse_smooth_y = mouse_smooth_y * 0.9375 + sol[2] * 0.0625;
