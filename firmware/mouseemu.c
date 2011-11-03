@@ -184,15 +184,6 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	sol[1] = m[1][3] / m[1][1] - m[1][2] * sol[2] / m[1][1];
 	// sol[0] is discarded
 
-	if (   sol[1] < 0.0
-		|| sol[1] > 1.0
-		|| sol[2] < 0.0
-		|| sol[2] > 1.0
-	) {
-		// Out-of-bounds
-		return 0;
-	}
-
 	if (sensor.e.mouse_smoothing) {
 		// Implemeting a simple mouse-smoothing algorithm
 		mouse_smooth_x = mouse_smooth_x * 0.875 + sol[1] * 0.125;
@@ -205,9 +196,19 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		mouse_smooth_y = sol[2];
 	}
 
+	if (   sol[1] < 0.0
+		|| sol[1] > 1.0
+		|| sol[2] < 0.0
+		|| sol[2] > 1.0
+	) {
+		// Out-of-bounds
+		return 0;
+	}
+
 	final_x = (int) round(mouse_smooth_x * 32767);
 	final_y = (int) round(mouse_smooth_y * 32767);
 
+	/*
 	if (   final_x < 0
 		|| final_x > 32767
 		|| final_y < 0
@@ -216,6 +217,7 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		// Out-of-bounds
 		return 0;
 	}
+	*/
 
 	mouse_report.x = final_x;
 	mouse_report.y = final_y;
