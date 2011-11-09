@@ -573,9 +573,9 @@ A mesma empresa também lançou um produto chamado TrackIR \cite{TrackIR} que
 funciona de maneira similar, porém é voltado para o mercado de jogos. Neste
 caso, em vez de controlar o ponteiro do \textit{mouse}, os movimentos da
 cabeça são enviados diretamente para o jogo, onde são traduzidos para
-movimentos da câmera virtual dentro do ambiente simulado. Para obter 6 graus
-de liberdade nos movimentos, o usuário precisa colocar na cabeça uma armação
-contendo três pontos reflexivos ou três \acsp{LED} infravermelhos.
+movimentos da câmera virtual dentro do ambiente simulado. Para obter seis
+graus de liberdade nos movimentos, o usuário precisa colocar na cabeça uma
+armação contendo três pontos reflexivos ou três \acsp{LED} infravermelhos.
 
 Ambos os produtos exigem que o usuário fique na frente de uma câmera e
 exigem um software proprietário instalado e configurado na máquina. O
@@ -688,12 +688,12 @@ funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
 \label{fig:usb_connectors}
 \end{figure}
 
-Uma conexão \ac{USB} é formada por 4 vias (conforme pode ser visto na figura
-\ref{fig:usb_connectors}), sendo duas para alimentação (\VBUS =
+Uma conexão \ac{USB} é formada por quatro vias (conforme pode ser visto na
+figura \ref{fig:usb_connectors}), sendo duas para alimentação (\VBUS =
 \SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados são
 transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing} (um
-``zero'' é inserido após 6 bits ``um'' consecutivos). \cite[p.~157]{usb20}
-\cite[cap.~2]{usbinanutshell}
+``zero'' é inserido após seis bits ``um'' consecutivos).
+\cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
 
 A velocidade de um dispositivo é determinada por \textit{hardware}, de
 acordo com a posição do resistor de \textit{pull-up}\footnote{
@@ -735,8 +735,8 @@ definição, o \textit{host} contém um \textit{root hub}. Cada cabo \ac{USB} é
 uma conexão ponto-a-ponto que liga um \textit{hub} da camada imediatamente
 acima a um dispositivo na camada imediatamente abaixo. Um dispositivo pode
 ser um outro \textit{hub} ou então uma função. Por limitações de tempo de
-propagação, o número máximo de camadas é 7, incluindo a camada que contém o
-\textit{host}.  \cite[p.~16]{usb20}
+propagação, o número máximo de camadas é sete, incluindo a camada que contém
+o \textit{host}.  \cite[p.~16]{usb20}
 
 A especificação \ac{USB} define dois tipos de conectores (ilustrados na
 figura \ref{fig:usb_connectors}). Um cabo \ac{USB} possui uma ponta de cada
@@ -771,13 +771,13 @@ do escopo deste trabalho.
 
 Um \textit{endpoint} pode ser visto como um endereço lógico que pode receber
 dados do \textit{host} ou enviar dados para ele. Todo dispositivo \ac{USB}
-possui o \textit{endpoint 0}, usado pelo próprio protocolo para mensagens de
+possui o \textit{endpoint~0}, usado pelo próprio protocolo para mensagens de
 controle e de \textit{status}. \cite[cap.~3]{usbinanutshell}
 
-Além do \textit{endpoint 0}, um dispositivo \ac{USB} normalmente possui pelo
+Além do \textit{endpoint~0}, um dispositivo \ac{USB} normalmente possui pelo
 menos mais um \textit{endpoint}, usado para o objetivo fim do dispositivo.
 
-Há 4 tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
+Há quatro tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
 
 \begin{description}
 \item[Control] \hfill \\
@@ -886,7 +886,7 @@ que qualquer um dos dispositivos do barramento pode assumir o papel de
 \textit{master}, e inclusive o papel pode mudar ao longo do tempo. O
 protocolo permite também múltiplos \textit{masters} no mesmo barramento.
 \cite[p.~6]{UM10204} \cite[p.~161]{ATmega8} No entanto, para este trabalho
-foi necessário apenas ligar 2 dispositivos: o microcontrolador ATmega8
+foi necessário apenas ligar dois dispositivos: o microcontrolador ATmega8
 (funcionando sempre como \textit{master}) e o sensor HMC5883L (funcionando
 sempre como \textit{slave}).
 
@@ -897,8 +897,8 @@ bidirecionais. O \textit{master} é responsável por gerar o sinal de
 pronto para responder. \cite[p.~13]{UM10204}
 
 A comunicação no \ac{I2C} é baseada em bytes. O \textit{master} envia um
-sinal de \textit{START}, seguido de um byte de endereço. Nesse byte, 7 bits,
-indicam o endereço do \textit{slave} e o oitavo bit indica o tipo de
+sinal de \textit{START}, seguido de um byte de endereço. Nesse byte, sete
+bits, indicam o endereço do \textit{slave} e o oitavo bit indica o tipo de
 comunicação (escrita ou leitura). Após a transmissão desse byte, o
 \textit{master} libera a linha de dados e o \textit{slave} envia um bit zero
 durante próximo pulso de \textit{clock}, sinalizando que recebeu o byte
@@ -910,7 +910,7 @@ da mesma forma como enviou o byte de endereço, esperando pelo bit de
 \textit{acknowledge} após cada byte enviado. Caso seja uma leitura, o
 \textit{master} é responsável por gerar o \textit{clock} (conforme já
 mencionado anteriormente), e o \textit{slave} envia um bit a cada pulso do
-\textit{clock}. Após cada 8 bits recebidos (ou seja, após cada byte), o
+\textit{clock}. Após cada oito bits recebidos (ou seja, após cada byte), o
 \textit{master} deve enviar um bit de \textit{acknowledge} para o
 \textit{slave}. Em outras palavras, cada byte transmitido numa direção é
 sempre seguido de um bit de \textit{acknowledge} transmitido na direção
@@ -959,11 +959,11 @@ consequência, o conjunto de instruções do AVR foi pensado de modo a
 minimizar o \textit{overhead} durante a execução de programas que tenham
 sido escritos em linguagens de alto nível. \cite{avr_iar_design}
 
-Além disso, as instruções são executadas num pipeline de 2 estágios,
-permitindo um desempenho máximo de 1 instrução por ciclo de \textit{clock}.
-\cite[p.~9]{ATmega8} Nem sempre esse desempenho é alcançado, pois algumas
-instruções (como as que acessam a memória \ac{SRAM} e os desvios) demoram
-pelo menos 2 ciclos. \cite[p.~282]{ATmega8}
+Além disso, as instruções são executadas num pipeline de dois estágios,
+permitindo um desempenho máximo de uma instrução por ciclo de
+\textit{clock}. \cite[p.~9]{ATmega8} Nem sempre esse desempenho é
+alcançado, pois algumas instruções (como as que acessam a memória \ac{SRAM}
+e os desvios) demoram pelo menos dois ciclos. \cite[p.~282]{ATmega8}
 
 Todas as instruções da arquitetura AVR ocupam 16 ou 32 bits (2 ou 4 bytes).
 Por esse motivo, a memória \textit{Flash} é endereçada por \textit{words} de
@@ -994,9 +994,9 @@ magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
 eletrônica''.
 
 Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
-intensidade do campo magnético usando o efeito magnetorresistivo em 3 eixos
-perpendiculares (X, Y, Z) e converte essas medidas para um formato digital
-através de um \ac{ADC} de 12 bits, chegando a uma precisão de
+intensidade do campo magnético usando o efeito magnetorresistivo em três
+eixos perpendiculares (X, Y, Z) e converte essas medidas para um formato
+digital através de um \ac{ADC} de 12 bits, chegando a uma precisão de
 \SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}.
 \cite{HMC5883L}
 
@@ -1004,9 +1004,9 @@ O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
 \SI[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho. É
 impossível trabalhar manualmente com algo tão minúsculo, por isso foi
 adquirida uma \ac{PCB} já contendo o sensor e alguns capacitores.
-\cite{ebay_HMC5883L} Essa placa possui 4 contatos, sendo metade deles para
-alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C} (SDA e
-SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
+\cite{ebay_HMC5883L} Essa placa possui quatro contatos, sendo metade deles
+para alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C}
+(SDA e SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 
 \begin{figure}[h]
 \centering
@@ -1054,16 +1054,16 @@ nível lógico do pino cai para zero e o microcontrolador é reiniciado. Este
 botão de \textit{reset} se mostrou bastante útil durante o desenvolvimento,
 mas não é necessário para o funcionamento deste projeto.
 
-Há 3 \acp{LED} ligados aos pinos 11, 12 e 13 (PORTD5, PORTD6, PORTD7),
+Há três \acp{LED} ligados aos pinos 11, 12 e 13 (PORTD5, PORTD6, PORTD7),
 montados de modo a acender quando o valor lógico 1 é escrito. Foram usados
 para fins de depuração, mas não são essenciais para o funcionamento deste
 projeto.
 
-Há 3 botões ligados aos pinos 23, 24 e 25 (PORTC0, PORTC1, PORTC2), e ainda
-uma chave ligada ao pino 26 (PORTC3). Quando pressionados, o nível lógico de
-cada pino cai para zero. Cada pino possui internamente um resistor de
-\textit{pull-up}, o qual foi habilitado pelo programa, dispensando o uso de
-resistores externos.
+Há três botões ligados aos pinos 23, 24 e 25 (PORTC0, PORTC1, PORTC2), e
+ainda uma chave ligada ao pino 26 (PORTC3). Quando pressionados, o nível
+lógico de cada pino cai para zero. Cada pino possui internamente um resistor
+de \textit{pull-up}, o qual foi habilitado pelo programa, dispensando o uso
+de resistores externos.
 
 Os pinos 17, 18 e 19 (MOSI, MISO, SCK), juntamente com o pino 1
 (\textoverline{RESET}) são usados para \ac{ISP}. Por simplicidade e por
@@ -1186,8 +1186,8 @@ transistor MOSFET podem ser usados para este fim. Neste projeto, foi usado o
 modelo 2N7000. Os resistores de \textit{pull-up} usados foram de
 \SI{2.2}{\kilo\ohm}.
 
-Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
-\cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
+Para entender como essa solução funciona, é preciso analisá-la em três
+estados: \cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
 
 \begin{description}
 \item[Nenhum dos dois dispositivos está puxando o barramento para zero] \hfill \\
@@ -1432,10 +1432,10 @@ ISR(TWI_vect)
 \section{Comunicação com o sensor}
 \label{sec:software_sensor}
 
-O sensor HMC5883L possui 13 registradores de 8 bits que podem ser acessados
-pela comunicação serial, e ainda mais um registrador interno chamado de
-\textit{address pointer}, o qual aponta para algum dos outros registradores
-e cujo valor não pode ser lido. \cite[p.~11]{HMC5883L}
+O sensor HMC5883L possui treze registradores de 8 bits que podem ser
+acessados pela comunicação serial, e ainda mais um registrador interno
+chamado de \textit{address pointer}, o qual aponta para algum dos outros
+registradores e cujo valor não pode ser lido. \cite[p.~11]{HMC5883L}
 
 Quando o \textit{master} inicia uma escrita, o primeiro byte recebido pelo
 sensor é considerado o endereço de um registrador, e esse endereço é salvo
@@ -1443,7 +1443,7 @@ no \textit{address pointer}. Caso um segundo byte seja recebido, esse valor
 é salvo no registrador apontado pelo \textit{address pointer}.
 
 Assim, para escrever num dos registradores de configuração do sensor, o
-\textit{firmware} do microcontrolador prepara um vetor de 3 bytes: o
+\textit{firmware} do microcontrolador prepara um vetor de três bytes: o
 endereço do sensor (juntamente com o bit que define uma operação de
 escrita), o número do registrador de configuração que será modificado, e o
 valor a ser escrito no registrador. Esse vetor é repassado ao
@@ -1466,14 +1466,14 @@ exemplo, uma tentativa de ler todos os registradores (usando o
 auto-incremento para iterar automaticamente por todos eles) retorna valores
 diferentes (e inválidos) daqueles retornados por leituras individuais. De
 maneira geral, o auto-incremento funciona corretamente apenas para leitura
-dos 6 registradores de dados e para a leitura dos 3 registradores de
+dos seis registradores de dados e para a leitura dos três registradores de
 identificação do sensor.
 
 Para ler os valores X, Y, Z do sensor, o microcontrolador começa realizando
 uma escrita no sensor, enviando o valor \texttt{0x03} como endereço do
-registrador. A seguir, realiza uma leitura de 6 bytes consecutivos. Por fim,
-esses 6 bytes lidos são convertidos numa \texttt{struct} de 3 variáveis
-inteiras de 16 bits.
+registrador. A seguir, realiza uma leitura de seis bytes consecutivos. Por
+fim, esses seis bytes lidos são convertidos numa \texttt{struct} de três
+variáveis inteiras de 16 bits.
 
 \subsection{Configuração do sensor}
 \label{sub:software_sensor_config}
@@ -1482,13 +1482,13 @@ Durante a inicialização do \textit{firmware} do microcontrolador, os
 registradores de configuração do sensor são escritos.
 
 O sensor foi configurado para atualizar os registradores de dados 75 vezes
-por segundo, sendo que cada valor é a média de 8 amostras. O ganho do sensor
-foi configurado para ±\SI{1.3}{\gauss}\footnote{
+por segundo, sendo que cada valor é a média de oito amostras. O ganho do
+sensor foi configurado para ±\SI{1.3}{\gauss}\footnote{
 	O símbolo \si{\gauss} corresponde à unidade de densidade de fluxo
 	magnético ``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor,
 	no entanto, utiliza Ga como símbolo para essa unidade.
-}, o que corresponde a 1090 bits por gauss, ou \SI{0.92}{\milli\gauss} por
-bit. Este ganho foi escolhido por permitir a maior precisão possível das
+}, o que corresponde a \num{1090} bits por gauss, ou \SI{0.92}{\milli\gauss}
+por bit. Este ganho foi escolhido por permitir a maior precisão possível das
 medidas sem causar \textit{overflow} no sensor.
 
 O sensor foi configurado para o modo de medição contínua, \ie, está
@@ -1549,7 +1549,7 @@ Considerando as limitações citadas nos parágrafos anteriores, o dispositivo
 fruto deste projeto não é totalmente conformante com a especificação
 \ac{USB}, mas isso não causou problemas nos computadores onde o dispositivo
 foi testado, conforme resultados no capítulo \ref{cap:conclusoes}. Além
-disso, essas limitações não impediram que mais de 100 projetos tenham sido
+disso, essas limitações não impediram que mais de cem projetos tenham sido
 criados com sucesso. \cite{VUSBprojects}
 
 
@@ -1628,7 +1628,7 @@ implementação completa da especificação \ac{HID}. \cite[p.~59]{usbhid}
 
 O protocolo \textit{boot} obriga que o dispositivo se identifique ou como um
 teclado ou como um \textit{mouse}, mas não como os dois. \cite[p.~9]{usbhid}
-Além disso, ele define um \textit{report descriptor} que suporta até 6
+Além disso, ele define um \textit{report descriptor} que suporta até seis
 teclas pressionadas simultaneamente, além das teclas modificadoras
 \cite[p.~60]{usbhid}, o que é desnecessário para um teclado que vai apenas
 escrever \textit{strings}. Por todos esses motivos, foi decidido implementar
@@ -1668,8 +1668,8 @@ no próprio site do \ac{USB-IF}.
 	0xc0,              // END_COLLECTION
 \end{ccode}
 
-O \textit{report} usado por este teclado possui 3 bytes. O primeiro deles é
-o \textit{Report ID} e tem valor 1, identificando que este \textit{report}
+O \textit{report} usado por este teclado possui três bytes. O primeiro deles
+é o \textit{Report ID} e tem valor 1, identificando que este \textit{report}
 corresponde ao \textit{report descriptor} do teclado.\footnote{
 	Na seção \ref{sec:mouse}, o \textit{Report ID} do \textit{mouse} é
 	definido com o valor 2.
@@ -1720,8 +1720,8 @@ melhor, mais prática e mais intuitiva para o uso do \textit{firmware}.
 
 Essa foi a motivação para implementar um sistema de menus interativos. Esse
 sistema combina o teclado virtual previamente implementado (descrito na
-seção \ref{sec:keyboard}) com os 3 botões presentes na \textit{protoboard}
-(descritos na seção \ref{sec:hardware_visao_geral}).
+seção \ref{sec:keyboard}) com os três botões presentes na
+\textit{protoboard} (descritos na seção \ref{sec:hardware_visao_geral}).
 
 Um dos botões foi escolhido para funcionar como ``confirma'', enquanto os
 outros dois funcionam como ``próximo item'' e ``item anterior''.
@@ -1798,22 +1798,22 @@ A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
 	0xc0               // END_COLLECTION
 \end{ccode}
 
-O \textit{report} usado por este \textit{mouse} possui 6 bytes. O primeiro
-deles é o \textit{Report ID} e tem valor 2, identificando que este
+O \textit{report} usado por este \textit{mouse} possui seis bytes. O
+primeiro deles é o \textit{Report ID} e tem valor 2, identificando que este
 \textit{report} corresponde ao \textit{report descriptor} do
 \textit{mouse}.\footnote{
 	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
 	com o valor 1.
-} Os 4 bytes seguintes correspondem à posição $(x, y)$, onde cada uma das
-duas coordenada é representada por um número inteiro de 16 bits dentro do
-intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
+} Os quatro bytes seguintes correspondem à posição $(x, y)$, onde cada uma
+das duas coordenada é representada por um número inteiro de 16 bits dentro
+do intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
 considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
 \cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse},
-sendo que os 3 bits menos significativos correspondem aos 3 botões, e os 5
-bits restantes são ignorados.
+sendo que os três bits menos significativos correspondem aos três botões, e
+os cinco bits restantes são ignorados.
 
 O algoritmo de transformação de coordenadas implementado no microcontrolador
-foi a abordagem usando um sistema de 3 equações lineares (seção
+foi a abordagem usando um sistema de três equações lineares (seção
 \ref{sec:coord_lineq}). Essa solução foi escolhida por ser a mais simples e
 portanto ocupar pouco espaço na memória bastante limitada do
 microcontrolador. Os cálculos utilizam variáveis \texttt{float} de 32 bits
@@ -1912,9 +1912,9 @@ fechado.
 Conhecendo esse problema, faz-se necessário aplicar alguma técnica de
 \textit{debouncing}. A solução empregada neste projeto foi inspirada na
 solução adotada pelo projeto TiltStick. \cite{TiltStick} Consiste em
-considerar a mudança de estado do botão apenas caso tenham-se passadas 8
+considerar a mudança de estado do botão apenas caso tenham-se passadas oito
 leituras consecutivas no novo estado. Isso foi implementado usando um byte
-para cada botão. A cada leitura, o valor do byte é deslocado 1 bit para a
+para cada botão. A cada leitura, o valor do byte é deslocado um bit para a
 esquerda e a leitura atual é guardada no bit menos significativo. Caso o
 valor do byte seja igual a \texttt{0x00}, considera-se que o botão não está
 pressionado. Caso o valor seja igual a \texttt{0xFF}, considera-se que o
@@ -1935,11 +1935,11 @@ A biblioteca AVR-Libc já inclui funções para leitura e gravação de dados na
 tanto tempo quanto demorar a leitura ou escrita dos bytes requisitados.
 \cite{avrlibceeprom}
 
-O tempo total para a leitura de 1 byte da \ac{EEPROM} no ATmega8 é de
-\numrange[range-phrase={ ou }]{4}{5} ciclos de \textit{clock}\footnote{
+O tempo total para a leitura de um byte da \ac{EEPROM} no ATmega8 é de
+quatro ou cinco ciclos de \textit{clock}\footnote{
 	O \textit{datasheet} informa que o acesso à \ac{EEPROM} demora apenas
-	1 ciclo, mas também diz que a CPU fica parada por 4 ciclos antes que
-	a instrução seguinte seja executada.
+	um ciclo, mas também diz que a CPU fica parada por quatro ciclos antes
+	que a instrução seguinte seja executada.
 }, enquanto a escrita de cada byte demora aproximadamente
 \SI{8.5}{\milli\second}. \cite[p.~21]{ATmega8} Portanto, a leitura é rápida
 o suficiente para não causar nenhum tipo de problema, mas a escrita
@@ -2061,7 +2061,7 @@ disponível.
 A primeira ferramenta foi chamada de \texttt{generate\_sphere\_vectors.py} e
 serve para simular leituras do sensor. Esta ferramenta imprime na saída
 padrão uma lista de vetores 3D que cobrem pouco menos da metade da
-superfície de uma esfera. Também imprime 4 vetores correspondentes aos
+superfície de uma esfera. Também imprime quatro vetores correspondentes aos
 cantos da tela, os quais são usados nos cálculos explicados nas seções
 \ref{sec:coord_geometria} e \ref{sec:coord_lineq}. A listagem
 \ref{lst:generate_sphere_vectors} mostra um trecho da saída desta
@@ -2147,8 +2147,8 @@ de um \textit{pipeline}.\footnote{
 \section{Transformação usando geometria}
 \label{sec:coord_geometria}
 
-Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
-4 vetores no espaço tais que:
+Para esta abordagem é necessário calibrar os quatro cantos da tela, \ie,
+definir quatro vetores no espaço tais que:
 
 \begin{itemize}
 \item O vetor $A$ aponta na direção do canto superior esquerdo da tela.
@@ -2311,8 +2311,8 @@ O ângulo entre dois vetores pode ser calculado como mostrado em
 \section{Transformação usando sistema de equações lineares}
 \label{sec:coord_lineq}
 
-Para esta abordagem é necessário calibrar 3 dos 4 cantos da tela. São
-definidos 3 vetores no espaço tais que:
+Para esta abordagem é necessário calibrar três dos quatro cantos da tela.
+São definidos três vetores no espaço tais que:
 
 \begin{itemize}
 \item O vetor $A$ aponta na direção do canto superior esquerdo da tela.
@@ -2323,7 +2323,7 @@ definidos 3 vetores no espaço tais que:
 Também é definido o vetor $P$ como sendo a direção apontada pelo usuário.
 Esta abordagem transforma o vetor $P$ diretamente em coordenadas $(x, y)$
 contidas no plano da tela do computador através da solução de um sistema
-linear de 3 variáveis.
+linear de três variáveis.
 
 Esse sistema decorre da observação de que qualquer ponto da tela pode ser
 representado como ponto $A$ somado de um deslocamento horizontal na direção
@@ -2361,7 +2361,7 @@ As abordagens descritas nas seções \ref{sec:coord_geometria} e
 \ref{sec:coord_lineq} foram testadas experimentalmente usando o conjunto de
 ferramentas da seção \ref{sec:ferramentas}.
 
-Cada uma das abordagens foi testada 5 vezes usando o conjunto de vetores
+Cada uma das abordagens foi testada cinco vezes usando o conjunto de vetores
 gerados pela ferramenta \texttt{generate\_sphere\_vectors.py} -- ferramenta
 descrita na seção \ref{sec:ferramentas}, cujos vetores estão representados
 na figura \ref{fig:half_sphere} --, variando apenas a calibração do cantos
@@ -2373,7 +2373,7 @@ Os vetores de calibração escolhidos para cada teste possuem aberturas de
 abertura é ilustrada na figura \ref{fig:latitude_longitude}.
 
 As figuras de \ref{fig:resultado_exact} a \ref{fig:resultado_lineq} mostram
-o resultado de cada abordagem sendo testada com cada uma das 5 aberturas
+o resultado de cada abordagem sendo testada com cada uma das cinco aberturas
 citadas. Foram produzidas encadeando as três ferramentas auxiliares
 descritas na seção \ref{sec:ferramentas} e mostram as deformações
 introduzidas por cada abordagem, lembrando que o espaço entre os pontos é de
@@ -2468,7 +2468,7 @@ apresentando muito pouca deformação na região central assim como uma área de
 distorções periféricas relativamente pequena, significativamente menor que a
 área das outras abordagens.
 
-Por fim, a abordagem usando um sistema linear de 3 equações
+Por fim, a abordagem usando um sistema linear de três equações
 (\ref{fig:resultado_lineq}) apresentou distorções cada vez mais acentuadas
 conforme os ângulos de abertura ficavam maiores. Essas distorções ocorrem
 por se mapear uma região da esfera num plano, e portanto são relativamente
@@ -2574,7 +2574,7 @@ pino DRDY, como mostra a figura \ref{fig:loveelectronics_photos}.
 \centering
 \includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_front.jpg}
 \includegraphics[width=0.45\textwidth]{img/sensor_other_pcb_back.jpg}
-\caption{Fotos de uma PCB com 5 contatos disponíveis}
+\caption{Fotos de uma PCB com cinco contatos disponíveis}
 \label{fig:loveelectronics_photos}
 \end{figure}
 
