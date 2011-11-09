@@ -1235,6 +1235,8 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 \section{Visão geral do \textit{software}}
 \label{sec:software_visao_geral}
 
+TODO! Rever esta seção!
+
 Essencialmente, o trabalho do microcontrolador deste projeto é ler medições
 do sensor, aplicar um algoritmo de transformação de coordenadas e enviar
 para o computador as novas coordenadas do ponteiro. Para que isso pudesse
@@ -1246,7 +1248,7 @@ A comunicação com o sensor, descrita  na seção \ref{sec:software_sensor},
 
 Existem várias formas possíveis de transformar os valores lidos do sensor em
 coordenadas na tela. Um estudo das diferentes abordagens para esse problema
-e seus resultados é apresentado na seção \ref{sec:coordenadas}, que também
+e seus resultados é apresentado no capítulo \ref{cap:coordenadas}, que também
 descreve qual delas foi efetivamente implementada no microcontrolador
 
 A comunicação com o computador é feita através de um \textit{driver}
@@ -1258,6 +1260,8 @@ Com o objetivo de simplificar o desenvolvimento deste projeto, assim como
 simplificar a configuração do dispositivo pelo usuário final, também foi
 implementado um teclado \ac{USB} e um sistema de menus, descritos nas seções
 \ref{sec:keyboard} e \ref{sec:menu}.
+
+TODO! Rever esta seção!
 
 
 \section{Ambiente de desenvolvimento}
@@ -1736,8 +1740,299 @@ dos menus, simplificando o uso do dispositivo (tanto para o usuário final
 quanto para o desenvolvedor).
 
 
-\section{Transformação de coordenadas}
-\label{sec:coordenadas}
+\section{\textit{Mouse} USB}
+\label{sec:mouse}
+
+O objetivo final deste projeto é controlar o ponteiro do \textit{mouse} na tela do
+computador, e para isso foi preciso implementar um \textit{mouse} USB no
+microcontrolador de maneira similar ao teclado USB descrito na seção
+\ref{sec:keyboard}.
+
+Todavia, o \textit{mouse} deste projeto tem uma diferença fundamental em relação aos
+\textit{mouses} convencionais. A transformação de coordenadas, descrita no
+capítulo
+\ref{cap:coordenadas}, obtém como resultado um par de coordenadas $(x, y)$
+em relação à tela. Essas coordenadas são absolutas, no sentido de indicar
+uma posição específica da tela. Um \textit{mouse} convencional, no entanto, detecta
+apenas movimentos e obtém coordenadas relativas $(\Delta x, \Delta y)$,
+indicando a nova posição em relação à posição atual do ponteiro. Devido a
+essa diferença, o dispositivo implementado neste projeto é na verdade
+considerado um \textit{absolute pointing device}. \footnote{
+	Apesar de na verdade ser um \textit{absolute pointing device}, o nome
+	\textit{mouse}, por ser mais simples, mais curto e mais fácil de
+	entender, é usado em todo o projeto.
+}
+
+A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
+\textit{mouses} que implementem o protocolo \textit{boot}. \cite[p.~61]{usbhid} Assim
+como a implementação do teclado (seção \ref{sec:keyboard}), este dispositivo
+não tem suporte ao protocolo \textit{boot} e utiliza o \textit{report
+descriptor} mostrado na listagem \ref{lst:report_mouse}.
+
+\begin{ccode}[numbers=none, float=h, label={lst:report_mouse},
+	caption={\textit{Report descriptor} do \textit{mouse} USB}
+]
+	0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
+	0x09, 0x02,        // USAGE (Mouse)
+	0xa1, 0x01,        // COLLECTION (Application)
+	0x85, 0x02,	       //   REPORT_ID (2)
+	0x09, 0x01,        //   USAGE (Pointer)
+	0xa1, 0x00,        //   COLLECTION (Physical)
+	// X, Y movement
+	0x09, 0x30,        //     USAGE (X)
+	0x09, 0x31,        //     USAGE (Y)
+	0x15, 0x00,        //     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x7f,  //     LOGICAL_MAXIMUM (32767)
+	0x75, 0x10,        //     REPORT_SIZE (16)
+	0x95, 0x02,        //     REPORT_COUNT (2)
+	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
+	0xc0,              //   END_COLLECTION
+	// Buttons
+	0x05, 0x09,        //   USAGE_PAGE (Button)
+	0x19, 0x01,        //   USAGE_MINIMUM (Button 1)
+	0x29, 0x03,        //   USAGE_MAXIMUM (Button 3)
+	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,        //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,        //   REPORT_SIZE (1)
+	0x95, 0x03,        //   REPORT_COUNT (3)
+	0x81, 0x02,        //   INPUT (Data,Var,Abs)
+	// Padding for the buttons
+	0x75, 0x01,        //   REPORT_SIZE (1)
+	0x95, 0x05,        //   REPORT_COUNT (5)
+	0x81, 0x03,        //   INPUT (Cnst,Var,Abs)
+	0xc0               // END_COLLECTION
+\end{ccode}
+
+O \textit{report} usado por este \textit{mouse} possui 6 bytes. O primeiro deles é
+o \textit{Report ID} e tem valor 2, identificando que este \textit{report}
+corresponde ao \textit{report descriptor} do \textit{mouse}.\footnote{
+	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
+	com o valor 1.
+} Os 4 bytes seguintes correspondem à posição $(x, y)$, onde cada uma das
+duas coordenada é representada por um número inteiro de 16 bits dentro do
+intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
+considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
+\cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse}, sendo que
+os 3 bits menos significativos correspondem aos 3 botões, e os 5 bits
+restantes são ignorados.
+
+% TODO: Mouse/transf!
+O algoritmo de transformação de coordenadas implementado no microcontrolador
+foi a abordagem usando um sistema de 3 equações lineares (seção
+\ref{sec:coord_lineq}). Essa solução foi escolhida por ser a mais simples e
+portanto ocupar pouco espaço na memória bastante limitada do
+microcontrolador. Os cálculos utilizam variáveis \texttt{float} de 32 bits
+\cite{avrlibcfaq}, e a resolução do sistema linear utiliza o método de
+\textit{Gauss-Jordan}. \cite{GaussJordanInPython}
+
+Para o funcionamento desse algoritmo de transformação de coordenadas é
+necessário primeiramente calibrar os cantos da tela. Foi implementado um
+item no menu (seção \ref{sec:menu}) para essa finalidade.
+
+Do ponto de vista do usuário final, a calibração dos cantos é bastante
+simples. O usuário aponta o sensor na direção de um dos cantos e ativa o
+item do menu correspondente a esse canto. Nesse momento, é feita uma leitura
+do sensor, e o vetor lido é salvo na \ac{EEPROM} e está imediatamente
+disponível para uso do algoritmo.
+
+\subsection{Suavização do movimento}
+\label{sub:mouse_smoothing}
+
+O resultado do primeiro teste após o a implementação do \textit{mouse} \ac{USB} e da
+transformação de coordenadas foi insatisfatório. Embora o algoritmo
+funcionasse e o ponteiro acompanhasse os movimentos do sensor, a posição do
+ponteiro não era estável. Mesmo com o sensor parado, o ponteiro oscilava
+significativamente na tela, indicando um ruído nas medições.
+
+Esse ruído pode ser consequência da interferência magnética de aparelhos
+elétricos e eletrônicos, ou apenas uma limitação da precisão do sensor (que,
+conforme descrito na seção \ref{sec:sensor}, possui um \ac{ADC} de 12 bits).
+As razões exatas para tal ruído não são conhecidas.
+
+Foi então implementado um filtro de suavização após a transformação de
+coordenadas, mas antes de preencher o \textit{report}. O valor final das
+coordenadas na tela é uma média ponderada calculada desta forma:
+
+\begin{align*}
+\label{eq:filtro_media_ponderada}
+x_t & = 0.875 x_{t-1} + 0.125 x
+\end{align*}
+
+Onde $x_{t-1}$ é o valor da média anterior, $x$ é o resultado da
+transformação de coordenadas aplicada na medição do sensor, e $x_t$ é o
+valor após a suavização.
+
+% O nome disso é suavização exponencial, ou amortecimento exponencial:
+% http://en.wikipedia.org/wiki/Exponential_smoothing
+
+% Outra abordagem possível é média móvel:
+% http://en.wikipedia.org/wiki/Moving_average
+
+% Ver também:
+% http://www2.dbd.puc-rio.br/pergamum/tesesabertas/0521427_07_cap_02.pdf
+
+Os fatores $0.875$ e $0.125$ foram escolhidos experimentalmente considerando
+um balanço entre o tempo de resposta e a intensidade do filtro. Foi
+verificado que fatores $0.9375$ e $0.0625$ introduziram um tempo de resposta
+perceptível para o usuário.
+
+
+\subsection{Bug no kernel do Linux}
+\label{sub:linux_hid_bug}
+
+Durante os testes do \textit{mouse} \ac{USB}, foi descoberto um bug na implementação
+do suporte a \ac{USB} \ac{HID} no kernel do Linux.
+
+A especificação \ac{USB} \ac{HID} define que valores fora dos limites
+lógicos para um campo de um \textit{report} devem ser ignorados.
+\cite[p.~20]{usbhid} Neste projeto, conforme descrito na seção
+\ref{sec:mouse}, cada coordenada é representada por um inteiro de 16 bits
+dentro do intervalo de \numrange{0}{32767}. Valores fora desse intervalo,
+porém ainda representáveis em 16 bits, deveriam ser ignorados pelo sistema
+operacional. No entanto, foi observado que esses valores eram interpretados
+pelo sistema e causavam movimento indevido do ponteiro do \textit{mouse}.
+
+O código do \textit{firmware} foi então adaptado para não enviar valores
+fora desse intervalo. Não houve nenhuma perda de funcionalidade causada por
+essa adaptação.
+
+O bug foi reportado na \ac{LKML} \cite{LKMLhidnullvalues} e possivelmente
+será corrigido na versão 3.3 ou posterior. \cite{LKMLhidnullvaluesResposta}
+
+
+\section{Outras funcionalidades}
+\label{sec:outras_funcionalidades}
+
+
+\subsection{\textit{Debouncing} dos botões}
+\label{sub:debouncing}
+
+Um problema bem conhecido na eletrônica é o fenômeno de \textit{bouncing}.
+Botões são inerentemente mecânicos, e, ao serem pressionados, demora uma
+fração de segundo até que o contato seja estabilizado. Isso ocorre devido às
+características elásticas dos materiais que os compõem. Nesse curto
+intervalo de tempo, o botão oscila rapidamente entre os estados de aberto e
+fechado.
+
+Conhecendo esse problema, faz-se necessário aplicar alguma técnica de
+\textit{debouncing}. A solução empregada neste projeto foi inspirada na
+solução adotada pelo projeto TiltStick. \cite{TiltStick} Consiste em
+considerar a mudança de estado do botão apenas caso tenham-se passadas 8
+leituras consecutivas no novo estado. Isso foi implementado usando um byte
+para cada botão. A cada leitura, o valor do byte é deslocado 1 bit para a
+esquerda e a leitura atual é guardada no bit menos significativo. Caso o
+valor do byte seja igual a \texttt{0x00}, considera-se que o botão não está
+pressionado. Caso o valor seja igual a \texttt{0xFF}, considera-se que o
+botão está pressionado.\footnote{
+	No \textit{hardware}, o nível lógico 0 representa um botão pressionado.
+	Como é mais intuitivo pensar que 1 representa o botão pressionado e 0
+	botão solto, o valor lido pelo \textit{hardware} é invertido pela rotina
+	de leitura dos botões.
+} Qualquer outro valor é ignorado, e o botão mantém o estado anterior.
+
+
+\subsection{Gravar configurações na EEPROM}
+\label{sub:eeprom}
+
+A biblioteca AVR-Libc já inclui funções para leitura e gravação de dados na
+\ac{EEPROM}. Essas funções são implementadas usando a técnica de
+\textit{busy-wait}, e portanto podem bloquear a execução do firmware por
+tanto tempo quanto demorar a leitura ou escrita dos bytes requisitados.
+\cite{avrlibceeprom}
+
+O tempo total para a leitura de 1 byte da \ac{EEPROM} no ATmega8 é de
+\numrange[range-phrase={ ou }]{4}{5} ciclos de \textit{clock}\footnote{
+	O \textit{datasheet} informa que o acesso à \ac{EEPROM} demora apenas
+	1 ciclo, mas também diz que a CPU fica parada por 4 ciclos antes que
+	a instrução seguinte seja executada.
+}, enquanto a escrita de cada byte demora aproximadamente
+\SI{8.5}{\milli\second}. \cite[p.~21]{ATmega8} Portanto, a leitura é rápida
+o suficiente para não causar nenhum tipo de problema, mas a escrita
+é bastante demorada, e realizar escritas através da técnica de
+\textit{busy-wait} não é adequado pelos mesmos motivos já citados na seção
+\ref{sec:twi}.
+
+Foi então necessário implementar um tipo de escrita não bloqueante.
+A própria \textit{Atmel} publicou uma solução para esse problema na
+\textit{application note} ``AVR104: Buffered Interrupt Controlled EEPROM
+Writes''. \cite{AVR104} Sua implementação é bastante completa e inclui um
+\textit{buffer} de escritas bastante poderoso, permitindo que múltiplas
+escritas para endereços arbitrários na \ac{EEPROM} sejam empilhadas
+simultaneamente. Além disso, também tem suporte aos diferentes \textit{sleep
+modes} do microcontrolador. \cite[p.~33]{ATmega8}
+
+Embora seja uma excelente solução para o caso geral, essa implementação
+é grande demais para as necessidades deste projeto.
+% Sinônimos: exagero, overkill, bloated
+Sabendo que \textit{firmware} não usa \textit{sleep modes} e que não
+ocorrerá o caso de mais de uma gravação simultânea, foi possível simplificar
+bastante o código dessa implementação.
+
+Apenas um trecho da rotina de tratamento da interrupção foi aproveitada
+dessa \textit{application note}, todo o restante foi reescrito ou
+simplesmente apagado.  O código final empregado no \textit{firmware} utiliza
+um \textit{buffer} simples que permite gravar uma sequência de bytes numa
+posição contígua da \ac{EEPROM}.
+
+
+\subsection{Calibração do ``zero'' do sensor}
+\label{sub:zerocal}
+
+Durante o desenvolvimento do projeto foi observado que os vetores
+correspondentes às medições do campo magnético estavam enviesados, \ie, não
+eram centralizados ao redor das coordenadas $(0, 0, 0)$.
+
+Não se sabe se esse efeito é uma característica intrínseca do sensor, ou se
+é causado por fatores externos. O \textit{datasheet} do sensor tem algumas
+recomendações sobre o projeto da \ac{PCB} na qual o sensor será montado. Em
+especial, recomenda afastar componentes que contenham materiais ferrosos,
+assim como evitar trilhas condutoras embaixo ou próximo do sensor.
+\cite[p.~5]{HMC5883L} Não foi possível descobrir se o fabricante da \ac{PCB}
+adquirida (figura \ref{fig:sensor_photos} na seção
+\ref{sec:sensor}) tomou tais precauções.
+
+Para resolver esse problema, foi implementado um item no menu para
+a calibração do ``zero'' do sensor. Durante a calibração, o sensor deve ser
+movido em todas as direções, de modo a descobrir os valores máximo e mínimo
+para cada um dos eixos. Uma vez concluída a calibração, o viés é calculado
+como a média entre os valores máximo e o mínimo, e é então gravado na
+\ac{EEPROM}. Após calibrado, todas as leituras do sensor são compensadas via
+\textit{software}, usando o valor calibrado. O resultado pode ser visto na
+figura \ref{fig:zerocal}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{img/zerocal_off.pdf}
+\includegraphics[width=0.45\textwidth]{img/zerocal_on.pdf}
+\caption{Medições do sensor antes e depois da calibração do ``zero''}
+\label{fig:zerocal}
+\end{figure}
+
+
+%\subsection{Problemas na comunicação com o sensor}
+%\label{sub:problema_comunicacao_sensor}
+%
+%TODO: problema ao realizar muitas leituras muito rapidamente, cuja solução
+%foi realizar leituras num timer.
+%
+%Citar também o "USB Reset".
+
+
+%\subsection{Tamanho do firmware}
+%\label{sub:firmware_size}
+%
+%Um desafio constante durante o projeto foi manter o tamanho do
+%\textit{firmware} abaixo de 8192 bytes (tamanho da memória Flash do
+%microcontrolador, conforme descrito na seção \ref{sec:atmega8}), e,
+%adicionalmente, abaixo de 6144 bytes (espaço total disponível após o uso do
+%\textit{boot loader}, conforme seção \ref{sec:bootloader}).
+%
+%TODO: Dentre outras coisas, falar sobre as flags de compilação, que são
+%específicas para a versão 4.5 do GCC.
+
+
+\chapter{Transformação de coordenadas}
+\label{cap:coordenadas}
 
 O principal desafio teórico deste projeto foi transformar os vetores
 tridimensionais lidos do sensor em coordenadas bidimensionais na tela do
@@ -1746,8 +2041,8 @@ explorar algumas abordagens antes de decidir qual delas seria implementada
 no microcontrolador.
 
 
-\subsection{Ferramentas auxiliares}
-\label{sub:ferramentas}
+\section{Ferramentas auxiliares}
+\label{sec:ferramentas}
 
 Com o objetivo de experimentar e avaliar as diferentes abordagens para a
 transformação de coordenadas, foram desenvolvidas algumas ferramentas
@@ -1760,7 +2055,7 @@ serve para simular leituras do sensor. Esta ferramenta imprime na saída
 padrão uma lista de vetores 3D que cobrem pouco menos da metade da
 superfície de uma esfera. Também imprime 4 vetores correspondentes aos
 cantos da tela, os quais são usados nos cálculos explicados nas seções
-\ref{sub:coord_geometria} e \ref{sub:coord_lineq}. A listagem
+\ref{sec:coord_geometria} e \ref{sec:coord_lineq}. A listagem
 \ref{lst:generate_sphere_vectors} mostra um trecho da saída desta
 ferramenta.
 
@@ -1799,7 +2094,7 @@ latitude. Há um espaçamento de \SI{1}{\degree} de longitude e
 
 A segunda ferramenta foi chamada de \texttt{convert\_coordinates.py} e
 implementa os algoritmos de transformação de coordenadas explicados nas
-seções \ref{sub:coord_geometria} e \ref{sub:coord_lineq}.  Esta ferramenta
+seções \ref{sec:coord_geometria} e \ref{sec:coord_lineq}.  Esta ferramenta
 lê vetores 3D a partir da entrada padrão e imprime na saída padrão as
 coordenadas 2D correspondentes, calculadas de acordo com o algoritmo
 selecionado. Um exemplo de entrada e saída para esta ferramenta pode ser
@@ -1841,8 +2136,8 @@ de um \textit{pipeline}.\footnote{
 }
 
 
-\subsection{Transformação usando geometria}
-\label{sub:coord_geometria}
+\section{Transformação usando geometria}
+\label{sec:coord_geometria}
 
 Para esta abordagem é necessário calibrar os 4 cantos da tela, \ie, definir
 4 vetores no espaço tais que:
@@ -1976,7 +2271,7 @@ razão entre senos \eqref{eq:alpha_sin},
 razão entre cossenos \eqref{eq:alpha_cos},
 razão entre tangentes \eqref{eq:alpha_tan}.
 Os resultados de cada abordagem estão listados na seção
-\ref{sub:coord_resultados}.
+\ref{sec:coord_resultados}.
 
 \begin{align}
 \label{eq:alpha_angulo}
@@ -2005,8 +2300,8 @@ O ângulo entre dois vetores pode ser calculado como mostrado em
 \end{align}
 
 
-\subsection{Transformação usando sistema de equações lineares}
-\label{sub:coord_lineq}
+\section{Transformação usando sistema de equações lineares}
+\label{sec:coord_lineq}
 
 Para esta abordagem é necessário calibrar 3 dos 4 cantos da tela. São
 definidos 3 vetores no espaço tais que:
@@ -2051,16 +2346,16 @@ x (B-A) + y (D-A) - z P & = -A
 %retângulo, que é um caso particular do paralelogramo).
 
 
-\subsection{Resultados}
-\label{sub:coord_resultados}
+\section{Resultados}
+\label{sec:coord_resultados}
 
-As abordagens descritas nas seções \ref{sub:coord_geometria} e
-\ref{sub:coord_lineq} foram testadas experimentalmente usando o conjunto de
-ferramentas da seção \ref{sub:ferramentas}.
+As abordagens descritas nas seções \ref{sec:coord_geometria} e
+\ref{sec:coord_lineq} foram testadas experimentalmente usando o conjunto de
+ferramentas da seção \ref{sec:ferramentas}.
 
 Cada uma das abordagens foi testada 5 vezes usando o conjunto de vetores
 gerados pela ferramenta \texttt{generate\_sphere\_vectors.py} -- ferramenta
-descrita na seção \ref{sub:ferramentas}, cujos vetores estão representados
+descrita na seção \ref{sec:ferramentas}, cujos vetores estão representados
 na figura \ref{fig:half_sphere} --, variando apenas a calibração do cantos
 da tela entre cada teste. Isso permitiu analisar o comportamento de cada
 algoritmo sob diferentes condições.
@@ -2072,7 +2367,7 @@ abertura é ilustrada na figura \ref{fig:latitude_longitude}.
 As figuras de \ref{fig:resultado_exact} a \ref{fig:resultado_lineq} mostram
 o resultado de cada abordagem sendo testada com cada uma das 5 aberturas
 citadas. Foram produzidas encadeando as três ferramentas auxiliares
-descritas na seção \ref{sub:ferramentas} e mostram as deformações
+descritas na seção \ref{sec:ferramentas} e mostram as deformações
 introduzidas por cada abordagem, lembrando que o espaço entre os pontos é de
 \SI{1}{\degree} horizontalmente e \SI{2}{\degree} verticalmente.
 
@@ -2170,295 +2465,6 @@ Por fim, a abordagem usando um sistema linear de 3 equações
 conforme os ângulos de abertura ficavam maiores. Essas distorções ocorrem
 por se mapear uma região da esfera num plano, e portanto são relativamente
 pequenas quando a região da esfera é suficientemente reduzida.
-
-
-\section{\textit{Mouse} USB}
-\label{sec:mouse}
-
-O objetivo final deste projeto é controlar o ponteiro do \textit{mouse} na tela do
-computador, e para isso foi preciso implementar um \textit{mouse} USB no
-microcontrolador de maneira similar ao teclado USB descrito na seção
-\ref{sec:keyboard}.
-
-Todavia, o \textit{mouse} deste projeto tem uma diferença fundamental em relação aos
-\textit{mouses} convencionais. A transformação de coordenadas, descrita na seção
-\ref{sec:coordenadas}, obtém como resultado um par de coordenadas $(x, y)$
-em relação à tela. Essas coordenadas são absolutas, no sentido de indicar
-uma posição específica da tela. Um \textit{mouse} convencional, no entanto, detecta
-apenas movimentos e obtém coordenadas relativas $(\Delta x, \Delta y)$,
-indicando a nova posição em relação à posição atual do ponteiro. Devido a
-essa diferença, o dispositivo implementado neste projeto é na verdade
-considerado um \textit{absolute pointing device}. \footnote{
-	Apesar de na verdade ser um \textit{absolute pointing device}, o nome
-	\textit{mouse}, por ser mais simples, mais curto e mais fácil de
-	entender, é usado em todo o projeto.
-}
-
-A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
-\textit{mouses} que implementem o protocolo \textit{boot}. \cite[p.~61]{usbhid} Assim
-como a implementação do teclado (seção \ref{sec:keyboard}), este dispositivo
-não tem suporte ao protocolo \textit{boot} e utiliza o \textit{report
-descriptor} mostrado na listagem \ref{lst:report_mouse}.
-
-\begin{ccode}[numbers=none, float=h, label={lst:report_mouse},
-	caption={\textit{Report descriptor} do \textit{mouse} USB}
-]
-	0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
-	0x09, 0x02,        // USAGE (Mouse)
-	0xa1, 0x01,        // COLLECTION (Application)
-	0x85, 0x02,	       //   REPORT_ID (2)
-	0x09, 0x01,        //   USAGE (Pointer)
-	0xa1, 0x00,        //   COLLECTION (Physical)
-	// X, Y movement
-	0x09, 0x30,        //     USAGE (X)
-	0x09, 0x31,        //     USAGE (Y)
-	0x15, 0x00,        //     LOGICAL_MINIMUM (0)
-	0x26, 0xff, 0x7f,  //     LOGICAL_MAXIMUM (32767)
-	0x75, 0x10,        //     REPORT_SIZE (16)
-	0x95, 0x02,        //     REPORT_COUNT (2)
-	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
-	0xc0,              //   END_COLLECTION
-	// Buttons
-	0x05, 0x09,        //   USAGE_PAGE (Button)
-	0x19, 0x01,        //   USAGE_MINIMUM (Button 1)
-	0x29, 0x03,        //   USAGE_MAXIMUM (Button 3)
-	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
-	0x25, 0x01,        //   LOGICAL_MAXIMUM (1)
-	0x75, 0x01,        //   REPORT_SIZE (1)
-	0x95, 0x03,        //   REPORT_COUNT (3)
-	0x81, 0x02,        //   INPUT (Data,Var,Abs)
-	// Padding for the buttons
-	0x75, 0x01,        //   REPORT_SIZE (1)
-	0x95, 0x05,        //   REPORT_COUNT (5)
-	0x81, 0x03,        //   INPUT (Cnst,Var,Abs)
-	0xc0               // END_COLLECTION
-\end{ccode}
-
-O \textit{report} usado por este \textit{mouse} possui 6 bytes. O primeiro deles é
-o \textit{Report ID} e tem valor 2, identificando que este \textit{report}
-corresponde ao \textit{report descriptor} do \textit{mouse}.\footnote{
-	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
-	com o valor 1.
-} Os 4 bytes seguintes correspondem à posição $(x, y)$, onde cada uma das
-duas coordenada é representada por um número inteiro de 16 bits dentro do
-intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
-considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
-\cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse}, sendo que
-os 3 bits menos significativos correspondem aos 3 botões, e os 5 bits
-restantes são ignorados.
-
-O algoritmo de transformação de coordenadas implementado no microcontrolador
-foi a abordagem usando um sistema de 3 equações lineares (seção
-\ref{sub:coord_lineq}). Essa solução foi escolhida por ser a mais simples e
-portanto ocupar pouco espaço na memória bastante limitada do
-microcontrolador. Os cálculos utilizam variáveis \texttt{float} de 32 bits
-\cite{avrlibcfaq}, e a resolução do sistema linear utiliza o método de
-\textit{Gauss-Jordan}. \cite{GaussJordanInPython}
-
-Para o funcionamento desse algoritmo de transformação de coordenadas é
-necessário primeiramente calibrar os cantos da tela. Foi implementado um
-item no menu (seção \ref{sec:menu}) para essa finalidade.
-
-Do ponto de vista do usuário final, a calibração dos cantos é bastante
-simples. O usuário aponta o sensor na direção de um dos cantos e ativa o
-item do menu correspondente a esse canto. Nesse momento, é feita uma leitura
-do sensor, e o vetor lido é salvo na \ac{EEPROM} e está imediatamente
-disponível para uso do algoritmo.
-
-\subsection{Suavização do movimento}
-\label{sub:mouse_smoothing}
-
-O resultado do primeiro teste após o a implementação do \textit{mouse} \ac{USB} e da
-transformação de coordenadas foi insatisfatório. Embora o algoritmo
-funcionasse e o ponteiro acompanhasse os movimentos do sensor, a posição do
-ponteiro não era estável. Mesmo com o sensor parado, o ponteiro oscilava
-significativamente na tela, indicando um ruído nas medições.
-
-Esse ruído pode ser consequência da interferência magnética de aparelhos
-elétricos e eletrônicos, ou apenas uma limitação da precisão do sensor (que,
-conforme descrito na seção \ref{sec:sensor}, possui um \ac{ADC} de 12 bits).
-As razões exatas para tal ruído não são conhecidas.
-
-Foi então implementado um filtro de suavização após a transformação de
-coordenadas, mas antes de preencher o \textit{report}. O valor final das
-coordenadas na tela é uma média ponderada calculada desta forma:
-
-\begin{align*}
-\label{eq:filtro_media_ponderada}
-x_t & = 0.875 x_{t-1} + 0.125 x
-\end{align*}
-
-Onde $x_{t-1}$ é o valor da média anterior, $x$ é o resultado da
-transformação de coordenadas aplicada na medição do sensor, e $x_t$ é o
-valor após a suavização.
-
-% O nome disso é suavização exponencial, ou amortecimento exponencial:
-% http://en.wikipedia.org/wiki/Exponential_smoothing
-
-% Outra abordagem possível é média móvel:
-% http://en.wikipedia.org/wiki/Moving_average
-
-% Ver também:
-% http://www2.dbd.puc-rio.br/pergamum/tesesabertas/0521427_07_cap_02.pdf
-
-Os fatores $0.875$ e $0.125$ foram escolhidos experimentalmente considerando
-um balanço entre o tempo de resposta e a intensidade do filtro. Foi
-verificado que fatores $0.9375$ e $0.0625$ introduziram um tempo de resposta
-perceptível para o usuário.
-
-
-\subsection{Bug no kernel do Linux}
-\label{sub:linux_hid_bug}
-
-Durante os testes do \textit{mouse} \ac{USB}, foi descoberto um bug na implementação
-do suporte a \ac{USB} \ac{HID} no kernel do Linux.
-
-A especificação \ac{USB} \ac{HID} define que valores fora dos limites
-lógicos para um campo de um \textit{report} devem ser ignorados.
-\cite[p.~20]{usbhid} Neste projeto, conforme descrito na seção
-\ref{sec:mouse}, cada coordenada é representada por um inteiro de 16 bits
-dentro do intervalo de \numrange{0}{32767}. Valores fora desse intervalo,
-porém ainda representáveis em 16 bits, deveriam ser ignorados pelo sistema
-operacional. No entanto, foi observado que esses valores eram interpretados
-pelo sistema e causavam movimento indevido do ponteiro do \textit{mouse}.
-
-O código do \textit{firmware} foi então adaptado para não enviar valores
-fora desse intervalo. Não houve nenhuma perda de funcionalidade causada por
-essa adaptação.
-
-O bug foi reportado na \ac{LKML} \cite{LKMLhidnullvalues} e possivelmente
-será corrigido na versão 3.3 ou posterior. \cite{LKMLhidnullvaluesResposta}
-
-
-\section{Outras dificuldades}
-\label{sec:outras_dificuldades}
-
-
-\subsection{\textit{Debouncing} dos botões}
-\label{sub:debouncing}
-
-Um problema bem conhecido na eletrônica é o fenômeno de \textit{bouncing}.
-Botões são inerentemente mecânicos, e, ao serem pressionados, demora uma
-fração de segundo até que o contato seja estabilizado. Isso ocorre devido às
-características elásticas dos materiais que os compõem. Nesse curto
-intervalo de tempo, o botão oscila rapidamente entre os estados de aberto e
-fechado.
-
-Conhecendo esse problema, faz-se necessário aplicar alguma técnica de
-\textit{debouncing}. A solução empregada neste projeto foi inspirada na
-solução adotada pelo projeto TiltStick. \cite{TiltStick} Consiste em
-considerar a mudança de estado do botão apenas caso tenham-se passadas 8
-leituras consecutivas no novo estado. Isso foi implementado usando um byte
-para cada botão. A cada leitura, o valor do byte é deslocado 1 bit para a
-esquerda e a leitura atual é guardada no bit menos significativo. Caso o
-valor do byte seja igual a \texttt{0x00}, considera-se que o botão não está
-pressionado. Caso o valor seja igual a \texttt{0xFF}, considera-se que o
-botão está pressionado.\footnote{
-	No \textit{hardware}, o nível lógico 0 representa um botão pressionado.
-	Como é mais intuitivo pensar que 1 representa o botão pressionado e 0
-	botão solto, o valor lido pelo \textit{hardware} é invertido pela rotina
-	de leitura dos botões.
-} Qualquer outro valor é ignorado, e o botão mantém o estado anterior.
-
-
-\subsection{Gravar configurações na EEPROM}
-\label{sub:eeprom}
-
-A biblioteca AVR-Libc já inclui funções para leitura e gravação de dados na
-\ac{EEPROM}. Essas funções são implementadas usando a técnica de
-\textit{busy-wait}, e portanto podem bloquear a execução do firmware por
-tanto tempo quanto demorar a leitura ou escrita dos bytes requisitados.
-\cite{avrlibceeprom}
-
-O tempo total para a leitura de 1 byte da \ac{EEPROM} no ATmega8 é de
-\numrange[range-phrase={ ou }]{4}{5} ciclos de \textit{clock}\footnote{
-	O \textit{datasheet} informa que o acesso à \ac{EEPROM} demora apenas
-	1 ciclo, mas também diz que a CPU fica parada por 4 ciclos antes que
-	a instrução seguinte seja executada.
-}, enquanto a escrita de cada byte demora aproximadamente
-\SI{8.5}{\milli\second}. \cite[p.~21]{ATmega8} Portanto, a leitura é rápida
-o suficiente para não causar nenhum tipo de problema, mas a escrita
-é bastante demorada, e realizar escritas através da técnica de
-\textit{busy-wait} não é adequado pelos mesmos motivos já citados na seção
-\ref{sec:twi}.
-
-Foi então necessário implementar um tipo de escrita não bloqueante.
-A própria \textit{Atmel} publicou uma solução para esse problema na
-\textit{application note} ``AVR104: Buffered Interrupt Controlled EEPROM
-Writes''. \cite{AVR104} Sua implementação é bastante completa e inclui um
-\textit{buffer} de escritas bastante poderoso, permitindo que múltiplas
-escritas para endereços arbitrários na \ac{EEPROM} sejam empilhadas
-simultaneamente. Além disso, também tem suporte aos diferentes \textit{sleep
-modes} do microcontrolador. \cite[p.~33]{ATmega8}
-
-Embora seja uma excelente solução para o caso geral, essa implementação
-é grande demais para as necessidades deste projeto.
-% Sinônimos: exagero, overkill, bloated
-Sabendo que \textit{firmware} não usa \textit{sleep modes} e que não
-ocorrerá o caso de mais de uma gravação simultânea, foi possível simplificar
-bastante o código dessa implementação.
-
-Apenas um trecho da rotina de tratamento da interrupção foi aproveitada
-dessa \textit{application note}, todo o restante foi reescrito ou
-simplesmente apagado.  O código final empregado no \textit{firmware} utiliza
-um \textit{buffer} simples que permite gravar uma sequência de bytes numa
-posição contígua da \ac{EEPROM}.
-
-
-\subsection{Calibração do ``zero'' do sensor}
-\label{sub:zerocal}
-
-Durante o desenvolvimento do projeto foi observado que os vetores
-correspondentes às medições do campo magnético estavam enviesados, \ie, não
-eram centralizados ao redor das coordenadas $(0, 0, 0)$.
-
-Não se sabe se esse efeito é uma característica intrínseca do sensor, ou se
-é causado por fatores externos. O \textit{datasheet} do sensor tem algumas
-recomendações sobre o projeto da \ac{PCB} na qual o sensor será montado. Em
-especial, recomenda afastar componentes que contenham materiais ferrosos,
-assim como evitar trilhas condutoras embaixo ou próximo do sensor.
-\cite[p.~5]{HMC5883L} Não foi possível descobrir se o fabricante da \ac{PCB}
-adquirida (figura \ref{fig:sensor_photos} na seção
-\ref{sec:sensor}) tomou tais precauções.
-
-Para resolver esse problema, foi implementado um item no menu para
-a calibração do ``zero'' do sensor. Durante a calibração, o sensor deve ser
-movido em todas as direções, de modo a descobrir os valores máximo e mínimo
-para cada um dos eixos. Uma vez concluída a calibração, o viés é calculado
-como a média entre os valores máximo e o mínimo, e é então gravado na
-\ac{EEPROM}. Após calibrado, todas as leituras do sensor são compensadas via
-\textit{software}, usando o valor calibrado. O resultado pode ser visto na
-figura \ref{fig:zerocal}.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.45\textwidth]{img/zerocal_off.pdf}
-\includegraphics[width=0.45\textwidth]{img/zerocal_on.pdf}
-\caption{Medições do sensor antes e depois da calibração do ``zero''}
-\label{fig:zerocal}
-\end{figure}
-
-
-%\subsection{Problemas na comunicação com o sensor}
-%\label{sub:problema_comunicacao_sensor}
-%
-%TODO: problema ao realizar muitas leituras muito rapidamente, cuja solução
-%foi realizar leituras num timer.
-%
-%Citar também o "USB Reset".
-
-
-%\subsection{Tamanho do firmware}
-%\label{sub:firmware_size}
-%
-%Um desafio constante durante o projeto foi manter o tamanho do
-%\textit{firmware} abaixo de 8192 bytes (tamanho da memória Flash do
-%microcontrolador, conforme descrito na seção \ref{sec:atmega8}), e,
-%adicionalmente, abaixo de 6144 bytes (espaço total disponível após o uso do
-%\textit{boot loader}, conforme seção \ref{sec:bootloader}).
-%
-%TODO: Dentre outras coisas, falar sobre as flags de compilação, que são
-%específicas para a versão 4.5 do GCC.
 
 
 \chapter{Conclusões}
