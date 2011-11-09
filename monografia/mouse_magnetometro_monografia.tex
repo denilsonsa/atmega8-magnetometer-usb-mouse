@@ -397,7 +397,6 @@ bits e um magnetômetro.
 \end{resumo}
 
 \begin{abstract}
-%TODO: Corrigir o quê no abstract?
 This project implements a USB HID absolute pointing device using an ATmega8
 AVR 8-bit microcontroller and a magnetometer.
 \end{abstract}
@@ -461,7 +460,7 @@ can't be done is generally interrupted by someone doing it.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-%TODO Neste capítulo são apresentadas blah blah
+% Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -643,7 +642,7 @@ five minutes, the sound was so poor.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-%TODO Neste capítulo são apresentadas blah blah
+% Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -1023,15 +1022,14 @@ SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 
 \vfill{}
 \begin{flushright}{}
-``\emph{Models are a bunch of equations; physics is what happens when you
-drop a hammer on your big toe. They are not the same. Just ask your big
-toe.}''\\
-{\small Ken Matusow}
-% https://plus.google.com/107033731246200681024/posts/BryKKA16sH6
+``\emph{It's hardware that makes a machine fast. It's software that makes a
+fast machine slow.}''\\
+{\small Craig Bruce}
+% http://www.brainyquote.com/quotes/quotes/c/craigbruce189163.html
 \end{flushright}{\small \par}
 \vfill{}
 
-%TODO Neste capítulo são apresentadas blah blah
+% Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -1228,7 +1226,7 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 \end{flushright}{\small \par}
 \vfill{}
 
-%TODO Neste capítulo são apresentadas blah blah
+% Neste capítulo são apresentadas blah blah
 \newpage
 
 
@@ -1816,7 +1814,6 @@ considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
 os 3 bits menos significativos correspondem aos 3 botões, e os 5 bits
 restantes são ignorados.
 
-% TODO: Mouse/transf!
 O algoritmo de transformação de coordenadas implementado no microcontrolador
 foi a abordagem usando um sistema de 3 equações lineares (seção
 \ref{sec:coord_lineq}). Essa solução foi escolhida por ser a mais simples e
@@ -1854,7 +1851,7 @@ coordenadas, mas antes de preencher o \textit{report}. O valor final das
 coordenadas na tela é uma média ponderada calculada desta forma:
 
 \begin{align*}
-\label{eq:filtro_media_ponderada}
+%\label{eq:filtro_media_ponderada}
 x_t & = 0.875 x_{t-1} + 0.125 x
 \end{align*}
 
@@ -2034,15 +2031,28 @@ figura \ref{fig:zerocal}.
 \chapter{Transformação de coordenadas}
 \label{cap:coordenadas}
 
+
+\vfill{}
+\begin{flushright}{}
+``\emph{Models are a bunch of equations; physics is what happens when you
+drop a hammer on your big toe. They are not the same. Just ask your big
+toe.}''\\
+{\small Ken Matusow}
+\end{flushright}{\small \par}
+\vfill{}
+
+% Neste capítulo são apresentadas blah blah
+\newpage
+
+
+\section{Ferramentas auxiliares}
+\label{sec:ferramentas}
+
 O principal desafio teórico deste projeto foi transformar os vetores
 tridimensionais lidos do sensor em coordenadas bidimensionais na tela do
 computador. Não existe uma única solução para este problema e foi preciso
 explorar algumas abordagens antes de decidir qual delas seria implementada
 no microcontrolador.
-
-
-\section{Ferramentas auxiliares}
-\label{sec:ferramentas}
 
 Com o objetivo de experimentar e avaliar as diferentes abordagens para a
 transformação de coordenadas, foram desenvolvidas algumas ferramentas
@@ -2101,7 +2111,7 @@ selecionado. Um exemplo de entrada e saída para esta ferramenta pode ser
 visto na listagem \ref{lst:convert_coordinates}
 
 \begin{lstlisting}[numbers=none, float=h, label={lst:convert_coordinates},
-caption={Entrada para o programa \texttt{convert\_coordinates.py}, e a saída correspondente}
+caption={Entrada para o programa \texttt{convert\_coordinates.py} e a saída correspondente}
 ]
 topleft
 172     69      75
@@ -2485,7 +2495,7 @@ pequenas quando a região da esfera é suficientemente reduzida.
 \end{flushright}{\small \par}
 \vfill{}
 
-%TODO Neste capítulo são apresentadas blah blah
+% Neste capítulo são apresentadas blah blah
 \newpage
 
 
