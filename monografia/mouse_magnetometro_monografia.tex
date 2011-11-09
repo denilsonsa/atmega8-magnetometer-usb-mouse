@@ -266,14 +266,14 @@
 % Some metadata
 
 % This is used only by latex-beamer package:
-%\title{Dispositivo apontador USB usando magnetômetro}
+%\title{Dispositivo Apontador com interface USB usando Magnetômetro}
 %\author{Denilson Figueiredo de Sá}
 %\date{2011-11-16}
 %\institute{DCC/UFRJ}
 %\keywords{AVR, USB, mouse, magnetometer}
 
 \autor{Denilson Figueiredo de Sá}
-\titulo{Dispositivo apontador USB usando magnetômetro}
+\titulo{Dispositivo Apontador com interface USB usando Magnetômetro}
 \orientador{Nelson Quilula Vasconcelos}
 %\comentario{}
 \instituicao{Departamento de Ciência da Computação \par Instituto de Matemática \par Universidade Federal do Rio de Janeiro}
@@ -367,12 +367,13 @@ Acredite, haverá agradecimenos aqui nesta página.
 
 
 \begin{resumo}
-Este projeto tem como objetivo implementar um dispositivo USB de interface
-humano-computador do tipo \textit{absolute pointing device}, utilizando um
-microcontrolador AVR ATmega8 de 8 bits e um magnetômetro.
+Este projeto tem como objetivo implementar um dispositivo apontador
+compatível com um mouse USB, utilizando um microcontrolador AVR ATmega8 de 8
+bits e um magnetômetro.
 \end{resumo}
 
 \begin{abstract}
+%TODO: Corrigir o quê no abstract?
 This project implements a USB HID absolute pointing device, using an ATmega8
 AVR 8-bit microcontroller and a magnetometer.
 \end{abstract}
@@ -443,9 +444,9 @@ can't be done is generally interrupted by someone doing it.}''\\
 \section{Motivação e objetivos}
 \label{sec:motivacao}
 
-Este projeto implementa um dispositivo \acs{USB} do tipo \textit{absolute
-pointing device} que pode ser utilizado para controlar o ponteiro do mouse
-na tela do computador seguindo os movimentos de um sensor.
+Este projeto apresenta uma implementação de um dispositivo \acs{USB} do tipo
+\textit{absolute pointing device} que pode ser utilizado para controlar o
+ponteiro do mouse na tela do computador seguindo os movimentos de um sensor.
 
 O sensor empregado neste projeto é um magnetômetro, também conhecido como
 bússola digital, o qual permite medir a direção e a intensidade do campo
@@ -547,8 +548,8 @@ funciona de maneira similar, porém é voltado para o mercado de jogos. Neste
 caso, em vez de controlar o ponteiro do mouse, os movimentos da cabeça são
 enviados diretamente para o jogo, onde são traduzidos para movimentos da
 câmera virtual dentro do ambiente simulado. Para obter 6 graus de liberdade
-nos movimentos, o usuário precisa colocar na cabeça uma armação contendo 3
-pontos reflexivos ou 3 \acsp{LED} infravermelhos.
+nos movimentos, o usuário precisa colocar na cabeça uma armação contendo
+três pontos reflexivos ou três \acsp{LED} infravermelhos.
 
 Ambos os produtos exigem que o usuário fique na frente de uma câmera e
 exigem um software proprietário instalado e configurado na máquina. O
@@ -966,8 +967,9 @@ magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
 eletrônica''.
 
 Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
-intensidade do campo magnético em 3 eixos perpendiculares (X, Y, Z) através
-de um \ac{ADC} de 12 bits, chegando a uma precisão de
+intensidade do campo magnético usando o efeito magnetorresistivo em 3 eixos
+perpendiculares (X, Y, Z) e converte essas medidas para um formato digital
+através de um \ac{ADC} de 12 bits, chegando a uma precisão de
 \SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}.
 \cite{HMC5883L}
 
@@ -1060,7 +1062,7 @@ Um diagrama do circuito completo pode ser visto na figura
 \section{Interface USB}
 \label{sec:hardware_usb}
 
-Um porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
+Uma porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
 limita as vias de dados D+ e D- ao intervalo de \SIrange{2.8}{3.6}{\volt}.
 \cite[p.~178,~179]{usb20}
 
@@ -1079,7 +1081,7 @@ O circuito usado para reduzir a tensão nas linhas de dados segue o mesmo
 esquema usado no projeto USBasp \cite{USBasp}, também disponível no arquivo
 \texttt{circuits/with-zener.png} do \textit{driver} \VUSB \cite{VUSBdriver}.
 É composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
-\GND, e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
+\GND e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
 Zener.
 
 Quando o microcontrolador escreve o nível lógico 1, seu pino sobe para
@@ -1144,11 +1146,7 @@ as tensões de cada um estão dentro da faixa aceitável para o outro.
 \SI{3.6}{\volt} \cite[p.~2]{HMC5883L}, e tensão máxima tolerada no pino de
 alimentação é de \SI{4.8}{\volt} \cite[p.~3]{HMC5883L}, que é abaixo da
 tensão de \SI{5}{\volt} do microcontrolador. Isso significa que não é
-prudente ligar os dois componentes diretamente.\footnote{
-	Considerando que o sensor foi comprado pela Internet e demorou mais de
-	2 meses para ser entregue, é importante tomar cuidados extras para não
-	queimá-lo.
-}
+prudente ligar os dois componentes diretamente.
 
 Neste caso, faz-se necessário adicionar um circuito para converter o nível
 lógico 1 entre \SI{5}{\volt} e \SI{3.3}{\volt}. Essa conversão precisa
@@ -1205,6 +1203,13 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 
 %TODO Neste capítulo são apresentadas blah blah
 \newpage
+
+
+%\section{Visão geral do \textit{software}}
+%\label{sec:software_visao_geral}
+%
+%Essencialmente, o \textit{firmware} deste projeto gerencia a comunicação
+%\ac{USB} com o computador e a comunicação \ac{I2C} com o sensor. TODO!
 
 
 \section{Ambiente de desenvolvimento}
@@ -1432,9 +1437,9 @@ registradores de configuração do sensor são escritos.
 O sensor foi configurado para atualizar os registradores de dados 75 vezes
 por segundo, sendo que cada valor é a média de 8 amostras. O ganho do sensor
 foi configurado para ±\SI{1.3}{\gauss}\footnote{
-	O símbolo \si{\gauss} corresponde à unidade de medida de campo magnético
-	``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor, no entanto,
-	utiliza Ga como símbolo para essa unidade.
+	O símbolo \si{\gauss} corresponde à unidade de densidade de fluxo
+	magnético ``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor,
+	no entanto, utiliza Ga como símbolo para essa unidade.
 }, o que corresponde a 1090 bits por gauss, ou \SI{0.92}{\milli\gauss} por
 bit. Este ganho foi escolhido por permitir a maior precisão possível das
 medidas sem causar \textit{overflow} no sensor.
@@ -1661,8 +1666,8 @@ implementadas na AVR-Libc.
 \label{sec:menu}
 
 Conforme mais funcionalidades estavam sendo implementadas no
-\textit{firmware} (algumas delas para fins de \textit{debug}), a quantidade
-delas superou rapidamente o número de botões presentes no circuito. Como
+\textit{firmware} (algumas delas para fins de depuração), a quantidade delas
+superou rapidamente o número de botões presentes no circuito. Como
 consequência, ficou cada vez mais difícil de adicionar outra funcionalidade
 ou mesmo usar as já existentes. Foi sentida a necessidade de uma interface
 melhor, mais prática e mais intuitiva para o uso do \textit{firmware}.
@@ -2014,15 +2019,18 @@ Os vetores de calibração escolhidos para cada teste possuem aberturas de
 \SIlist{30;45;60;75;85}{\degree}, tanto na latitude como na longitude. Essa
 abertura é ilustrada na figura \ref{fig:latitude_longitude}.
 
+As figuras de \ref{fig:resultado_exact} a \ref{fig:resultado_lineq} mostram
+o resultado de cada abordagem sendo testada com cada uma das 5 aberturas
+citadas Foram produzidas encadeando as três ferramentas auxiliares
+descritas na seção \ref{sub:ferramentas} e mostram as deformações
+introduzidas por cada abordagem.
+
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{img/latitude_longitude.pdf}
 \caption{Os dois ângulos de abertura para os vetores de calibração}
 \label{fig:latitude_longitude}
 \end{figure}
-
-As figuras de \ref{fig:resultado_exact} a \ref{fig:resultado_lineq} mostram
-o resultado de cada abordagem.
 
 \begin{figure}
 \centering
@@ -2486,6 +2494,10 @@ variação na leitura do sensor (ou causa uma variação muito pequena).
 Apesar deste projeto funcionar como esperado, ainda pode ser refinado de
 várias formas.
 
+A comunicação com o sensor foi implementada usando um conjunto de fios e o
+protocolo \ac{I2C}. Substituir essa interface por uma comunicação sem fio
+tornaria o dispositivo muito mais prático para o usuário.
+
 O sensor usado neste projeto, conforme descrito na seção
 \ref{sub:software_sensor_config}, permite no máximo 75 medições por segundo
 no modo de medição contínua. Seria possível alcançar até 160 medições por
@@ -2528,9 +2540,15 @@ apenas um sensor.
 \apendice
 
 
-\chapter{\texttt{convert\_coordinates.py}}
-\label{ape:convert_coordinates}
-\lstinputlisting[language=Python, lineskip=-0.4\baselineskip]{../projection/convert_coordinates.py}
+%\chapter{\texttt{convert\_coordinates.py}}
+%\label{ape:convert_coordinates}
+%\lstinputlisting[language=Python, lineskip=-0.4\baselineskip]{../projection/convert_coordinates.py}
+
+
+%\chapter{\texttt{main.c}}
+%\label{ape:main}
+%\lstinputlisting[language=C, lineskip=-0.4\baselineskip]{../firmware/main.c}
+
 
 \chapter{\texttt{keyemu.h} e \texttt{keyemu.c}}
 \label{ape:keyemu}
@@ -2579,9 +2597,9 @@ apenas um sensor.
 \chapter{ATmega8 datasheet}
 \label{anx:atmega8_datasheet}
 
-Páginas 1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217, 235-236, 238-239, 280-284. \cite{ATmega8}
+Páginas            1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217. \cite{ATmega8}
 
-\includepdf[pages={1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217, 235-236, 238-239, 280-284}]{/home/denilson/avr/PDFs/doc2486.pdf}
+\includepdf[pages={1-6, 9-10, 17-19, 157-160, 168-170, 213, 216-217}]{/home/denilson/avr/PDFs/doc2486.pdf}
 
 
 \chapter{HMC5883L datasheet}
@@ -2603,9 +2621,9 @@ Páginas 1, 4. \cite{3vtipsandtricks}
 \chapter{Bi-directional level shifter for I²C-bus and other systems}
 \label{anx:AN97055_pdf}
 
-Páginas 7-16. \cite{AN97055}
+Páginas 8-12. \cite{AN97055}
 
-\includepdf[pages={7-16}]{../../level-shifting/AN97055.pdf}
+\includepdf[pages={8-12}]{../../level-shifting/AN97055.pdf}
 
 
 \chapter{Level shifting techniques in I²C-bus design}
@@ -2616,12 +2634,12 @@ Páginas 3-4. \cite{AN10441}
 \includepdf[pages={3-4}]{../../level-shifting/AN10441.pdf}
 
 
-\chapter{AVR315: Using the TWI module as I²C master}
-\label{anx:avr315_pdf}
-
-Todas as páginas. \cite{AVR315}
-
-\includepdf[pages=-]{/home/denilson/avr/PDFs/doc2564.pdf}
+%\chapter{AVR315: Using the TWI module as I²C master}
+%\label{anx:avr315_pdf}
+%
+%Todas as páginas. \cite{AVR315}
+%
+%\includepdf[pages=-]{/home/denilson/avr/PDFs/doc2564.pdf}
 
 
 \end{document}
