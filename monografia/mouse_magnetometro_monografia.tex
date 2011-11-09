@@ -1234,29 +1234,22 @@ estados: \cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
 \section{Visão geral do \textit{software}}
 \label{sec:software_visao_geral}
 
-Essencialmente, o trabalho do microcontrolador deste projeto é ler medições
-do sensor, aplicar um algoritmo de transformação de coordenadas e enviar
-para o computador as novas coordenadas do ponteiro. Para que isso pudesse
-ser alcançado, o \textit{firmware} foi dividido em três grandes partes.
+Essencialmente, o trabalho do microcontrolador deste projeto é receber
+medições do sensor, aplicar um algoritmo de transformação de coordenadas e
+enviar para o computador as novas coordenadas do ponteiro. Para que isso
+pudesse ser alcançado, o \textit{firmware} foi dividido em três grandes
+partes.
 
-A comunicação com o sensor, descrita  na seção \ref{sec:software_sensor},
-é realizada através do protocolo \ac{I2C}, cuja implementação no
-\textit{firmware} é explicada na seção \ref{sec:twi}.
+A primeira parte é a comunicação com o sensor, descrita nas seções
+\ref{sec:twi} e \ref{sec:software_sensor}.
 
-Existem várias formas possíveis de transformar os valores lidos do sensor em
-coordenadas na tela. Um estudo das diferentes abordagens para esse problema
-e seus resultados é apresentado no capítulo \ref{cap:coordenadas}, que também
-descreve qual delas foi efetivamente implementada no microcontrolador
+A segunda parte é transformar os medições do sensor em coordenadas na tela
+do computador. Um estudo das diferentes abordagens para esse problema e seus
+resultados é apresentado no capítulo \ref{cap:coordenadas}.
 
-A comunicação com o computador é feita através de um \textit{driver}
-\ac{USB} descrito na seção \ref{sec:vusb}. Para mover o ponteiro na tela, o
-microcontrolador se identifica como um \textit{mouse} \ac{USB}, conforme
-explicado na seção \ref{sec:mouse}.
-
-Com o objetivo de simplificar o desenvolvimento deste projeto, assim como
-simplificar a configuração do dispositivo pelo usuário final, também foi
-implementado um teclado \ac{USB} e um sistema de menus, descritos nas seções
-\ref{sec:keyboard} e \ref{sec:menu}.
+A terceira parte é a comunicação com o computador, alcançada através da
+implementação de um \ac{USB} \ac{HID} e descrita nas seções de
+\ref{sec:vusb} a \ref{sec:mouse}.
 
 
 \section{Ambiente de desenvolvimento}
@@ -2606,11 +2599,6 @@ apenas um sensor.
 \apendice
 
 
-%\chapter{\texttt{convert\_coordinates.py}}
-%\label{ape:convert_coordinates}
-%\lstinputlisting[language=Python, lineskip=-0.4\baselineskip]{../projection/convert_coordinates.py}
-
-
 %\chapter{\texttt{main.c}}
 %\label{ape:main}
 %\lstinputlisting[language=C, lineskip=-0.4\baselineskip]{../firmware/main.c}
@@ -2654,6 +2642,10 @@ apenas um sensor.
 %\lstinputlisting[language=C, lineskip=-0.4\baselineskip]{../firmware/menu.c}
 %\lstinputlisting[language=C, lineskip=-0.4\baselineskip]{../firmware/hardwareconfig.h}
 %\lstinputlisting[language=C, lineskip=-0.4\baselineskip]{../firmware/usbconfig.h}
+
+%\chapter{\texttt{convert\_coordinates.py}}
+%\label{ape:convert_coordinates}
+%\lstinputlisting[language=Python, lineskip=-0.4\baselineskip]{../projection/convert_coordinates.py}
 
 
 %%fakesection  Anexo
