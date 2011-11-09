@@ -392,8 +392,8 @@ profissional que me proporcionaram.
 
 \begin{resumo}
 Este projeto tem como objetivo implementar um dispositivo apontador
-compatível com um \textit{mouse} USB utilizando um microcontrolador AVR ATmega8 de 8
-bits e um magnetômetro.
+compatível com um \textit{mouse} USB utilizando um microcontrolador AVR
+ATmega8 de 8 bits e um magnetômetro.
 \end{resumo}
 
 \begin{abstract}
@@ -519,12 +519,12 @@ para diversos fins. Estas são algumas das aplicações possíveis:
 \begin{itemize}
 \item Pode ser utilizado durante apresentações, permitindo ao palestrante
 apontar regiões do telão através do gesto natural de se apontar com a mão.
-\item Pode ser utilizado em situações onde um \textit{mouse} não é viável, situações
-onde não há um apoio para um \textit{mouse} convencional.
+\item Pode ser utilizado em situações onde um \textit{mouse} não é viável,
+situações onde não há um apoio para um \textit{mouse} convencional.
 \item Pode ser utilizado em exposições interativas, entretenimento e jogos.
 \item Pode ser utilizado por pessoas que não podem ou não conseguem
-movimentar um \textit{mouse}. O pequeno sensor pode ser preso à cabeça ou qualquer
-outra parte do corpo.
+movimentar um \textit{mouse}. O pequeno sensor pode ser preso à cabeça ou
+qualquer outra parte do corpo.
 \end{itemize}
 
 Todo o material desenvolvido neste projeto está também disponível
@@ -561,21 +561,21 @@ embora com tecnologias distintas.
 \label{sub:naturalpoint}
 
 A empresa NaturalPoint criou um produto chamado SmartNav \cite{SmartNav}
-para controlar o ponteiro do \textit{mouse} através de gestos. O produto é composto
-de uma câmera colocada acima do monitor e um software proprietário para
-Windows ou Mac OS X. A câmera possui \acsp{LED} infravermelhos embutidos e
-consegue captar os pontos onde essa luz foi refletida. O usuário deve colar
-um pequeno pedaço de papel reflexivo em sua cabeça, boné, ou qualquer outra
-parte do corpo. O software no computador, então, processa a imagem da câmera
-e a transforma em movimentos do ponteiro do \textit{mouse}.
+para controlar o ponteiro do \textit{mouse} através de gestos. O produto é
+composto de uma câmera colocada acima do monitor e um software proprietário
+para Windows ou Mac OS X. A câmera possui \acsp{LED} infravermelhos
+embutidos e consegue captar os pontos onde essa luz foi refletida. O usuário
+deve colar um pequeno pedaço de papel reflexivo em sua cabeça, boné, ou
+qualquer outra parte do corpo. O software no computador, então, processa a
+imagem da câmera e a transforma em movimentos do ponteiro do \textit{mouse}.
 
 A mesma empresa também lançou um produto chamado TrackIR \cite{TrackIR} que
 funciona de maneira similar, porém é voltado para o mercado de jogos. Neste
-caso, em vez de controlar o ponteiro do \textit{mouse}, os movimentos da cabeça são
-enviados diretamente para o jogo, onde são traduzidos para movimentos da
-câmera virtual dentro do ambiente simulado. Para obter 6 graus de liberdade
-nos movimentos, o usuário precisa colocar na cabeça uma armação contendo
-três pontos reflexivos ou três \acsp{LED} infravermelhos.
+caso, em vez de controlar o ponteiro do \textit{mouse}, os movimentos da
+cabeça são enviados diretamente para o jogo, onde são traduzidos para
+movimentos da câmera virtual dentro do ambiente simulado. Para obter 6 graus
+de liberdade nos movimentos, o usuário precisa colocar na cabeça uma armação
+contendo três pontos reflexivos ou três \acsp{LED} infravermelhos.
 
 Ambos os produtos exigem que o usuário fique na frente de uma câmera e
 exigem um software proprietário instalado e configurado na máquina. O
@@ -585,8 +585,8 @@ está à venda a partir de US\$~399,00
 A empresa Origin Instruments tem um produto chamado HeadMouse
 \cite{HeadMouse} cujo funcionamento é muito muito similar ao SmartNav, mas
 não requer nenhum software instalado. Esse produto se identifica como um
-\textit{mouse} \acs{USB} e portanto funciona em qualquer sistema. Está à venda por
-US\$~995,00.
+\textit{mouse} \acs{USB} e portanto funciona em qualquer sistema. Está à
+venda por US\$~995,00.
 
 
 \subsection{Projetos baseados em acelerômetro}
@@ -600,8 +600,8 @@ acelerômetro. Foi implementado usando dois microcontroladores ATmega8.
 outro projeto de \textit{mouse} sem fio baseado num acelerômetro. Utiliza
 microcontroladores ATmega32 ou ATmega644.
 
-TiltStick \cite{TiltStick} é um projeto que implementa um \textit{joystick} \acs{USB}
-baseado em leituras de um acelerômetro.
+TiltStick \cite{TiltStick} é um projeto que implementa um \textit{joystick}
+\acs{USB} baseado em leituras de um acelerômetro.
 
 Em comum, todos esses projetos usam microcontroladores de 8 bits da família
 AVR e implementam um dispositivo \acs{USB} \acs{HID} através do
@@ -836,11 +836,12 @@ dessa classe.
 
 Dispositivos de interface com seres humanos fazem parte da classe
 \textit{USB \ac{HID}} e abrangem principalmente teclados, \textit{mouses} e
-\textit{joysticks}. No entanto, essa classe foi projetada de forma genérica e inclui
-outros tipos de dispositivos com necessidades similares, tais como medidores
-de temperatura, controles de um painel (botões, alavancas, ajustes),
-volantes, pedais, leitores de códigos de barra, ou ainda novos dispositivos
-que não foram previstos inicialmente na especificação. \cite[p.~1]{usbhid}
+\textit{joysticks}. No entanto, essa classe foi projetada de forma genérica
+e inclui outros tipos de dispositivos com necessidades similares, tais como
+medidores de temperatura, controles de um painel (botões, alavancas,
+ajustes), volantes, pedais, leitores de códigos de barra, ou ainda novos
+dispositivos que não foram previstos inicialmente na especificação.
+\cite[p.~1]{usbhid}
 
 A classe \ac{USB} \ac{HID} tem como objetivos ser compacta (para reduzir o
 espaço necessário no \textit{firmware} do dispositivo), ser flexível e
@@ -1233,12 +1234,10 @@ Para entender como essa solução funciona, é preciso analisá-la em 3 estados:
 \section{Visão geral do \textit{software}}
 \label{sec:software_visao_geral}
 
-TODO! Rever esta seção!
-
 Essencialmente, o trabalho do microcontrolador deste projeto é ler medições
 do sensor, aplicar um algoritmo de transformação de coordenadas e enviar
 para o computador as novas coordenadas do ponteiro. Para que isso pudesse
-ser alcançado, o \textit{firmware} foi dividido em diversos módulos.
+ser alcançado, o \textit{firmware} foi dividido em três grandes partes.
 
 A comunicação com o sensor, descrita  na seção \ref{sec:software_sensor},
 é realizada através do protocolo \ac{I2C}, cuja implementação no
@@ -1258,8 +1257,6 @@ Com o objetivo de simplificar o desenvolvimento deste projeto, assim como
 simplificar a configuração do dispositivo pelo usuário final, também foi
 implementado um teclado \ac{USB} e um sistema de menus, descritos nas seções
 \ref{sec:keyboard} e \ref{sec:menu}.
-
-TODO! Rever esta seção!
 
 
 \section{Ambiente de desenvolvimento}
@@ -1587,12 +1584,12 @@ Portanto, para este projeto foi usado um par de
 \textit{vendor-id}:\textit{product-id} compartilhado pela \textit{Objective
 Development Software GmbH.}.\footnote{
 	Este projeto se identifica como um dispositivo híbrido, funcionando ao
-	mesmo tempo como \textit{mouse} e teclado. Não há nenhum par compartilhado de
-	\textit{vendor-id}:\textit{product-id} que seja adequado a este projeto.
-	\cite[USB-IDs-for-free.txt]{VUSBdriver} Após uma breve troca de e-mails
-	com a \textit{Objective Development Software GmbH.}, e sabendo que o uso
-	era para fins acadêmicos, foi sugerido usar valores quaisquer,
-	aleatórios para esses campos.
+	mesmo tempo como \textit{mouse} e teclado. Não há nenhum par
+	compartilhado de \textit{vendor-id}:\textit{product-id} que seja
+	adequado a este projeto.  \cite[USB-IDs-for-free.txt]{VUSBdriver} Após
+	uma breve troca de e-mails com a \textit{Objective Development Software
+	GmbH.}, e sabendo que o uso era para fins acadêmicos, foi sugerido usar
+	valores quaisquer, aleatórios para esses campos.
 }
 
 Uma vez configurados os parâmetros necessários nos cabeçalhos do
@@ -1622,21 +1619,20 @@ implementação simula teclas sendo pressionadas de modo a escrever
 \textit{strings} na tela do computador. Em outras palavras, foi uma forma de
 se implementar o comando \textit{print} dentro do \textit{firmware}.
 
-Teclados e \textit{mouses} \ac{USB} podem ser implementados como dispositivos de
-\textit{boot}. Tais dispositivos possuem um \textit{report descriptor}
-predeterminado, definido no padrão \ac{USB} \ac{HID}. Isso foi criado para
-permitir o uso de teclados e \textit{mouses} mesmo nos estágios iniciais do
-\textit{boot} do computador, quando pode ser inviável ter uma implementação
-completa da especificação \ac{HID}. \cite[p.~59]{usbhid}
+Teclados e \textit{mouses} \ac{USB} podem ser implementados como
+dispositivos de \textit{boot}. Tais dispositivos possuem um \textit{report
+descriptor} predeterminado, definido no padrão \ac{USB} \ac{HID}. Isso foi
+criado para permitir o uso de teclados e \textit{mouses} mesmo nos estágios
+iniciais do \textit{boot} do computador, quando pode ser inviável ter uma
+implementação completa da especificação \ac{HID}. \cite[p.~59]{usbhid}
 
 O protocolo \textit{boot} obriga que o dispositivo se identifique ou como um
-teclado ou como um \textit{mouse}, mas não como os dois. \cite[p.~9]{usbhid} Além
-disso, ele define um \textit{report descriptor} que suporta até 6 teclas
-pressionadas simultaneamente, além das teclas modificadoras
-\cite[p.~60]{usbhid}, o que é desnecessário para um
-teclado que vai apenas escrever \textit{strings}. Por todos esses motivos,
-foi decidido implementar um teclado que não suporta o protocolo
-\textit{boot}.
+teclado ou como um \textit{mouse}, mas não como os dois. \cite[p.~9]{usbhid}
+Além disso, ele define um \textit{report descriptor} que suporta até 6
+teclas pressionadas simultaneamente, além das teclas modificadoras
+\cite[p.~60]{usbhid}, o que é desnecessário para um teclado que vai apenas
+escrever \textit{strings}. Por todos esses motivos, foi decidido implementar
+um teclado que não suporta o protocolo \textit{boot}.
 
 O teclado implementado neste projeto utiliza o \textit{report descriptor}
 mostrado na listagem \ref{lst:report_keyboard}, o qual foi baseado no
@@ -1741,31 +1737,32 @@ quanto para o desenvolvedor).
 \section{\textit{Mouse} USB}
 \label{sec:mouse}
 
-O objetivo final deste projeto é controlar o ponteiro do \textit{mouse} na tela do
-computador, e para isso foi preciso implementar um \textit{mouse} USB no
-microcontrolador de maneira similar ao teclado USB descrito na seção
+O objetivo final deste projeto é controlar o ponteiro do \textit{mouse} na
+tela do computador, e para isso foi preciso implementar um \textit{mouse}
+USB no microcontrolador de maneira similar ao teclado USB descrito na seção
 \ref{sec:keyboard}.
 
-Todavia, o \textit{mouse} deste projeto tem uma diferença fundamental em relação aos
-\textit{mouses} convencionais. A transformação de coordenadas, descrita no
-capítulo
-\ref{cap:coordenadas}, obtém como resultado um par de coordenadas $(x, y)$
-em relação à tela. Essas coordenadas são absolutas, no sentido de indicar
-uma posição específica da tela. Um \textit{mouse} convencional, no entanto, detecta
-apenas movimentos e obtém coordenadas relativas $(\Delta x, \Delta y)$,
-indicando a nova posição em relação à posição atual do ponteiro. Devido a
-essa diferença, o dispositivo implementado neste projeto é na verdade
-considerado um \textit{absolute pointing device}. \footnote{
+Todavia, o \textit{mouse} deste projeto tem uma diferença fundamental em
+relação aos \textit{mouses} convencionais. A transformação de coordenadas,
+descrita no capítulo \ref{cap:coordenadas}, obtém como resultado um par de
+coordenadas $(x, y)$ em relação à tela. Essas coordenadas são absolutas, no
+sentido de indicar uma posição específica da tela. Um \textit{mouse}
+convencional, no entanto, detecta apenas movimentos e obtém coordenadas
+relativas $(\Delta x, \Delta y)$, indicando a nova posição em relação à
+posição atual do ponteiro. Devido a essa diferença, o dispositivo
+implementado neste projeto é na verdade considerado um \textit{absolute
+pointing device}. \footnote{
 	Apesar de na verdade ser um \textit{absolute pointing device}, o nome
 	\textit{mouse}, por ser mais simples, mais curto e mais fácil de
 	entender, é usado em todo o projeto.
 }
 
 A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
-\textit{mouses} que implementem o protocolo \textit{boot}. \cite[p.~61]{usbhid} Assim
-como a implementação do teclado (seção \ref{sec:keyboard}), este dispositivo
-não tem suporte ao protocolo \textit{boot} e utiliza o \textit{report
-descriptor} mostrado na listagem \ref{lst:report_mouse}.
+\textit{mouses} que implementem o protocolo \textit{boot}.
+\cite[p.~61]{usbhid} Assim como a implementação do teclado (seção
+\ref{sec:keyboard}), este dispositivo não tem suporte ao protocolo
+\textit{boot} e utiliza o \textit{report descriptor} mostrado na listagem
+\ref{lst:report_mouse}.
 
 \begin{ccode}[numbers=none, float=h, label={lst:report_mouse},
 	caption={\textit{Report descriptor} do \textit{mouse} USB}
@@ -1801,18 +1798,19 @@ descriptor} mostrado na listagem \ref{lst:report_mouse}.
 	0xc0               // END_COLLECTION
 \end{ccode}
 
-O \textit{report} usado por este \textit{mouse} possui 6 bytes. O primeiro deles é
-o \textit{Report ID} e tem valor 2, identificando que este \textit{report}
-corresponde ao \textit{report descriptor} do \textit{mouse}.\footnote{
+O \textit{report} usado por este \textit{mouse} possui 6 bytes. O primeiro
+deles é o \textit{Report ID} e tem valor 2, identificando que este
+\textit{report} corresponde ao \textit{report descriptor} do
+\textit{mouse}.\footnote{
 	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
 	com o valor 1.
 } Os 4 bytes seguintes correspondem à posição $(x, y)$, onde cada uma das
 duas coordenada é representada por um número inteiro de 16 bits dentro do
 intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
 considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
-\cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse}, sendo que
-os 3 bits menos significativos correspondem aos 3 botões, e os 5 bits
-restantes são ignorados.
+\cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse},
+sendo que os 3 bits menos significativos correspondem aos 3 botões, e os 5
+bits restantes são ignorados.
 
 O algoritmo de transformação de coordenadas implementado no microcontrolador
 foi a abordagem usando um sistema de 3 equações lineares (seção
@@ -1835,11 +1833,11 @@ disponível para uso do algoritmo.
 \subsection{Suavização do movimento}
 \label{sub:mouse_smoothing}
 
-O resultado do primeiro teste após o a implementação do \textit{mouse} \ac{USB} e da
-transformação de coordenadas foi insatisfatório. Embora o algoritmo
-funcionasse e o ponteiro acompanhasse os movimentos do sensor, a posição do
-ponteiro não era estável. Mesmo com o sensor parado, o ponteiro oscilava
-significativamente na tela, indicando um ruído nas medições.
+O resultado do primeiro teste após o a implementação do \textit{mouse}
+\ac{USB} e da transformação de coordenadas foi insatisfatório. Embora o
+algoritmo funcionasse e o ponteiro acompanhasse os movimentos do sensor, a
+posição do ponteiro não era estável. Mesmo com o sensor parado, o ponteiro
+oscilava significativamente na tela, indicando um ruído nas medições.
 
 Esse ruído pode ser consequência da interferência magnética de aparelhos
 elétricos e eletrônicos, ou apenas uma limitação da precisão do sensor (que,
@@ -1877,8 +1875,8 @@ perceptível para o usuário.
 \subsection{Bug no kernel do Linux}
 \label{sub:linux_hid_bug}
 
-Durante os testes do \textit{mouse} \ac{USB}, foi descoberto um bug na implementação
-do suporte a \ac{USB} \ac{HID} no kernel do Linux.
+Durante os testes do \textit{mouse} \ac{USB}, foi descoberto um bug na
+implementação do suporte a \ac{USB} \ac{HID} no kernel do Linux.
 
 A especificação \ac{USB} \ac{HID} define que valores fora dos limites
 lógicos para um campo de um \textit{report} devem ser ignorados.
@@ -2541,9 +2539,9 @@ instruções para o usuário.
 %necessidades.
 
 Limitações nas medidas do sensor puderam ser observadas como oscilações na
-posição do ponteiro do \textit{mouse}. Mesmo depois de implementado um algoritmo de
-suavização (seção \ref{sub:mouse_smoothing}), o ponteiro ainda oscilava de
-maneira perceptível, embora com amplitude bastante reduzida.
+posição do ponteiro do \textit{mouse}. Mesmo depois de implementado um
+algoritmo de suavização (seção \ref{sub:mouse_smoothing}), o ponteiro ainda
+oscilava de maneira perceptível, embora com amplitude bastante reduzida.
 
 Por fim, o uso individual de um magnetômetro para controlar o ponteiro do
 \textit{mouse} possui suas limitações. Como o campo magnético da Terra é
