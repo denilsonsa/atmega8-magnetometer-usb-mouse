@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="470"
+   height="428.681"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   sodipodi:docname="sensor_other_pcb_front.svg">
+  <defs
+     id="defs4">
+    <inkscape:path-effect
+       border_marks="start"
+       mark_dir="right"
+       offset="0"
+       shift="0"
+       major_mark_steps="10"
+       minor_mark_length="10"
+       mark_length="20"
+       mark_distance="22.7"
+       unit="px"
+       is_visible="true"
+       id="path-effect3805"
+       effect="ruler" />
+    <inkscape:path-effect
+       effect="ruler"
+       id="path-effect3801"
+       is_visible="true"
+       unit="px"
+       mark_distance="22.8"
+       mark_length="20"
+       minor_mark_length="10"
+       major_mark_steps="10"
+       shift="0"
+       offset="0"
+       mark_dir="left"
+       border_marks="start" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.77753191"
+     inkscape:cx="115.83879"
+     inkscape:cy="203.07848"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:object-nodes="false"
+     inkscape:window-width="1270"
+     inkscape:window-height="760"
+     inkscape:window-x="5"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-623.68115)">
+    <image
+       sodipodi:absref="/home/denilson/ufrj_2011/projeto_final/monografia/img/sensor_other_pcb_front.jpg"
+       xlink:href="sensor_other_pcb_front.jpg"
+       width="470"
+       height="428.681"
+       id="image3028"
+       x="0"
+       y="623.68115" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 64.06153,676.69528 343.14516,1.89507 m -343.14516,-1.89507 0.110451,-19.9997 m 22.689201,20.12561 0.05523,-9.99984 m 22.744422,10.12576 0.0552,-9.99985 m 22.74443,10.12576 0.0552,-9.99984 m 22.74443,10.12576 0.0552,-9.99985 m 22.74443,10.12576 0.0552,-9.99985 m 22.74442,10.12577 0.0552,-9.99985 m 22.74443,10.12576 0.0552,-9.99985 m 22.74443,10.12577 0.0552,-9.99985 m 22.74443,10.12576 0.0552,-9.99985 m 22.74442,10.12576 0.11045,-19.99969 m 22.68921,20.12561 0.0552,-9.99985 m 22.74443,10.12576 0.0552,-9.99984 m 22.74443,10.12576 0.0552,-9.99985 m 22.74442,10.12576 0.0552,-9.99985 m 22.74442,10.12577 0.0552,-9.99985"
+       id="path3031"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:path-effect="#path-effect3801"
+       inkscape:original-d="m 64.06153,676.69528 343.14516,1.89507" />
+    <path
+       inkscape:original-d="M 50.36103,689.29827 49.871361,984.46883"
+       inkscape:path-effect="#path-effect3805"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3803"
+       d="m 50.36103,689.29827 -0.489669,295.17056 m 0.489669,-295.17056 -19.999972,-0.0332 m 19.962314,22.73315 -9.999986,-0.0166 m 9.962328,22.71656 -9.999986,-0.0166 m 9.962329,22.71656 -9.999987,-0.0166 m 9.962329,22.71656 -9.999986,-0.0166 m 9.962328,22.71655 -9.999986,-0.0166 m 9.962328,22.71656 -9.999986,-0.0166 m 9.962328,22.71656 -9.999986,-0.0166 m 9.962329,22.71656 -9.999987,-0.0166 m 9.962329,22.71656 -9.999986,-0.0166 m 9.962328,22.71656 -19.999972,-0.0332 m 19.962314,22.73315 -9.999986,-0.0166 m 9.962329,22.71656 -9.999987,-0.0166 m 9.962329,22.71655 -9.999987,-0.0166"
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       id="text3807"
+       sodipodi:linespacing="125%"
+       x="235.19466"
+       y="1032.7292">15mm × 13mm</text>
+  </g>
+</svg>
