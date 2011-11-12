@@ -17,8 +17,33 @@
 // HID report
 MouseReport mouse_report;
 
-float mouse_smooth_x;
-float mouse_smooth_y;
+typedef struct SmoothingVars {
+	float first;
+	float second;
+} SmoothingVars;
+
+SmoothingVars mouse_smooth[2];
+
+
+int exponential_smoothing_twice(uchar index, float *value_ptr) {
+	// http://en.wikipedia.org/wiki/Exponential_smoothing
+
+#define FIRST  (mouse_smooth[index].first)
+#define SECOND (mouse_smooth[index].second)
+
+	FIRST  = FIRST  * 0.875 + (*value_ptr) * 0.125;
+	SECOND = SECOND * 0.875 +   FIRST      * 0.125;
+
+	// These values introduce a noticeable delay: 0.9375, 0.0625
+
+	if      (SECOND < 0.0)  SECOND = 0.0;
+	else if (SECOND > 1.0)  SECOND = 1.0;
+
+	return (int) round(SECOND * 32767);
+
+#undef FIRST
+#undef SECOND
+}
 
 
 void init_mouse_emulation() {  // {{{
@@ -193,20 +218,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		return 0;
 	}
 
-	// Implemeting a simple mouse-smoothing algorithm
-	mouse_smooth_x = mouse_smooth_x * 0.9 + sol[1] * 0.1;
-	mouse_smooth_y = mouse_smooth_y * 0.9 + sol[2] * 0.1;
-	// These values are too much, they introduce a noticeable delay:
-	//mouse_smooth_x = mouse_smooth_x * 0.9375 + sol[1] * 0.0625;
-	//mouse_smooth_y = mouse_smooth_y * 0.9375 + sol[2] * 0.0625;
-
-	if      (mouse_smooth_x < 0.0)  mouse_smooth_x = 0.0;
-	else if (mouse_smooth_x > 1.0)  mouse_smooth_x = 1.0;
-	if      (mouse_smooth_y < 0.0)  mouse_smooth_y = 0.0;
-	else if (mouse_smooth_y > 1.0)  mouse_smooth_y = 1.0;
-
-	final_x = (int) round(mouse_smooth_x * 32767);
-	final_y = (int) round(mouse_smooth_y * 32767);
+	final_x = exponential_smoothing_twice(0, &sol[1]);
+	final_y = exponential_smoothing_twice(1, &sol[2]);
 
 	/*
 	if (   final_x < 0
