@@ -31,10 +31,10 @@ SensorEepromData X_EEMEM eeprom_sensor = {
 	1,  // zero_compensation
 	{21, -108, 138},  // zero
 	{  // corners
-		{108, 198, 3}, // topleft
-		{-90, 209, 11}, // topright
-		{137, 48, 160}, // bottomleft
-		{-112, 56, 170} // bottomright
+		{123, 219, 44}, // topleft
+		{-40, 245, 68}, // topright
+		{113, 166, 151}, // bottomleft
+		{-44, 190, 160} // bottomright
 	}
 };
 
