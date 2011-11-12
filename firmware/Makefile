@@ -197,11 +197,13 @@ CFLAGS  += -Wpadded
 #     Warn if a structure's initializer has some fields missing.
 CFLAGS  += -Wmissing-field-initializers
 
-# This saved 24 bytes
+# This saved 112 bytes
 CFLAGS  += -fno-split-wide-types
 
 # And I'm not very sure about enabling these:
 #CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop -fno-inline-small-functions
+# But these saved 118 bytes:
+CFLAGS  += -fno-move-loop-invariants -fno-tree-scev-cprop
 
 # From GCC manpage:
 #   -mcall-prologues
@@ -214,7 +216,7 @@ CFLAGS  += -fno-split-wide-types
 #   -mtiny-stack
 #     Change only the low 8 bits of the stack pointer.
 # This saves only 10 bytes.
-#CFLAGS  += -mtiny-stack
+CFLAGS  += -mtiny-stack
 
 # -fms-extensions is required to accept anonymous structures and unions.
 CFLAGS  += -fms-extensions
@@ -222,6 +224,7 @@ CFLAGS  += -fms-extensions
 # Supposedly, -ffreestanding together with a non-returning main would save a
 # few bytes. But in fact this flag increases the firmware by 8 or 14 bytes,
 # even with a non-returning main.
+# Also, it gives a linking error about 'fabs'.
 #CFLAGS  += -ffreestanding
 
 # Setting the cost of inlining small functions.
