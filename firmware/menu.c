@@ -89,16 +89,16 @@ static const MenuItem error_menu_items[] PROGMEM = {
 
 // Main menu, with all main options  {{{
 #if ENABLE_FULL_MENU
-static const char     main_menu_1[] PROGMEM = "1. Zero calibration\n";
-static const char     main_menu_2[] PROGMEM = "2. Corner calibration\n";
-static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+static const char     main_menu_1[] PROGMEM = "1. Zero calibration >>\n";
+static const char     main_menu_2[] PROGMEM = "2. Corner calibration >>\n";
+static const char     main_menu_3[] PROGMEM = "3. Sensor data >>\n";
 static const char     main_menu_4[] PROGMEM = "4. Keyboard test\n";
 static const char     main_menu_5[] PROGMEM = "5. << quit menu\n";
 #define               main_menu_total_items 5
 #else
-static const char     main_menu_1[] PROGMEM = "1. Zero\n";
-static const char     main_menu_2[] PROGMEM = "2. Corner\n";
-static const char     main_menu_3[] PROGMEM = "3. Sensor data\n";
+static const char     main_menu_1[] PROGMEM = "1. Zero >>\n";
+static const char     main_menu_2[] PROGMEM = "2. Corner >>\n";
+static const char     main_menu_3[] PROGMEM = "3. Sensor data >>\n";
 static const char     main_menu_5[] PROGMEM = "4. << quit menu\n";
 #define               main_menu_total_items 4
 #endif
