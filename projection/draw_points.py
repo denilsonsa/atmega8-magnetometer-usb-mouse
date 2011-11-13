@@ -19,6 +19,7 @@ from __future__ import print_function
 import select
 import sys
 from itertools import izip
+from math import isnan
 
 # Easy way of importing pygame:
 # import pygame
@@ -99,7 +100,8 @@ class DrawPoints(object):
                             x,y = [float(i) for i in line.strip().split()]
                         except:
                             continue
-                        self.add_point(x,y)
+                        if not isnan(x) and not isnan(y):
+                            self.add_point(x,y)
                     self.redraw()
 
 

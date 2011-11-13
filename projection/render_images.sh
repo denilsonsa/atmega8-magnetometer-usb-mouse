@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Hey, wanna render the images without having a window popping up for every
-# image? Run:
+# Wanna render the images without having a window popping up for every image?
+# Run:
 #   xvfb-run ./render_images.sh
 
 # phi and theta offsets
@@ -22,7 +22,8 @@ IMAGE_DIR="images"
 mkdir -p "${IMAGE_DIR}"
 
 #for abertura in {10..90..5} ; do
-for abertura in 15 30 45 60 75 80 85 90 ; do
+#for abertura in 30 45 60 75 85 ; do
+for abertura in {6..150..2}; do
 	P=${abertura}
 	T=${abertura}
 
