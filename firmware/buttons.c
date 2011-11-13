@@ -31,7 +31,10 @@ void update_button_state() { // {{{
 
 	uchar filtered_state;
 
-	filtered_state = button.state;
+	ButtonState *button_ptr = &button;
+	FIX_POINTER(button_ptr);
+
+	filtered_state = button_ptr->state;
 
 	// Timer is set to 1.365ms
 	if (TIFR & (1<<TOV0)) {
@@ -56,23 +59,33 @@ void update_button_state() { // {{{
 		//
 		// 8 * 1.365ms = ~11ms without interruption
 		for (i=0; i<4; i++) {
-			button.debouncing[i] =
-				(button.debouncing[i]<<1)
+			button_ptr->debouncing[i] =
+				(button_ptr->debouncing[i]<<1)
 				| ( ((raw_state & (1<<i)))? 1 : 0 );
 
-			if (button.debouncing[i] == 0) {
+			if (button_ptr->debouncing[i] == 0) {
 				// Releasing this button
 				filtered_state &= ~(1<<i);
-			} else if (button.debouncing[i] == 0xFF) {
+			} else if (button_ptr->debouncing[i] == 0xFF) {
 				// Pressing this button
 				filtered_state |=  (1<<i);
 			}
 		}
+
+		if (button_ptr->recent_state_change) {
+			button_ptr->recent_state_change--;
+		}
 	}
 
 	// Storing the final, filtered, updated state
-	button.changed = button.state ^ filtered_state;
-	button.state = filtered_state;
+	button_ptr->changed = button_ptr->state ^ filtered_state;
+	button_ptr->state = filtered_state;
+
+	if (button_ptr->changed) {
+		// This value was choosen empirically.
+		// 32 * 1.365ms = 43.68ms = 22.89Hz
+		button_ptr->recent_state_change = 32;
+	}
 }  // }}}
 
 

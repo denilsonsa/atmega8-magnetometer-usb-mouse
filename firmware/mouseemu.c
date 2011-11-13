@@ -25,22 +25,26 @@ typedef struct SmoothingVars {
 SmoothingVars mouse_smooth[2];
 
 
-int exponential_smoothing_twice(uchar index, float *value_ptr) {
+int apply_smoothing(uchar index, float *value_ptr) {
+	// Brown's double exponential smoothing
 	// http://en.wikipedia.org/wiki/Exponential_smoothing
 
 #define FIRST  (mouse_smooth[index].first)
 #define SECOND (mouse_smooth[index].second)
 
-	FIRST  = FIRST  * 0.875 + (*value_ptr) * 0.125;
-	SECOND = SECOND * 0.875 +   FIRST      * 0.125;
+	// This value was choosen empirically.
+#define ALPHA  0.125
+#define GAMMA  ALPHA
 
-	// These values introduce a noticeable delay: 0.9375, 0.0625
+	FIRST  = FIRST  * (1 - ALPHA) + (*value_ptr) * ALPHA;
+	SECOND = SECOND * (1 - GAMMA) +   FIRST      * GAMMA;
 
 	if      (SECOND < 0.0)  SECOND = 0.0;
 	else if (SECOND > 1.0)  SECOND = 1.0;
 
 	return (int) round(SECOND * 32767);
 
+#undef ALPHA
 #undef FIRST
 #undef SECOND
 }
@@ -218,8 +222,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		return 0;
 	}
 
-	final_x = exponential_smoothing_twice(0, &sol[1]);
-	final_y = exponential_smoothing_twice(1, &sol[2]);
+	final_x = apply_smoothing(0, &sol[1]);
+	final_y = apply_smoothing(1, &sol[2]);
 
 	/*
 	if (   final_x < 0
@@ -287,10 +291,15 @@ uchar mouse_prepare_next_report() {  // {{{
 	// Return 1 if a new report is available and should be sent to the
 	// computer.
 
-	// I'm using a bitwise OR here because a boolean OR would short-circuit
-	// the expression and wouldn't run the second function. It's ugly, but
-	// it's simple and works.
-	return mouse_update_buttons() | mouse_update_axes();
+	if (button.recent_state_change) {
+		// Don't try to update the pointer coordinates after a click.
+		return mouse_update_buttons();
+	} else {
+		// I'm using a bitwise OR here because a boolean OR would short-circuit
+		// the expression and wouldn't run the second function. It's ugly, but
+		// it's simple and works.
+		return mouse_update_buttons() | mouse_update_axes();
+	}
 }  // }}}
 
 

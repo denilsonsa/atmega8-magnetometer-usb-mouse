@@ -14,6 +14,11 @@ typedef struct ButtonState {
 	uchar state;
 	uchar changed;
 
+	// This is used to "freeze" the pointer movement for a short while, right
+	// after a click, in order to avoid accidentally dragging the clicked
+	// object. This is useful because the sensor captures a lot of noise.
+	uchar recent_state_change;
+
 	// "Private" button debouncing state
 	uchar debouncing[4];  // We have 4 buttons/switches
 } ButtonState;
