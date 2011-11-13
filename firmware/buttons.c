@@ -24,10 +24,9 @@ void init_button_state() {  // {{{
 */
 
 
-void update_button_state() { // {{{
+void update_button_state(uchar timer_overflow) { // {{{
 	// This function implements debouncing code.
 	// It should be called at every iteration of the main loop.
-	// It reads the TOV0 flag status, but does not clear it.
 
 	uchar filtered_state;
 
@@ -37,7 +36,7 @@ void update_button_state() { // {{{
 	filtered_state = button_ptr->state;
 
 	// Timer is set to 1.365ms
-	if (TIFR & (1<<TOV0)) {
+	if (timer_overflow) {
 		uchar raw_state;
 		uchar i;
 

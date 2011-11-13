@@ -44,7 +44,7 @@ extern ButtonState button;
 // Init does nothing
 #define init_button_state() do{ }while(0)
 
-void update_button_state();
+void update_button_state(uchar timer_overflow);
 
 
 #endif  // __buttons_h_included____

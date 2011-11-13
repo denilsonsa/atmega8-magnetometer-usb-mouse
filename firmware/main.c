@@ -307,8 +307,7 @@ static void hardware_init(void) {  // {{{
 	TCCR0 = 3;
 
 	// I'm using Timer0 as a 1.365ms ticker. Every time it overflows, the TOV0
-	// flag in TIFR is set. The main loop clears this flag near the end of each
-	// iteration.
+	// flag in TIFR is set.
 
 	// I'm not using serial-line debugging
 	//odDebugInit();
@@ -377,6 +376,7 @@ void
 __attribute__ ((noreturn))
 main(void) {  // {{{
 	uchar sensor_probe_counter = 0;
+	uchar timer_overflow = 0;
 
 #if ENABLE_IDLE_RATE
 	int idle_counter = 0;
@@ -412,7 +412,17 @@ main(void) {  // {{{
 		wdt_reset();
 		usbPoll();
 
-		update_button_state();
+		if (TIFR & (1<<TOV0)) {
+			timer_overflow = 1;
+
+			// Resetting the Timer0
+			// Setting this bit to one will clear it.
+			TIFR = 1<<TOV0;
+		} else {
+			timer_overflow = 0;
+		}
+
+		update_button_state(timer_overflow);
 
 		// Red LED lights up if there is any kind of error in I2C communication
 		if ( TWI_statusReg.lastTransOK ) {
@@ -439,7 +449,7 @@ main(void) {  // {{{
 		// Continuous reading of sensor data
 		if (sensor.continuous_reading) {  // {{{
 			// Timer is set to 1.365ms
-			if (TIFR & (1<<TOV0)) {
+			if (timer_overflow) {
 				// The sensor is configured for 75Hz measurements.
 				// I'm using this timer to read the values twice that rate.
 				// 5 * 1.365ms = 6.827ms ~= 146Hz
@@ -462,7 +472,7 @@ main(void) {  // {{{
 
 #if ENABLE_IDLE_RATE
 		// Timer is set to 1.365ms
-		if (TIFR & (1<<TOV0)) {  // {{{
+		if (timer_overflow) {  // {{{
 			// Implementing the idle rate...
 			if (idle_rate != 0) {
 				if (idle_counter > 0){
@@ -525,13 +535,6 @@ main(void) {  // {{{
 				}
 			}
 #endif
-		}
-
-		// Resetting the Timer0
-		if (TIFR & (1<<TOV0)) {
-			// Setting this bit to one will clear it.
-			// Yeah, weird, but that's how it works.
-			TIFR = 1<<TOV0;
 		}
 	}
 }  // }}}
