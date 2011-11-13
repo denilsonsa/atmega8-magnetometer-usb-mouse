@@ -16,14 +16,14 @@ t=0
 DOT_SIZE=4
 
 # Destination directory
-IMAGE_DIR="images"
+IMAGE_DIR="resultados"
 
 
 mkdir -p "${IMAGE_DIR}"
 
 #for abertura in {10..90..5} ; do
-#for abertura in 30 45 60 75 85 ; do
-for abertura in {6..150..2}; do
+for abertura in 30 45 60 75 85 ; do
+#for abertura in {6..150..2}; do
 	P=${abertura}
 	T=${abertura}
 
