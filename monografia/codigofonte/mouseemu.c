@@ -17,36 +17,26 @@
 // HID report
 MouseReport mouse_report;
 
-typedef struct SmoothingVars {
-	float first;
-	float second;
-} SmoothingVars;
-
-SmoothingVars mouse_smooth[2];
+float mouse_smooth[2];
 
 
 int apply_smoothing(uchar index, float *value_ptr) {
-	// Brown's double exponential smoothing
 	// http://en.wikipedia.org/wiki/Exponential_smoothing
 
-#define FIRST  (mouse_smooth[index].first)
-#define SECOND (mouse_smooth[index].second)
+#define AVG  (mouse_smooth[index])
 
 	// This value was choosen empirically.
 #define ALPHA  0.125
-#define GAMMA  ALPHA
 
-	FIRST  = FIRST  * (1 - ALPHA) + (*value_ptr) * ALPHA;
-	SECOND = SECOND * (1 - GAMMA) +   FIRST      * GAMMA;
+	AVG = AVG * (1 - ALPHA) + (*value_ptr) * ALPHA;
 
-	if      (SECOND < 0.0)  SECOND = 0.0;
-	else if (SECOND > 1.0)  SECOND = 1.0;
+	if      (AVG < 0.0)  AVG = 0.0;
+	else if (AVG > 1.0)  AVG = 1.0;
 
-	return (int) round(SECOND * 32767);
+	return (int) round(AVG * 32767);
 
 #undef ALPHA
-#undef FIRST
-#undef SECOND
+#undef AVG
 }
 
 
