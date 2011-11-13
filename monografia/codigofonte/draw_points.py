@@ -6,12 +6,11 @@
 # ./something_that_generates_points | ./draw_points.py
 # ./draw_points.py < some_data.txt
 #
-# Once the window is opened, it can be resized, or it can be closed by pressing
-# Esc or Q, or by just closing it.
+# Once the window is opened, it can be resized, or it can be closed by
+# pressing Esc or Q, or by just closing it.
 #
-# Upon reading EOF, it will stop reading from stdin, but the window will remain
-# open until you close it.
-
+# Upon reading EOF, it will stop reading from stdin, but the window will
+# remain open until you close it.
 
 from __future__ import division
 from __future__ import print_function
@@ -36,9 +35,9 @@ from pygame.locals import *
 class DrawPoints(object):
 
     def init(self, args):
-        # pygame.init() will try to initialize all pygame modules, including
-        # Cdrom and Audio. I'm not using such things, so let's initialize the
-        # only really required module:
+        # pygame.init() will try to initialize all pygame modules,
+        # including Cdrom and Audio. I'm not using such things, so let's
+        # initialize the only really required module:
         pygame.display.init()
 
         if args.persist:

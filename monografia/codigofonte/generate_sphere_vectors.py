@@ -21,14 +21,6 @@ def parse_args(args=None):
     import argparse
 
     class HackishFormatterClass(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
-        # This is a hack to join two formatter classes into one.
-        # Why is this a hack? Because of the following comment:
-        #
-        # (Also note that HelpFormatter and RawDescriptionHelpFormatter are only
-        # considered public as object names -- the API of the formatter objects is
-        # still considered an implementation detail.)
-        # http://hg.python.org/cpython/file/2.7/Lib/argparse.py#l59
-
         pass
 
     parser = argparse.ArgumentParser(

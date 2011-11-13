@@ -103,11 +103,11 @@
  * - buttons.h and menu.c: BUTTON_* definitions
  * - mouseemu.c: mouse_update_buttons()
  *
- * If the Switch is ON, runs the "mouseemu" code. In this mode, buttons 1, 2
- * and 3 emulate mouse click.
+ * If the Switch is ON, runs the "mouseemu" code. In this mode, buttons 1,
+ * 2 and 3 emulate mouse click.
  * If the Switch is OFF, runs the "keyemu" code. In this mode, there is an
- * interactive menu system to configure and debug the sensor. Buttons 1 and 2
- * are next/prev item, and button 3 is "confirm".
+ * interactive menu system to configure and debug the sensor. Buttons 1 and
+ * 2 are next/prev item, and button 3 is "confirm".
  */
 
 #define LED_TURN_ON(led)  do { PORTD |=  (led); } while(0)
@@ -131,82 +131,83 @@ PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
 __attribute__((externally_visible))
 = {
 	// Keyboard
-	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-	0x09, 0x06,                    // USAGE (Keyboard)
-	0xa1, 0x01,                    // COLLECTION (Application)
-	0x85, 0x01,	                   //   REPORT_ID (1)
+	0x05, 0x01,              // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,              // USAGE (Keyboard)
+	0xa1, 0x01,              // COLLECTION (Application)
+	0x85, 0x01,              //   REPORT_ID (1)
 	// Modifier keys (they must come BEFORE the real keys)
-	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
-	0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
-	0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
-	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x95, 0x08,                    //   REPORT_COUNT (8)
-	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	0x05, 0x07,              //   USAGE_PAGE (Keyboard)
+	0x19, 0xe0,              //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,              //   USAGE_MAXIMUM (Keyboard Right GUI)
+	0x15, 0x00,              //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,              //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,              //   REPORT_SIZE (1)
+	0x95, 0x08,              //   REPORT_COUNT (8)
+	0x81, 0x02,              //   INPUT (Data,Var,Abs)
 	// Normal keys
-//	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
-	0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
-	0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
-//	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-	0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
-	0x75, 0x08,                    //   REPORT_SIZE (8)
-	0x95, 0x01,                    //   REPORT_COUNT (1)
-	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
-	0xc0,                          // END_COLLECTION
+//	0x05, 0x07,              //   USAGE_PAGE (Keyboard)
+	0x19, 0x00,              //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0x65,              //   USAGE_MAXIMUM (Keyboard Application)
+//	0x15, 0x00,              //   LOGICAL_MINIMUM (0)
+	0x25, 0x65,              //   LOGICAL_MAXIMUM (101)
+	0x75, 0x08,              //   REPORT_SIZE (8)
+	0x95, 0x01,              //   REPORT_COUNT (1)
+	0x81, 0x00,              //   INPUT (Data,Ary,Abs)
+	0xc0,                    // END_COLLECTION
 
 	// Mouse
-	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-	0x09, 0x02,                    // USAGE (Mouse)
-	0xa1, 0x01,                    // COLLECTION (Application)
-	0x85, 0x02,	                   //   REPORT_ID (2)
-//	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
-	0x09, 0x01,                    //   USAGE (Pointer)
-	0xa1, 0x00,                    //   COLLECTION (Physical)
+	0x05, 0x01,              // USAGE_PAGE (Generic Desktop)
+	0x09, 0x02,              // USAGE (Mouse)
+	0xa1, 0x01,              // COLLECTION (Application)
+	0x85, 0x02,              //   REPORT_ID (2)
+//	0x05, 0x01,              //   USAGE_PAGE (Generic Desktop)
+	0x09, 0x01,              //   USAGE (Pointer)
+	0xa1, 0x00,              //   COLLECTION (Physical)
 	// X, Y movement
-//	0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
-	0x09, 0x30,                    //     USAGE (X)
-	0x09, 0x31,                    //     USAGE (Y)
-//	0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-	0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
-//	0x35, 0x00,                    //     PHYSICAL_MINIMUM (0)
-//	0x46, 0xff, 0x7f,              //     PHYSICAL_MAXIMUM (32767)
-	0x75, 0x10,                    //     REPORT_SIZE (16)
-	0x95, 0x02,                    //     REPORT_COUNT (2)
-	0x81, 0x42,                    //     INPUT (Data,Var,Abs,Null)
-	0xc0,                          //   END_COLLECTION
+//	0x05, 0x01,              //     USAGE_PAGE (Generic Desktop)
+	0x09, 0x30,              //     USAGE (X)
+	0x09, 0x31,              //     USAGE (Y)
+//	0x15, 0x00,              //     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x7f,        //     LOGICAL_MAXIMUM (32767)
+//	0x35, 0x00,              //     PHYSICAL_MINIMUM (0)
+//	0x46, 0xff, 0x7f,        //     PHYSICAL_MAXIMUM (32767)
+	0x75, 0x10,              //     REPORT_SIZE (16)
+	0x95, 0x02,              //     REPORT_COUNT (2)
+	0x81, 0x42,              //     INPUT (Data,Var,Abs,Null)
+	0xc0,                    //   END_COLLECTION
 	// Buttons
-	0x05, 0x09,                    //   USAGE_PAGE (Button)
-	0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
-	0x29, 0x03,                    //   USAGE_MAXIMUM (Button 3)
-//	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x95, 0x03,                    //   REPORT_COUNT (3)
-	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	0x05, 0x09,              //   USAGE_PAGE (Button)
+	0x19, 0x01,              //   USAGE_MINIMUM (Button 1)
+	0x29, 0x03,              //   USAGE_MAXIMUM (Button 3)
+//	0x15, 0x00,              //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,              //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,              //   REPORT_SIZE (1)
+	0x95, 0x03,              //   REPORT_COUNT (3)
+	0x81, 0x02,              //   INPUT (Data,Var,Abs)
 	// Padding for the buttons
-//	0x75, 0x01,                    //   REPORT_SIZE (1)
-	0x95, 0x05,                    //   REPORT_COUNT (5)
-	0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
-	0xc0                           // END_COLLECTION
+//	0x75, 0x01,              //   REPORT_SIZE (1)
+	0x95, 0x05,              //   REPORT_COUNT (5)
+	0x81, 0x03,              //   INPUT (Cnst,Var,Abs)
+	0xc0                     // END_COLLECTION
 };
 
 // This device does not support BOOT protocol from HID specification.
 //
 // The keyboard portion is very limited, when compared to actual keyboards,
-// but it's perfect for a simple communication from the firmware to the user.
-// It supports the common keyboard modifiers (although the firmware only uses
-// the left shift), and supports only one key at time. This is enough for
-// writing the "menu" interface, and uses only 2 bytes (plus the report ID).
+// but it's perfect for a simple communication from the firmware to the
+// user.  It supports the common keyboard modifiers (although the firmware
+// only uses the left shift), and supports only one key at time. This is
+// enough for writing the "menu" interface, and uses only 2 bytes (plus the
+// report ID).
 //
 // The mouse portion is actually an absolute pointing device, and not a
-// standard mouse (that instead sends relative movements). It supports 2 axes
-// (X and Y) with 16-bit for each one, although it doesn't use the full 16-bit
-// range. It also has 3 buttons. That means 2+2+1=5 bytes for the report (plus
-// 1 byte for the report ID).
+// standard mouse (that instead sends relative movements). It supports 2
+// axes (X and Y) with 16-bit for each one, although it doesn't use the
+// full 16-bit range. It also has 3 buttons. That means 2+2+1=5 bytes for
+// the report (plus 1 byte for the report ID).
 //
 // Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been
-// commented out when possible, in order to save a few bytes.
+// commented out where possible, in order to save a few bytes.
 //
 // PHYSICAL_MINIMUM and PHYSICAL_MAXIMUM, when undefined, assume the same
 // values as LOGICAL_MINIMUM and LOGICAL_MAXIMUM.
@@ -219,8 +220,8 @@ __attribute__((externally_visible))
 // no difference at all for the software, feel free to move them around.
 //
 // Also note that ENABLE_KEYBOARD and ENABLE_MOUSE options don't change the
-// HID Descriptor. Instead, they only enable/disable the code that implements
-// the keyboard or the mouse.
+// HID Descriptor. Instead, they only enable/disable the code that
+// implements the keyboard or the mouse.
 
 // }}}
 
@@ -233,13 +234,13 @@ __attribute__((externally_visible))
 
 #if ENABLE_IDLE_RATE
 // As defined in section 7.2.4 Set_Idle Request
-// of Device Class Definition for Human Interface Devices (HID) version 1.11
-// pages 52 and 53 (or 62 and 63) of HID1_11.pdf
+// of Device Class Definition for Human Interface Devices (HID) version
+// 1.11 pages 52 and 53 (or 62 and 63) of HID1_11.pdf
 //
-// Set/Get IDLE defines how long the device should keep "quiet" if the state
-// has not changed.
-// Recommended default value for keyboard is 500ms, and infinity for joystick
-// and mice.
+// Set/Get IDLE defines how long the device should keep "quiet" if the
+// state has not changed.
+// Recommended default value for keyboard is 500ms, and infinity for
+// joystick and mice.
 //
 // This value is measured in multiples of 4ms.
 // A value of zero means indefinite/infinity.
@@ -440,7 +441,7 @@ main(void) {  // {{{
 			// Timer is set to 1.365ms
 			if (TIFR & (1<<TOV0)) {
 				// The sensor is configured for 75Hz measurements.
-				// I'm using this timer to read the values at twice that rate.
+				// I'm using this timer to read the values twice that rate.
 				// 5 * 1.365ms = 6.827ms ~= 146Hz
 				if (sensor_probe_counter > 0){
 					// Waiting...
@@ -477,8 +478,8 @@ main(void) {  // {{{
 
 					//keyDidChange = 1;
 					LED_TOGGLE(YELLOW_LED);
-					// TODO: implement idle rate... should re-send the current status
-					// Either that, or the idle_rate support should be removed.
+					// TODO: Actually implement idle rate... Should re-send
+					// the current status.
 				}
 			}
 		}  // }}}
@@ -506,13 +507,13 @@ main(void) {  // {{{
 		if(usbInterruptIsReady()) {
 			if (0) {
 				// This useless "if" is here to make all the following
-				// conditionals an "else if", and thus making it a lot easier
-				// to add/remove them using preprocessor directives.
+				// conditionals an "else if", and thus making it a lot
+				// easier to add/remove them using preprocessor directives.
 			}
 #if ENABLE_KEYBOARD
 			else if(string_output_pointer != NULL){
-				// Automatically send keyboard report if there is something in
-				// the buffer
+				// Automatically send keyboard report if there is something
+				// in the buffer
 				send_next_char();
 				usbSetInterrupt((void*) &keyboard_report, sizeof(keyboard_report));
 			}

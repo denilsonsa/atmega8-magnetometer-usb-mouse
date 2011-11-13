@@ -95,8 +95,8 @@ static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	//
 	// That system is equivalent to this one:
 	// A + u*(B-A) + v*(C-A) = t*P
-	// Which means the current point is equal to the topleft corner, plus "u"
-	// times in the topleft/topright direction, plus "v" times in the
+	// Which means the current point is equal to the topleft corner, plus
+	// "u" times in the topleft/topright direction, plus "v" times in the
 	// topleft/bottomleft direction. "u" and "v" are between 0.0 and 1.0.
 	//
 	// It would have been better to normalize each vector before doing any
@@ -109,9 +109,9 @@ static void fill_matrix_from_sensor(float m[3][4]) {  // {{{
 	m[1][0] = -sens->data.y;
 	m[2][0] = -sens->data.z;
 
-	// Note: the values below are constant, and could have been pre-converted
-	// to float only once (either at boot, or after updating those values).
-	// It would save some cycles during this runtime.
+	// Note: the values below are constant, and could have been
+	// pre-converted to float only once (either at boot, or after updating
+	// those values). It would save some cycles during this runtime.
 
 	// Second column: topright - topleft
 	m[0][1] = sens->e.corners[1].x - sens->e.corners[0].x;
@@ -149,8 +149,6 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 	float sol[H];
 
 	uchar y;
-
-	int final_x, final_y;
 
 	fill_matrix_from_sensor(m);
 
@@ -212,22 +210,8 @@ static uchar mouse_axes_linear_equation_system() {  // {{{
 		return 0;
 	}
 
-	final_x = apply_smoothing(0, &sol[1]);
-	final_y = apply_smoothing(1, &sol[2]);
-
-	/*
-	if (   final_x < 0
-		|| final_x > 32767
-		|| final_y < 0
-		|| final_y > 32767
-	) {
-		// Out-of-bounds
-		return 0;
-	}
-	*/
-
-	mouse_report.x = final_x;
-	mouse_report.y = final_y;
+	mouse_report.x = apply_smoothing(0, &sol[1]);
+	mouse_report.y = apply_smoothing(1, &sol[2]);
 
 	return 1;
 #undef W
