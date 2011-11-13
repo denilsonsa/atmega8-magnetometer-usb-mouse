@@ -82,8 +82,8 @@ void update_button_state(uchar timer_overflow) { // {{{
 
 	if (button_ptr->changed) {
 		// This value was choosen empirically.
-		// 32 * 1.365ms = 43.68ms = 22.89Hz
-		button_ptr->recent_state_change = 32;
+		// 64 * 1.365ms = 87.36ms = 11.45Hz
+		button_ptr->recent_state_change = 64;
 	}
 }  // }}}
 
