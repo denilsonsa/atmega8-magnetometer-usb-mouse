@@ -247,7 +247,6 @@ __attribute__((externally_visible))
 static uchar idle_rate;
 #endif
 
-
 static void hardware_init(void) {  // {{{
 	// Configuring Watchdog to about 2 seconds
 	// See pages 43 and 44 from ATmega8 datasheet
@@ -287,7 +286,6 @@ static void hardware_init(void) {  // {{{
 
 	// End of USB reset
 
-
 	// Disabling Timer0 Interrupt
 	// It's disabled by default, anyway, so this shouldn't be needed
 	TIMSK &= ~(TOIE0);
@@ -301,7 +299,6 @@ static void hardware_init(void) {  // {{{
 	// 5 = Prescaler = 1024  =>  21.8453333ms
 	// 6 = External clock source on T0 pin (falling edge)
 	// 7 = External clock source on T0 pin (rising edge)
-	//
 	// See page 72 from ATmega8 datasheet.
 	// Also thanks to http://frank.circleofcurrent.com/cache/avrtimercalc.htm
 	TCCR0 = 3;
@@ -331,8 +328,6 @@ usbFunctionSetup(uchar data[8]) {  // {{{
 			// This seems to be called as one of the final initialization
 			// steps of the device, after the ReportDescriptor has been sent.
 			// Returns the initial state of the device.
-			//LED_TOGGLE(GREEN_LED);
-			// Turning off because this will be called at least twice.
 			LED_TURN_OFF(GREEN_LED);
 
 #if ENABLE_KEYBOARD
