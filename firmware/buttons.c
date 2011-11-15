@@ -80,7 +80,8 @@ void update_button_state(uchar timer_overflow) { // {{{
 	button_ptr->changed = button_ptr->state ^ filtered_state;
 	button_ptr->state = filtered_state;
 
-	if (button_ptr->changed) {
+	// If any button has been pressed
+	if (button_ptr->changed & filtered_state) {
 		// This value was choosen empirically.
 		// 64 * 1.365ms = 87.36ms = 11.45Hz
 		button_ptr->recent_state_change = 64;
