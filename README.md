@@ -1,13 +1,178 @@
-TODO: improve this README file...
+## Introduction ##
+
+This is a USB HID absolute pointing device using an [ATmega8][atmega8] AVR
+8-bit microcontroller and a HMC5883L magnetometer. It allows the user to
+control the mouse pointer by moving the sensor in the air, pointing it at
+the desired position, somewhat similar to the [Wiimote controller][wiimote]
+(although using a completely different technology).
+
+[atmega8]: http://www.atmel.com/dyn/products/product_card.asp?part_id=2004
+[wiimote]: http://en.wikipedia.org/wiki/Wii_Remote
+
+It was developed by *Denilson Figueiredo de Sá* in the year 2011 as the final
+graduating project in order to obtain Bachelor's degree in Computer Science
+at [DCC/UFRJ][dcc].
+
+[dcc]: http://www.dcc.ufrj.br/
+
+This project is mirrored at:
+
+* https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse
+* https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse
+
+The full text of my thesis (written in Portuguese) is available as PDF in
+the download section of [GitHub][ghdownload] and [BitBucket][bbdownload].
+The LaTeX source is available in the `monografia/` directory (some minor
+tweaking might be needed in order to compile it).
+
+[ghdownload]: https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
+[bbdownload]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
+
+## Photos and videos ##
+
+Photos of the finished project are available at a Picasa album:
+
+* https://picasaweb.google.com/denilsonsa/Atmega8MagnetometerUsbMouse
+
+You can see this project in action at YouTube:
+
+* [USB Absolute Pointing Device implemented in ATmega8 using
+  Magnetometer][ytprototype]
+* [Dispositivo apontador com interface USB usando magnetômetro][ytusing]
+  (English subtitles available)
+* [Moving the mouse pointer using head movements][ythead]
+* [Playlist with all videos from this project][ytplaylist] (including
+  work-in-progress footage)
+
+[ytprototype]: http://www.youtube.com/watch?v=nZLTwfAJmrE
+[ytusing]: http://www.youtube.com/watch?v=lBZV_GAg8yw
+[ythead]: http://www.youtube.com/watch?v=1nuw9zsZtk4
+[ytplaylist]: http://www.youtube.com/playlist?list=PLA37C87EEDE5EC88C
+
+The schematic diagram of the circuit is available at the `monografia/img/`
+subdirectory of this repository.
+
+
+## How it works ##
+
+The device implements USB HID and should work on any operating system (has
+been successfully tested on Linux, Mac OS X and Windows). It identifies
+itself as a keyboard and a mouse (actually, an "absolute pointing device").
+
+It has a physical switch that selects between two modes of operation
+(*configuration mode* and *mouse mode*) and three push-buttons.
+
+Upon plugging the device to the computer, the user should set the switch to
+*configuration mode* and open any simple text editor. In this mode, the
+device prints the configuration menu by sending (virtual) keyboard events
+to the computer (maybe it would be more accurate to say that it "types" the
+menu items, instead of printing). Two of the device buttons are used to
+navigate the menu items (selecting the next or the previous item), and the
+third button confirms the current selection.
+
+Once in the *configuration mode*, the user should calibrate the "zero" from
+the sensor, as well as the screen corners. The calibration data is stored
+in the EEPROM memory of the microcontroller, and thus it will be remembered
+even after unplugging the device.
+
+Upon starting the "zero" calibration, the device will start printing values
+from the sensor, and the user should move the sensor in all possible
+directions, trying to obtain the maximum and minimum values for each of the
+three axes (X, Y, Z). The *confirm* button should be pressed to finish the
+calibration. This calibration is required because the sensor might have a
+bias and thus return values that are not centered on number zero (see
+images `zerocal_off` and `zerocal_on` from `monografia/img/` subdirectory).
+
+After the "zero" is correctly calibrated, the user should calibrate each
+screen corner. The user should navigate the menu items up to `Set topleft`,
+point the sensor at top-left corner of the screen and then press the
+*confirm* button. This should be repeated for all other corners. For best
+results, the user should be directly in front of the screen center, and the
+screen should be facing either to the North or to the South direction.
+
+The "zero" calibration should be needed only once, right after building the
+project. The corner calibration, on the other hand, is required anytime the
+user faces a different screen orientation.
+
+After completing these two calibrations, the device is ready, and the user
+may switch to *mouse mode*. In this mode, the mouse pointer will be moved
+according to the movements of the sensor, and the three buttons work as
+mouse buttons (left, right and middle button).
+
+The device reads the magnetic field measurements from the sensor as a
+3-axis vector and applies an algorithm to convert that 3D vector into 2D
+screen coordinates. For details about the algorithm, read the `mouseemu.c`
+source code.
+
+Due to the limited sensor precision and the amount of captured noise, the
+device applies a smoothing filter to the pointer position. This increases
+the perceived precision, but also introduces a slight delay in the
+movements.
+
+The mode switch can also be used to pause the mouse position, as the
+pointer is not moved while in the *configuration mode*.
+
+All the steps mentioned here can be seen in [this video][ytusing].
+
+
+## Requirements ##
+
+In order to build this project, you need:
+
+* **ATmega8** or any other similar AVR microcontroller. If using a
+  different model, some minor fine-tuning of the firmware might be neded.
+  By the way, if you are going to buy a microcontroller, I highly recommend
+  choosing one with more memory. Although 8KiB was enough, some parts of
+  the firmware had to be disabled in order to fit. If you can, get a device
+  with at least 16KiB of flash memory.
+* **HMC5883L** 3-axis magnetometer. If you use a different sensor, be
+  prepared to rewrite the sensor handling code.
+* Other electronic components. See the circuit schematic at
+  `monografia/img/AVR-magnetometer-usb-mouse`, available in SVG, PNG and
+  PDF formats.
+
+The required software environment:
+
+* [AVR-GCC][avrgcc] - Developed with version 4.5.3. Different versions
+  require updating a few compiler flags at the `Makefile`, as the available
+  flags change between each major version.
+* [AVR-Libc][avrlibc] - Developed with version 1.7.0.
+* [AVRDUDE][avrdude], or any other tool to write the firmware onto the
+  device.
+* Unix-like system - Developed on Gentoo Linux amd64, should work anywhere
+  with the standard Unix tools.
+
+[avrgcc]: http://gcc.gnu.org/install/specific.html#avr
+[avrlibc]: http://www.nongnu.org/avr-libc/
+[avrdude]: http://www.nongnu.org/avrdude/
+
+
+## Directories in this repository ##
+
+The main contents of this project are in these three directories:
+
+* `firmware/` - Contains the source-code of the firmware.
+* `projection/` - Python code for studying different algorithms for
+  converting the 3D vectors to 2D screen coordinates.
+* `monografia/` - LaTeX source of the thesis (written in Portuguese).
+
+There are also some extra directories:
+
+* `html_javascript/` - Fancy way to show the pointer position using HTML5
+  and WebGL.
+* `linux_usbhid_bug/` - Information about a minor bug in Linux USB HID
+  handling.
+* `other_scripts/` - Some scripts to generate a graph of the firmware size
+  over time.
+
 
 ## How to build this project ##
 
-So you want to build this project? Let's build it together, step-by-step!
+All commands listed here assume you are inside the `firmware` directory (the
+one with `Makefile` and `checksize`).
 
 Want a quick list of available *make targets*? Run `make help`.
 
-All commands listed here assume you are inside the `firmware` directory (the
-one with `Makefile` and `checksize`).
 
 ### Preparation ###
 
@@ -16,8 +181,9 @@ project.
 
 1. Mount the hardware on your breadboard.
    You can find a short description at the *Hardware description* comment in
-   `main.c` file. Hopefully, in future, there will be a nice SVG and PNG
-   circuit schematic.
+   `main.c` file and a complete circuit schematic at
+   `monografia/img/AVR-magnetometer-usb-mouse`, available in SVG, PNG and
+   PDF formats.
 
 2. Open `hardwareconfig.h` and check if those definitions are consistent with
    the hardware. Basically, just check if the USB D- and USB D+ are connected
@@ -38,7 +204,7 @@ project.
        with the bootloader.
     6. Set `ENABLE_KEYBOARD`, `ENABLE_MOUSE` and `ENABLE_FULL_MENU` to `1` or
        `0`, according to what you want in the final firmware. Look at the
-       comments in that file for more detailed information.
+       comments in that file for detailed information.
 
 5. Run `make writefuse` to write the fuse bits.
 
@@ -90,28 +256,41 @@ writeeeprom`.
 ### Writing the main firmware ###
 
 You either need an AVR programmer, or you need to start the bootloader on the
-microcontroller (see the previous section).
+microcontroller (see the section about the bootloader).
 
-1. Run `make` (or `make all`, which is exactly the same thing).
-    * If it fails, try running `make clean`. This `Makefile` is not perfect
-      and does not list all file dependencies. It's always a good idea to run
-      `make clean` whenever something fails.
+1. Run either `make all` or `make combine`.
+    * `make` is a shortcut for `make all`.
 
-    * Note: you may prefer to run `make combine` instead of `make all`. It
-      uses some extra compiler flags to compile all source files at the same
-      time, which usually results in a smaller firmware. Should work in GCC
-      4.5, but won't work on GCC 4.6 (a different set of flags is needed, read
-      the `Makefile` for more details).
+    * `make combine` uses some special compiler flags in order to compile
+      all files at the same time, leading to extra optimizations not
+      possible when compiling separately. This command will not work on
+      GCC 4.6 or newer, because the flags have changed (and, thus, they
+      need to be updated). Read `Makefile` to learn more.
+
+    * If it fails, try running `make clean`. The `Makefile` from this
+      project is not perfect and does not list all file dependencies. It's
+      always a good idea to run `make clean` whenever something fails.
 
 2. Run `make writeflash`.
 
 After you edit the firmware, you only need to redo these two steps.
 
 
-That's all, folks!
+## Acknowledgements ##
 
-And have fun!
+* *Prof. Nelson Quilula Vasconcelos*, advisor for this project.
+* *Bruno Bottino Ferreira* for the help and patience during this project.
+* *Marcelo Salhab Brogliato* for suggesting the coordinate conversion using
+  linear equations.
+* *OBJECTIVE DEVELOPMENT Software GmbH* for the awesome [V-USB][vusb]
+  firmware-only implementation of USB for AVR devices.
+* *Atmel Corporation* for the AVR microcontrollers and the [AVR315: TWI
+  Master Implementation][avr315].
+* Authors and contributors of all open-source and free software used during
+  this project.
 
+[vusb]: http://www.obdev.at/products/vusb/index.html
+[avr315]: http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
 
 
  vi:expandtab:filetype=markdown
