@@ -184,9 +184,14 @@
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
+
 //#define  USB_CFG_DEVICE_ID       0xdb, 0x27 /* = 0x27db = 10203 = For USB Keyboards */
 //#define  USB_CFG_DEVICE_ID       0xda, 0x27 /* = 0x27da = 10202 = For USB Mice */
 #define  USB_CFG_DEVICE_ID       0xd9, 0x27 /* = 0x27d9 = 10201 = For generic HID class devices */
+// XXX: obdev does not have a VID/PID for a device that works as both mouse
+// and keyboard at the same time, and thus this project uses an inadequate
+// VID/PID pair, for the lack of a more appropriate one. DO NOT let this
+// device with this VID/PID pair go out of your lab.
 /* This is the ID of the product, low byte first. It is interpreted in the
  * scope of the vendor ID. If you have registered your own VID with usb.org
  * or if you have licensed a PID from somebody else, define it here. Otherwise
@@ -197,9 +202,11 @@
  * with libusb: 0x16c0/0x5dc.  Use this VID/PID pair ONLY if you understand
  * the implications!
  */
+
 #define USB_CFG_DEVICE_VERSION  0x00, 0x01
 /* Version number of the device: Minor number first, then major number.
  */
+
 //#define USB_CFG_VENDOR_NAME     'o', 'b', 'd', 'e', 'v', '.', 'a', 't'
 //#define USB_CFG_VENDOR_NAME_LEN 8
 #define USB_CFG_VENDOR_NAME     'd', 'e', 'n', 'i', 'l', 's', 'o', 'n', 's', 'a', '@', 'g', 'm', 'a', 'i', 'l', '.', 'c', 'o', 'm'
@@ -212,6 +219,7 @@
  * obdev's free shared VID/PID pair. See the file USB-IDs-for-free.txt for
  * details.
  */
+
 //#define USB_CFG_DEVICE_NAME     'T', 'e', 'm', 'p', 'l', 'a', 't', 'e'
 //#define USB_CFG_DEVICE_NAME_LEN 8
 #define USB_CFG_DEVICE_NAME     'A', 'T', 'm', 'e', 'g', 'a', '8', ' ', 'M', 'a', 'g', 'n', 'e', 't', 'o', 'm', 'e', 't', 'e', 'r', ' ', 'U', 'S', 'B', ' ', 'M', 'o', 'u', 's', 'e'
@@ -220,6 +228,7 @@
  * the macros. See the file USB-IDs-for-free.txt before you assign a name if
  * you use a shared VID/PID.
  */
+
 /*#define USB_CFG_SERIAL_NUMBER   'N', 'o', 'n', 'e' */
 /*#define USB_CFG_SERIAL_NUMBER_LEN   0 */
 /* Same as above for the serial number. If you don't want a serial number,
@@ -229,6 +238,7 @@
  * to fine tune control over USB descriptors such as the string descriptor
  * for the serial number.
  */
+
 #define USB_CFG_DEVICE_CLASS        0    /* set to 0 if deferred to interface */
 #define USB_CFG_DEVICE_SUBCLASS     0
 /* See USB specification if you want to conform to an existing device class.
