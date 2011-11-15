@@ -17,8 +17,11 @@ at [DCC/UFRJ][dcc].
 
 This project is mirrored at:
 
-* https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse
-* https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse
+* [https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse][bbmirror]
+* [https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse][ghmirror]
+
+[bbmirror]: https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse
+[ghmirror]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse
 
 The full text of my thesis (written in Portuguese) is available as PDF in
 the download section of [GitHub][ghdownload] and [BitBucket][bbdownload].
@@ -30,9 +33,9 @@ tweaking might be needed in order to compile it).
 
 ## Photos and videos ##
 
-Photos of the finished project are available at a Picasa album:
+Photos of the finished project are available at [a Picasa album][picasa].
 
-* https://picasaweb.google.com/denilsonsa/Atmega8MagnetometerUsbMouse
+[picasa]: https://picasaweb.google.com/denilsonsa/Atmega8MagnetometerUsbMouse
 
 You can see this project in action at YouTube:
 
