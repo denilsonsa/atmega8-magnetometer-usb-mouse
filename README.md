@@ -118,6 +118,59 @@ pointer is not moved while in the *configuration mode*.
 All the steps mentioned here can be seen in [this video][ytusing].
 
 
+## Possible improvements ##
+
+* Use a microcontroller with more memory. This is needed before
+  implementing any further improvements.
+
+* Use the `DRDY` interrupt signal from the sensor in order to achieve up to
+  160Hz. The currently implemented method uses a 75Hz continuous
+  measurement mode together with polling. It was implemented this way
+  because [the sensor PCB I bought from eBay][fromebay] did not have the
+  `DRDY` line available. [The PCB being sold at Love Electronics][fromle]
+  has that line.
+
+* For best results, the user must be facing to the North or to the South
+  direction. If, instead, the user is facing to the West or to the East,
+  the vertical movement of the pointer is severely degraded. This happens
+  because, in this case, the sensor rotates around the same axis as the
+  magnetic field, and thus gives little to no change in the measurements.
+  A solution for this problem is to attach an accelerometer as a second
+  sensor to this device.
+  
+    * With these two sensors, the magnetometer can be used for horizontal
+      pointer movement and the accelerometer for the vertical pointer
+      movement.
+
+    * These two sensors can be used together to implement a
+      tilt-compensation (similar to [this tutorial from Love
+      Electronics][letilt]).
+
+    * A third sensor, gyroscope, can be added in order to improve precision
+      and reduce the pointer shaking, increasing the responsiveness of the
+      device.
+
+* Try another magnetometer with better precision (if there is such thing).
+
+* Try other algorithms for converting the coordinates.
+
+* Implement wireless communication between the device and the computer.
+
+    * It can be done by using a pair of microcontrollers: one next to the
+      computer, talking to the USB port; and another next to the sensor.
+      The communication between these two microcontrollers can be wireless.
+      This solution has been done before in [two][wishabi] [other][usbwtm]
+      projects.
+
+    * Or it can be done by implementing a Bluetooth HID device.
+
+[fromebay]: http://cgi.ebay.com/HMC5883L-HMC5883-Triple-Axis-Magnetometer-Sensor-board-/260770948278
+[fromle]: https://www.loveelectronics.co.uk/products/140/3-axis-magnetometer---hmc5883-breakout-board
+[letilt]: https://www.loveelectronics.co.uk/Tutorials/13/tilt-compensated-compass-arduino-tutorial
+[wishabi]: http://vusb.wikidot.com/project:wishabi
+[usbwtm]: http://instruct1.cit.cornell.edu/courses/ee476/FinalProjects/s2010/ss868_jfe5/ss868_jfe5/
+
+
 ## Requirements ##
 
 In order to build this project, you need:
