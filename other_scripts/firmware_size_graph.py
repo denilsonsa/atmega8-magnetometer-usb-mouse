@@ -81,7 +81,7 @@ def main():
     show_legend()
 
     pyplot.xlim(0, max_rev)
-    pyplot.xticks(range(0, max_rev+1, 10))
+    pyplot.xticks(range(0, max_rev+1, 25))
     pyplot.xlabel('Revision number')
 
     pyplot.ylim(0, flash_size)

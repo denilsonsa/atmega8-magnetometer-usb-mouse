@@ -1,0 +1,31 @@
+GoogleIO-1.jpg
+GoogleIO-2.jpg
+GoogleIO-3.jpg
+GoogleIO-title.jpg
+	From http://www.youtube.com/watch?v=ttavBa4giPc
+
+IPod_touch_4G.png
+	http://en.wikipedia.org/wiki/File:IPod_touch_4G.png
+	http://en.wikipedia.org/wiki/IPod_Touch
+
+ATmega8.jpg
+	http://store.nortonkit.co.in/images/categories/mega8.jpg
+	http://store.nortonkit.co.in/index.php?main_page=product_info&products_id=1
+
+floppy_disk.jpg
+	http://it.wikipedia.org/wiki/File:Floppydisk_90mm(3.5inch).jpg
+
+usbasp_bottom_hi.jpg
+usbasp_on_breadboard_2_hi.jpg
+usbasp_top_hi.jpg
+	http://files.myopera.com/CrazyTerabyte/atmega8/usbasp_top_hi.jpg
+	http://files.myopera.com/CrazyTerabyte/atmega8/usbasp_bottom_hi.jpg
+	http://files.myopera.com/CrazyTerabyte/atmega8/usbasp_on_breadboard_2_hi.jpg
+	http://my.opera.com/CrazyTerabyte/blog/2011/08/10/first-contact-with-atmega8-microcontroller-part-2-1
+
+firmware_size_graph.pdf
+	Generated at revision 355:82c2e17f22b2
+
+6steps.png
+	http://promo.aaas.org/b2s/2009/images/closeup.gif
+	http://promo.aaas.org/b2s/2009/LandingB2S.html
