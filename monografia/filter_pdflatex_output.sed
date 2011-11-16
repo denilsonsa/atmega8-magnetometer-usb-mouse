@@ -14,7 +14,7 @@
 # <use /home/denilson/avr/PDFs/doc2486.pdf, page 158>
 # <use /home/denilson/avr/PDFs/doc2486.pdf, page 158> [28 </home/denilson/avr/PDFs/doc2486.pdf>]
 # <use shared/logo.pdf> [11] <use shared/logo.pdf> [12]
-/^\(\(<use [^>]*\.\(pdf\|png\|jpg\)\(, page [0-9]\+\)\?>\)\?\( *\[[0-9]\+\( *<[^>]*>\)*\] *\)\?\)\+$/d
+/^\( *\(<use [^>]*\.\(pdf\|png\|jpg\)\(, page [0-9]\+\)\?>\)\? *\(\[[0-9]\+\( *<[^>]*>\)*\]\)\? *\)\+$/d
 
 # More included files:
 # [40] <../../hmc5883/HMC5883L.pdf, id=721, page=1, 614.295pt x 794.97pt>
