@@ -211,6 +211,7 @@ The main contents of this project are in these three directories:
 * `projection/` - Python code for studying different algorithms for
   converting the 3D vectors to 2D screen coordinates.
 * `monografia/` - LaTeX source of the thesis (written in Portuguese).
+* `apresentacao/` - LaTeX source of the presentation (written in Portuguese).
 
 There are also some extra directories:
 
