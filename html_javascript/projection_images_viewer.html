@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Coordinate conversion results</title>
+
+<meta name="author" content="Denilson Figueiredo de S&aacute;">
+
+<script type="text/javascript">
+
+var image_preload = new Array();
+
+function image_src(angle, algo) {
+	return '../projection/images/P' + angle + 'T' + angle + 'p0t0_a' + algo + '.png';
+}
+
+function preload_images() {
+	var angle, algo;
+	for (algo = 7; algo <= 13; algo++) {
+		for (angle = 6; angle <= 150; angle+=2) {
+			var img = new Image();
+			img.src = image_src(angle, algo);
+			image_preload.push(img);
+		}
+	}
+}
+
+function update_images() {
+	var angleobj = document.getElementById('angle');
+	var angle = angleobj.value;
+	var algo;
+	for (algo = 7; algo <= 13; algo++) {
+		var img = document.getElementById('img' + algo);
+		img.src = image_src(angle, algo);
+	}
+
+	var anglelabel = document.getElementById('anglelabel');
+	anglelabel.innerHTML = angle + '°';
+}
+
+function update_size() {
+	var sizeobj = document.getElementById('size');
+	var size = sizeobj.value;
+	var imgs = document.querySelectorAll('#view figure img');
+	var i;
+	for (i = 0; i < imgs.length; i++) {
+		imgs[i].width = size;
+		imgs[i].height = size;
+	}
+}
+
+function update_figure_visibility() {
+	var figure = document.getElementById(this.dataset.figid);
+	if (this.checked) {
+		figure.style.display = 'inline-block';
+	} else {
+		figure.style.display = 'none';
+	}
+}
+
+function fill_toggleimages_box() {
+	var toggleimages = document.getElementById('toggleimages');
+	var figures = document.querySelectorAll('#view figure');
+	var i;
+	for (i = 0; i < figures.length; i++) {
+		var caption_obj = figures[i].querySelector('figcaption');
+		var caption = caption_obj.textContent;
+		var checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.checked = 'checked';
+		checkbox.dataset.figid = figures[i].id;
+		checkbox.addEventListener('change', update_figure_visibility, false);
+		var label = document.createElement('label');
+		label.appendChild(checkbox);
+		label.appendChild(document.createTextNode(caption));
+		toggleimages.appendChild(label);
+	}
+}
+
+function on_window_load() {
+	var range_angle = document.getElementById('angle');
+	range_angle.addEventListener('input', update_images, false);
+
+	var range_size = document.getElementById('size');
+	range_size.addEventListener('input', update_size, false);
+
+	preload_images();
+	fill_toggleimages_box();
+
+	update_images();
+	update_size();
+}
+
+window.addEventListener('load', on_window_load, false);
+
+</script>
+
+
+<style type="text/css">
+html, body {
+	padding: 0;
+	border: 0;
+	margin: 0;
+	background: #444;
+	color: white;
+	font-family: sans-serif;
+}
+
+#control {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 10em;
+	background: #333;
+	overflow: hidden;
+}
+#view {
+	position: absolute;
+	right: 10em;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	overflow: auto;
+}
+figure {
+	display: inline-block;
+	text-align: center;
+	padding: 0;
+	margin: 1em;
+}
+figure figcaption {
+	display: block;
+	font-size: 1.4em;
+}
+
+#control input[type=range] {
+	width: 4em;
+	height: 400px;
+	-webkit-appearance: slider-vertical;
+	margin: auto;
+}
+#control .rangebox {
+	display: inline-block;
+	width: 4.5em;
+	text-align: center;
+}
+#control #anglelabel {
+	font-size: 2em;
+}
+#toggleimages label {
+	display: block;
+}
+#toggleimages label:hover {
+	background: #777;
+}
+</style>
+
+</head>
+<body>
+
+<form id="control">
+	<div id="toggleimages">
+	</div>
+	<div id="anglebox" class="rangebox">
+		<div id="anglelabel"></div>
+		<input type="range" name="angle" id="angle" value="30" min="6" max="150" step="2">
+	</div>
+	<div id="sizebox" class="rangebox">
+		<input type="range" name="size" id="size" value="320" min="128" max="1280" step="32">
+	</div>
+</form>
+
+<div id="view">
+	<figure id="fig12">
+		<img id="img12" src="">
+		<figcaption>Cálculo exato</figcaption>
+	</figure>
+	<figure id="fig7">
+		<img id="img7" src="">
+		<figcaption>Razão entre ângulos</figcaption>
+	</figure>
+	<figure id="fig11">
+		<img id="img11" src="">
+		<figcaption>Razão entre distâncias</figcaption>
+	</figure>
+	<figure id="fig9">
+		<img id="img9" src="">
+		<figcaption>Razão entre senos</figcaption>
+	</figure>
+	<figure id="fig8">
+		<img id="img8" src="">
+		<figcaption>Razão entre cossenos</figcaption>
+	</figure>
+	<figure id="fig10">
+		<img id="img10" src="">
+		<figcaption>Razão entre tangentes</figcaption>
+	</figure>
+	<figure id="fig13">
+		<img id="img13" src="">
+		<figcaption>Sistema linear</figcaption>
+	</figure>
+</div>
+
+</body>
+</html>

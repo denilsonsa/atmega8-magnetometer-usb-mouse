@@ -215,8 +215,7 @@ The main contents of this project are in these three directories:
 
 There are also some extra directories:
 
-* `html_javascript/` - Fancy way to show the pointer position using HTML5
-  and WebGL.
+* `html_javascript/` - Some HTML pages I used during my presentation.
 * `linux_usbhid_bug/` - Information about a minor bug in Linux USB HID
   handling.
 * `other_scripts/` - Some scripts to generate a graph of the firmware size
