@@ -1,4 +1,4 @@
-\documentclass[brazil,pagestart=firstchapter]{abnt}
+\documentclass[brazil,pagestart=firstchapter,draft]{abnt}
 
 % This does not accept all Unicode chars (for instance: I²C gives an error)
 %\usepackage[utf8]{inputenc}
@@ -493,7 +493,7 @@ Wichary utiliza um \textit{iPod touch}\footnote{
 	O \textit{iPod touch} possui um acelerômetro e um giroscópio embutidos,
 	mas não possui um magnetômetro.
 } preso ao seu pulso para controlar um objeto no telão através dos
-movimentos de seu braço. \cite[2min46s a 4min40s]{GoogleIO2011} O software
+movimentos de seu braço. \cite{GoogleIO2011} O software
 que rodava no \textit{iPod touch} durante a palestra era uma página escrita
 em HTML5 e JavaScript, a qual se comunicava com um servidor NodeJS através
 de uma conexão Wi-Fi. Conforme ele movia seu braço, os dados do acelerômetro
@@ -582,7 +582,7 @@ produto TrackIR está à venda a partir de US\$~99,95, enquanto o SmartNav
 está à venda a partir de US\$~399,00
 
 A empresa Origin Instruments tem um produto chamado HeadMouse
-\cite{HeadMouse} cujo funcionamento é muito muito similar ao SmartNav, mas
+\cite{HeadMouse} cujo funcionamento é muito similar ao SmartNav, mas
 não requer nenhum software instalado. Esse produto se identifica como um
 \textit{mouse} \acs{USB} e portanto funciona em qualquer sistema. Está à
 venda por US\$~995,00.
@@ -1206,7 +1206,7 @@ estados: \cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
 
 \item[O dispositivo de maior tensão está puxando o barramento para zero] \hfill \\
 	O lado de menor tensão é também puxado para baixo através do diodo
-	interno do transistor MOSFET. Isso ocorre até que diferença de potencial
+	interno do transistor MOSFET. Isso ocorre até que a diferença de potencial
 	entre \textit{gate} e \textit{source} fique grande o suficiente, quando
 	então o transistor entra em condução e o lado de menor tensão é puxado
 	para zero através do transistor.
@@ -1262,7 +1262,7 @@ microcontroladores da família AVR. Para gravação do \textit{firmware} no
 microcontrolador, foi usado o programa AVRDUDE.
 
 Todo o ambiente de desenvolvimento usado (AVR-GCC, Binutils, AVR-Libc,
-AVRDUDE) é composto por \textit{software} livre e é está disponível para os
+AVRDUDE) é composto por \textit{software} livre e está disponível para os
 principais sistemas operacionais (FreeBSD, Linux, Mac OS X e Windows).
 \cite{avrlibcoverview}
 
@@ -1527,7 +1527,8 @@ O \textit{driver} implementa um dispositivo \ac{USB} 1.1 \textit{low speed},
 mas possui algumas limitações. Uma delas é assumir que não há erros durante
 a comunicação, pois não há tempo de CPU suficiente para implementar checagem
 de erros via \textit{software}. Além disso, as características elétricas dos
-pinos não atendem estritamente a especificação \ac{USB}. \cite{VUSBdriver}
+pinos do microcontrolador não atendem estritamente a especificação \ac{USB}.
+\cite{VUSBdriver}
 
 A especificação \ac{USB} também define que os dispositivos devem implementar
 um modo \textit{suspend}, no qual não devem consumir mais que
@@ -1718,7 +1719,7 @@ seção \ref{sec:keyboard}) com os três botões presentes na
 Um dos botões foi escolhido para funcionar como ``confirma'', enquanto os
 outros dois funcionam como ``próximo item'' e ``item anterior''.
 
-O sistema de menus é iniciado apertando o botão o botão ``confirma'', e o
+O sistema de menus é iniciado apertando o botão ``confirma'', o
 item atualmente selecionado é digitado na tela usando a funcionalidade do
 teclado \ac{USB} (já descrito na seção \ref{sec:keyboard}). Todas as
 principais funcionalidades do \textit{firmware} podem ser acessadas através
@@ -1797,7 +1798,7 @@ primeiro deles é o \textit{Report ID} e tem valor 2, identificando que este
 	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
 	com o valor 1.
 } Os quatro bytes seguintes correspondem à posição $(x, y)$, onde cada uma
-das duas coordenada é representada por um número inteiro de 16 bits dentro
+das duas coordenadas é representada por um número inteiro de 16 bits dentro
 do intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
 considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
 \cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse},
@@ -1929,9 +1930,9 @@ tanto tempo quanto demorar a leitura ou escrita dos bytes requisitados.
 
 O tempo total para a leitura de um byte da \ac{EEPROM} no ATmega8 é de
 quatro ou cinco ciclos de \textit{clock}\footnote{
-	O \textit{datasheet} informa que o acesso à \ac{EEPROM} demora apenas
-	um ciclo, mas também diz que a CPU fica parada por quatro ciclos antes
-	que a instrução seguinte seja executada.
+	O \textit{datasheet} não é claro, informando que o acesso à \ac{EEPROM}
+	demora apenas um ciclo, mas também que a CPU fica parada por quatro
+	ciclos antes que a instrução seguinte seja executada.
 }, enquanto a escrita de cada byte demora aproximadamente
 \SI{8.5}{\milli\second}. \cite[p.~21]{ATmega8} Portanto, a leitura é rápida
 o suficiente para não causar nenhum tipo de problema, mas a escrita
@@ -2237,7 +2238,7 @@ A_X     & = A \cdot X     & \qquad A_Y     & = A \cdot Y      \\
 P'_X    & = P' \cdot X    & \qquad P'_Y    & = P' \cdot Y     \nonumber
 \end{alignat}
 
-A equação vetorial \eqref{eq:sistemaPlinhaVetorial} pode ser reescrita em
+A equação vetorial \eqref{eq:sistemaPlinhaVetorial} pode ser reescrita
 como duas equações escalares \eqref{eq:sistemaPlinhaEscalar}, utilizando as
 componentes definidas em \eqref{eq:sistemaPlinhaComponentes}.
 
@@ -2541,7 +2542,7 @@ aproximadamente paralelo à superfície (exceto nos pólos), o dispositivo
 deste projeto só funciona satisfatoriamente se o usuário estiver de frente
 para o Norte ou para o Sul. Caso o usuário esteja de frente para o Leste ou
 Oeste, os movimentos verticais serão altamente comprometidos. Isso acontece
-porque o esse tipo de movimento será provocado por uma rotação do sensor num
+porque esse tipo de movimento será provocado por uma rotação do sensor num
 eixo paralelo ao campo magnético, e esse tipo de movimento não causa
 variação na leitura do sensor (ou causa uma variação muito pequena).
 
