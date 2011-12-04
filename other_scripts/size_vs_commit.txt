@@ -1,0 +1,359 @@
+# The values are separated by tab
+# size1 = make all
+# size2 = make combine
+# rev	hash	size1	size2	date	description
+1	e4f3d3cf2e28	0	0	2011-08-29 19:14 -0300	Added "fonte_e_level_shifting.txt" annotations.
+2	a7fb4f14268b	0	0	2011-08-29 19:26 -0300	Added obdev's V-USB version 20100715.
+3	2eb237b2a4b6	0	0	2011-08-30 00:10 -0300	And so I found a capacitance value for Cat 5e cables at Wikipedia
+4	2a49b44b09b1	0	0	2011-08-30 00:11 -0300	Porting over old HIDKeys.2007-03-29 code (modified to write "Hello, world") to new driver version.
+5	f60ac91f12b5	0	0	2011-08-30 00:51 -0300	Really small changes.
+6	3557b45cf227	0	0	2011-08-30 01:05 -0300	Added "make comments", that prints TODO/FIXME/XXX comments.
+7	e56906176a2b	2208	0	2011-08-30 13:12 -0300	Added "checksize" script from HIDKeys.2007-03-29
+8	aa5e3cb21b07	2208	0	2011-08-30 13:21 -0300	Improving "checksize" script.
+9	fb43a39e92d9	2198	0	2011-09-01 02:49 -0300	Moved the buttons to other pins. Added a couple of #defines.
+10	a6edb6712ef1	2198	0	2011-09-01 14:27 -0300	Added a note about (not) promoting constants to 16-bit integers
+11	2706b9b7ae64	2420	0	2011-09-01 15:18 -0300	Added functions to convert nibble/uchar/int to hexadecimal.
+12	bbc046e31d06	2432	0	2011-09-01 15:53 -0300	Fixing build_report_from_char() for characters between 1 and 9
+13	8b39cdaeacaa	2586	0	2011-09-01 16:07 -0300	The firmware can now print the 'useless_counter' (16-bit integer) in either decimal or hexadecimal format.
+14	a6bede92c175	2610	0	2011-09-01 16:10 -0300	Adding support for typing TAB char/key.
+15	6e7261f09dab	2624	0	2011-09-03 01:38 -0300	Refactor of hardware_init(). But now it's a bit buggy, probably related to USB reset routine.
+16	3e104f8d72de	2632	0	2011-09-03 02:06 -0300	Only performing a USB reset if not from power-on. Not sure if it makes any difference, though. On the other hand, it seems to work.
+17	85437b233b7d	2632	0	2011-09-03 02:39 -0300	Finished refactoring the code. Seems a bit more organized now.
+18	d6c6c8d18650	2632	0	2011-09-03 02:56 -0300	Adding USBaspLoader.2010-07-27
+19	cdc391e5016e	2632	0	2011-09-03 04:22 -0300	Lots of changes to the Makefile in order to reuse it for building the bootloader.
+20	920312a9e395	2632	0	2011-09-03 04:32 -0300	Moving common definitions (which pins are connected to the USB data wires) to "hardwareconfig.h". Helps avoiding copy-paste between the main project and the bootloader.
+21	be59692375b9	2636	0	2011-09-03 04:48 -0300	And the USBaspLoader works! I have a bootloader!
+22	5c50f87285ce	2636	0	2011-09-03 04:54 -0300	Adding comments to "checksize" about size calculation.
+23	040ec3321e49	2636	0	2011-09-03 05:44 -0300	Added README file.
+24	6061e1930ff6	2636	0	2011-09-03 15:18 -0300	Adding "AVR315 - TWI Master Implementation" code. Still needs to integrate it with the rest of the firmware.
+25	8e07311aa20d	2636	0	2011-09-03 15:41 -0300	Moving some #defines in avr315 code.
+26	aa79c01d225f	2636	0	2011-09-03 15:46 -0300	Added links about porting from IAR compiler to AVR-GCC.
+27	b1a1f31c097b	2636	0	2011-09-03 15:47 -0300	Whitespace fixes.
+28	e04d07a09614	2636	0	2011-09-03 16:13 -0300	Finished porting IAR C code to AVR-GCC. The file appears to compile correctly.
+29	81f5dec6c3d4	3022	0	2011-09-03 16:17 -0300	Adding TWI_Master.* to the Makefile.
+30	9dbf01ca62f5	3022	0	2011-09-03 16:24 -0300	Added information about TWI configuration.
+31	cfe95b2caa83	3052	0	2011-09-03 16:30 -0300	Updated "Hello, world" message, just for testing.
+32	6c7bf5771aec	3044	0	2011-09-03 20:47 -0300	The bootloader now starts on either power-on reset or pin-1 reset.
+33	06c10ec53156	3044	0	2011-09-03 20:57 -0300	Whitespace, spaces to tabs.
+34	4778b33e63e0	3044	0	2011-09-03 21:01 -0300	The bootloader now starts on either power-on reset or pin-1 reset.
+35	eefbf73633d8	3044	0	2011-09-03 21:44 -0300	Okay, after a long time debugging, I notice I have a faulty USB cable.
+36	161ec1ac3467	3102	0	2011-09-06 18:38 -0300	First try using I2C. It didn't work.
+37	ea87784130dc	3114	0	2011-09-06 18:43 -0300	Second try, now with some debugging LEDs.
+38	4abbbd3ccb37	3120	0	2011-09-06 18:48 -0300	It works at the 3rd try! Obviously, it won't work without first initilizing the TWI module...
+39	871150483abb	3130	0	2011-09-08 20:13 -0300	Red LED shows TWI_statusReg.lastTransOK
+40	11b0285c281d	3122	0	2011-09-08 20:16 -0300	Don't toggle Red LED upon pressing the button.
+41	1f93dc596cbd	3358	0	2011-09-09 01:33 -0300	Trying to read all 13 registers from the sensor. Unfortunately, it doesn't like reading all of them at once, and the last few of them were not read correctly.
+42	9373faffbc9d	3404	0	2011-09-09 02:40 -0300	Working around kirkness of the sensor while reading all registers.
+43	f69fa1068500	3416	0	2011-09-09 12:38 -0300	Added comments about idle rate.
+44	26ac3882b074	3434	0	2011-09-09 16:48 -0300	Configuring Timer0 and updating idleRate support. (I should remove it sometime later)
+45	859b4e3a9852	3572	0	2011-09-09 18:21 -0300	Implemented de-bouncing of button input.
+46	a646c52c1996	3572	0	2011-09-09 18:32 -0300	Whitespace.
+47	21eb4f336c0c	3522	0	2011-09-09 18:43 -0300	Modified build_report_from_char(), saving 50 bytes.
+48	f5f230cb82e0	3534	0	2011-09-09 19:01 -0300	Added init_keyboard_emulation()
+49	7539acf61508	3592	0	2011-09-09 21:27 -0300	Adding sensor configuration code. Still need to update the sensor-reading code.
+50	2d9e84931c99	3714	0	2011-09-10 00:41 -0300	Lots of debugging code added. Should be enough for now.
+51	115bc8c2225b	3712	0	2011-09-10 01:02 -0300	The sensor initialization must be done AFTER enabling interrupts, since it uses TWI.
+52	53745a7336f7	3712	0	2011-09-10 03:06 -0300	Whitespace.
+53	9e44c23b8c40	3766	0	2011-09-10 03:23 -0300	More debugging code. Using buttons to select which register to read.
+54	38f50f558fe8	3764	0	2011-09-10 03:35 -0300	Stupid mistake! I swapped SENSOR_MODE_CONTINUOUS and SENSOR_MODE_SINGLE values.
+55	761dc1ef320d	3788	0	2011-09-10 03:39 -0300	Using gain of 0.88Ga caused overflow on Y. Setting back to 1.3Ga.
+56	b420c96daa44	3824	0	2011-09-10 03:57 -0300	Added a LED showing the Status register, and a couple of other minor changes.
+57	2936fd6d133a	3468	0	2011-09-10 04:14 -0300	Deleted a lot of debug code. Streamlined the code to get nearer the final code.
+58	1057a7f5c1bc	3468	0	2011-09-10 06:32 -0300	Improving one comment.
+59	671baca157fd	3468	0	2011-09-10 09:21 -0300	Improved Markdown formatting of list subitems.
+60	bf2c9cb191b5	3436	0	2011-09-10 09:22 -0300	Hello, YouTube! :)
+61	399c014ea451	3436	0	2011-09-10 09:23 -0300	Added tag youtube_CP7rlx-kE2o for changeset bf2c9cb191b5
+62	49946d242416	3436	0	2011-09-13 14:13 -0300	The beginnings of a Python code to experiment with projections and coordinate transforming
+63	3ca8af217a9c	3436	0	2011-09-14 00:05 -0300	Python+Pygame tool that draws points read from stdin.
+64	5bcb144fa4bc	3436	0	2011-09-14 00:08 -0300	Added a little documentation to draw_points.py
+65	6dd19d23fc97	3436	0	2011-09-14 13:26 -0300	Experiment using cossines... But the logic I wrote is inverted.
+66	33e12c395781	3436	0	2011-09-14 15:22 -0300	Using angles instead of cossines.
+67	767fe8e47c5f	3436	0	2011-09-14 17:36 -0300	Some more readings from the sensor, and a bit more experiment.
+68	839a6f127f73	3436	0	2011-09-14 19:03 -0300	Implemented interpolation_using_4_edges()
+69	099246e02392	3436	0	2011-09-14 19:05 -0300	Renaming some files
+70	61093d5e2613	3436	0	2011-09-14 19:29 -0300	Whitespace
+71	3edffacf573f	3436	0	2011-09-14 20:40 -0300	Added tag youtube_pmlRWQ-qoJM for changeset 61093d5e2613
+72	4ed5306f9180	3436	0	2011-09-14 23:04 -0300	Added vetores4-calibration.txt that I forgot to add previously...
+73	f9e6b5107707	3436	0	2011-09-14 23:05 -0300	Added tag youtube_pmlRWQ-qoJM for changeset 4ed5306f9180
+74	32a5606423c9	3436	0	2011-09-15 20:28 -0300	Adding code to ignore invalid values.
+75	122401802185	3436	0	2011-09-15 21:58 -0300	Added lots of data typed directly from the sensor.
+76	05664f579c61	3436	0	2011-09-19 17:27 -0300	Added generate_sphere_vectors.py
+77	25d29322fd6c	3436	0	2011-09-19 17:58 -0300	Improvements to generate_sphere_vectors.py
+78	c6b206d6b9df	3436	0	2011-09-19 20:40 -0300	Added a blender script to view the coordinates.
+79	041a60a6dde7	3436	0	2011-09-19 21:55 -0300	Now correctly discarding 3D coordinates outside the calibration pyramid.
+80	71bc8d6a4b0d	3436	0	2011-09-19 22:07 -0300	Small improvements to generate_sphere_vectors.py code
+81	311b75b92691	3436	0	2011-09-19 22:09 -0300	Ignoring Blender *.blend1 backups
+82	82442358038c	3436	0	2011-09-20 00:10 -0300	Adding "argparse" and lots of useful parameters to draw_points.py
+83	e52d228adcce	3436	0	2011-09-20 02:10 -0300	Reducing the default dot thickness in draw_points.py.
+84	596326fe5068	3436	0	2011-09-20 02:11 -0300	Added argparse to generate_sphere_vectors.py
+85	64b9d6d4593b	3436	0	2011-09-20 02:59 -0300	Added --sleep to generate_sphere_vectors.py
+86	04d7cf71ba4b	3436	0	2011-09-20 03:05 -0300	Renamed cos_entre_vetores to cos_between_vectors
+87	74db68d267d7	3436	0	2011-09-20 03:19 -0300	Adding --sleep and --flush to convert_coordinates.py
+88	e8157653a993	3436	0	2011-09-20 03:41 -0300	Adding --algorithm to convert_coordinates.py
+89	cc6314341a0e	3436	0	2011-09-20 03:48 -0300	Adding --window to draw_points.py
+90	62eef8ce12b3	3436	0	2011-09-20 03:55 -0300	Selectively initializes pygame.display module, instead of the entire pygame.
+91	a6ba050f28d1	3436	0	2011-09-20 04:01 -0300	Added --quit-after-eof to draw_points.py
+92	bb3854d86ae3	3436	0	2011-09-20 04:45 -0300	Changing where "redraw()" is called in draw_points.py, should reduce CPU usage.
+93	8ab891ff0eca	3436	0	2011-09-20 13:18 -0300	Adding an interpolation using sines instead of angles. The results are worse than just angles.
+94	f9a8441ec2a1	3436	0	2011-09-20 13:31 -0300	Added interpolation using tangent. Even worse.
+95	540202576086	3436	0	2011-09-21 17:44 -0300	Projection of C onto AB plane is done using easier math. No noticeable changes in the final results, though.
+96	236cbc77dff2	3436	0	2011-09-21 19:19 -0300	Added "cos" algorithm to convert_coordinates.py
+97	e690e56ab63c	3436	0	2011-09-21 19:20 -0300	Added a script to render multiple images.
+98	827e36cd3860	3436	0	2011-09-21 19:54 -0300	Adding Xephyr support to render_images.sh
+99	3ef3bceba929	3436	0	2011-09-21 20:42 -0300	Removed Xephyr support. Just use xvfb-run wrapper script instead.
+100	5ef2086c6326	3436	0	2011-09-21 21:44 -0300	Added an algorithm based on system of 3 linear equations.
+101	b50abe2a3a05	3436	0	2011-09-21 21:47 -0300	Normalizing the calibration vectors in the linalg solution.
+102	4da804f059f5	3436	0	2011-09-27 14:17 -0300	render_images.sh saves images into projecoes/images dir. Also added that dir to .hgignore.
+103	b42dbf42d11e	3436	0	2011-09-27 14:24 -0300	Added prepare_2d_3d_files_for_blender.sh script.
+104	5f520027721f	3436	0	2011-09-27 14:29 -0300	Added a suggestion to run optipng after running render_images.sh
+105	72d64f23b854	3410	0	2011-09-27 17:09 -0300	Some refactor, and the beginnings of a menu code.
+106	03ea59725d48	3630	0	2011-09-27 17:31 -0300	The first working menu prototype.
+107	99a083a9f811	3718	0	2011-09-27 23:55 -0300	Two menus, let me see if this works... This UI code is becoming a huge mess. :(
+108	31ba6053d0ab	4074	0	2011-09-28 00:46 -0300	3 menus implemented (although they do nothing yet)
+109	190609079d0c	4190	0	2011-09-28 04:27 -0300	Implemented UI Stack.
+110	57c0cffc45c1	4420	0	2011-09-28 04:53 -0300	Added a Sensor Data menu. Only the interface, it does nothing yet.
+111	7024bd540927	4628	0	2011-09-28 05:07 -0300	Added more symbols to keyboard emulation code
+112	6281726ac9ea	4636	0	2011-09-28 05:27 -0300	Fixing a bug in send_next_char() if the next char uses the same key as the previous one.
+113	11fb4ddf13ca	4462	0	2011-09-28 06:15 -0300	Rewrote build_report_from_char() again. This time I saved 174 bytes.
+114	a03528bf8fb6	4470	0	2011-09-28 06:32 -0300	Forgot one assignment in the previous commit.
+115	4e359bcc05f6	4470	0	2011-09-28 06:44 -0300	Moving code around in menu.inc.c
+116	c21b192f6959	4470	0	2011-09-28 14:32 -0300	Moving sensor communication code to sensor.inc.c
+117	d14e0529cc68	4722	0	2011-09-28 16:47 -0300	Print identification string is working!
+118	4c5c8553ebfd	4726	0	2011-09-28 16:50 -0300	Yet another bugfix in send_next_char()
+119	e32391ac8db7	4784	0	2011-09-28 17:28 -0300	Continuous reading of sensor data has been refactored.
+120	1c1e9442ead0	4896	0	2011-09-28 18:00 -0300	Printing sensor data from menu.
+121	17b3aaaf7041	4896	0	2011-09-28 18:02 -0300	Adding a few Vim folding markers.
+122	13ada1d4d924	4980	0	2011-09-28 18:26 -0300	Little refactor
+123	6acca5c8d355	4812	0	2011-09-28 19:01 -0300	Refactor in menu code. Saves 168 bytes.
+124	a4f914cfe721	4778	0	2011-09-28 19:34 -0300	Menu loading refactor, saving 34 bytes.
+125	29992dbd0902	4770	0	2011-09-28 19:41 -0300	A little more refactor to menu loading code. Saves 8 bytes.
+126	2bfbc6dac64d	4770	0	2011-09-28 19:46 -0300	Added two vim folding markers.
+127	778b4d26a719	4770	0	2011-09-29 23:45 -0300	Refactoring 3 integers into a struct with 3 integers.
+128	9e2be105269c	5052	0	2011-09-30 18:18 -0300	Can print and toggle zero compensation.
+129	14e8f34c87f7	5614	0	2011-09-30 18:42 -0300	Added Zero Calibration code.
+130	2717f1aa678c	5614	0	2011-10-01 00:01 -0300	Added a script to record the firmware size on each revision.
+131	059a1bea7d53	5614	0	2011-10-01 00:20 -0300	Added Python script to plot a graph of firmware size over revisions
+132	36b1de40226d	5604	0	2011-10-01 00:40 -0300	Saved 10 bytes by using memset.
+133	cbf5f1cccb60	5604	0	2011-10-01 01:11 -0300	Refactored Makefile. It should be easier to enabled/disable bootloader.
+134	ecb730bced60	5604	0	2011-10-01 01:18 -0300	Updated README.md after the Makefile refactor.
+135	4eaec5ff8993	5604	0	2011-10-01 01:25 -0300	Adding "AVR104 - Buffered Interrupt Controlled EEPROM Writes on tinyAVR and megaAVR devices"
+136	219b5ab9074f	5976	0	2011-10-01 01:36 -0300	Start integrating AVR104 EEPROM code into the project.
+137	88009ca8c57a	5976	0	2011-10-01 01:38 -0300	Whitespace changes in AVR104. Converted to Unix newlines.
+138	149d98adafaa	5976	0	2011-10-01 01:45 -0300	Fixed obvious and silly bug in Makefile.
+139	7d4d308cd26b	5952	0	2011-10-01 02:02 -0300	First experiment using the EEPROM code. It works.
+140	240515c5a8ee	5952	0	2011-10-01 03:06 -0300	Deleting useless files from AVR104 and AVR315.
+141	d89098338ec2	5868	0	2011-10-01 15:03 -0300	Rewrote the AVR104 almost completely. New EEPROM-writing code is working.
+142	2d6bec7e438c	5918	0	2011-10-01 15:20 -0300	Improved Zero Calibration
+143	d3335c8489d8	5918	0	2011-10-01 15:46 -0300	Improvements to firmware size graph.
+144	9631615b2644	5916	0	2011-10-01 17:36 -0300	Refactoring some button vars.
+145	df61e8daff83	5898	0	2011-10-01 17:47 -0300	Removing the only use of append_newline_to_str() saves me 18 bytes.
+146	80bb3dc23188	5876	0	2011-10-01 17:51 -0300	Little refactor of UI_ZERO_PRINT_WIDGET saves 22 bytes.
+147	c8356f937b0f	5862	0	2011-10-01 17:52 -0300	Removing one if from UI_ZERO_TOGGLE_WIDGET saves 14 bytes.
+148	be0d6d722419	5804	0	2011-10-01 19:07 -0300	Refactoring TWI_Master code to get included into main.c, saving 58 bytes.
+149	e29092dc40b2	5804	0	2011-10-01 19:10 -0300	Tiny comment change in Makefile.
+150	92652ad1fe2e	5794	0	2011-10-01 19:36 -0300	Changing main to non-returning. Applied some optimization flags to the Makefile.
+151	505e82ee5289	5794	0	2011-10-01 20:41 -0300	Merge. Rolling back TWI_Master C source being included into main.c
+152	e5c0100ebd58	5794	0	2011-10-01 21:10 -0300	Organizing compiler FLAGS in the Makefile.
+153	eef47f8543c5	5794	0	2011-10-01 21:19 -0300	Adding __repr__() to firmware_size_graph.py
+154	f12ac85d00e6	5788	0	2011-10-05 16:35 -0300	Moving "eeprom.inc.c" to "int_eeprom.c", that can be compiled independently. Also refactored the Makefile, adding a variable with the list of objects.
+155	0c7f2b7414aa	5788	0	2011-10-06 01:30 -0300	Moving EEPROM buffer size constant to the header.
+156	3d551e13299f	5858	0	2011-10-06 02:13 -0300	Moving sensor.inc.c to sensor.c and sensor.h. But it added 70 bytes to the firmware.
+157	660883dd1a94	5946	0	2011-10-06 02:41 -0300	Trying to refactor all sensor variables into only one struct. But the firmware has increased 88 bytes.
+158	bfb8e252d4e6	5870	0	2011-10-06 02:58 -0300	Using a pointer to the sensor struct, in order to save some bytes.
+159	01aeaa41b201	5842	0	2011-10-06 04:58 -0300	Using a pointer to the sensor struct in sensor_read_data_registers()
+160	60a1dc1ec503	5842	0	2011-10-06 05:10 -0300	Added "make size", that prints the size of each function/symbol.
+161	7a1f48f5e6a4	5842	0	2011-10-06 07:37 -0300	Bootloader's main() is now void instead of int.
+162	3216d00cf25b	5842	5788	2011-10-06 07:42 -0300	Combined compiling has been added to Makefile
+163	1d2fd1616434	5842	5788	2011-10-06 08:07 -0300	Adding support for both "make all" and "make combine" to firmware size graph.
+164	2dfbd480c05e	5830	5774	2011-10-18 23:34 -0200	Removed some zero-initializations
+165	62f86e0db33d	5852	5774	2011-10-19 00:07 -0200	Moved menu to menu.c, also moved button code to buttons.c
+166	51b66bf4c44a	5834	5682	2011-10-19 00:08 -0200	Replacing init_button_state() with empty function.
+167	6178685f2769	5834	5682	2011-10-19 00:20 -0200	Whitespace and Vim modeline
+168	87547ffa3671	5846	5674	2011-10-19 00:28 -0200	Moved keyboard emulation code to keyemu.c
+169	054eb8de4f9e	5840	5666	2011-10-19 00:39 -0200	Using a local pointer to save a few bytes.
+170	0d6869c9f686	5840	5666	2011-10-19 00:50 -0200	Added common.h, deleted some repeated definitions spread over many files.
+171	3cf81dae8360	5840	5666	2011-10-19 01:05 -0200	Moved string-related functions to keyemu.c
+172	da551fe52df0	5840	5666	2011-10-19 01:06 -0200	Whitespace
+173	9c3e226385ce	5840	5666	2011-10-19 01:19 -0200	Updated a comment
+174	d8fa5c8a966c	5720	5564	2011-10-19 02:37 -0200	Saving/loading an entire block of EEPROM.
+175	2e5e7a1ff4dc	5720	5564	2011-10-19 02:41 -0200	Comments/indentation
+176	c25e36c3ccb6	5710	5540	2011-10-19 03:20 -0200	Added a flag that saved 24 bytes
+177	4c972c25ee36	5710	5540	2011-10-19 03:21 -0200	Moved a print XYZ code inside another if.
+178	4b77c8d9006d	5718	5541	2011-10-19 03:29 -0200	Testing using EEMEM declarations.
+179	a7213ce940be	5718	5548	2011-10-19 03:42 -0200	Fixing GCC optimizing-out EEPROM values.
+180	e12f73efa97d	5718	5548	2011-10-19 04:19 -0200	Moving all EEPROM vars into a struct.
+181	9e6742aff3a9	5742	5572	2011-10-19 04:57 -0200	Adding the corners to the struct, noticed a bug in checksize script.
+182	279c336b9df2	5710	5540	2011-10-19 05:25 -0200	Fixed checksize script.
+183	154e647207c3	5728	5540	2011-10-20 03:52 -0200	Changed debug_print_X_Y_Z_to_string_output_buffer() to XYZVector_to_string()
+184	1ef6e5ca3bc7	5886	5696	2011-10-20 04:10 -0200	Added "Print calibrated corners"
+185	b5450531092e	5888	5696	2011-10-20 04:16 -0200	Fixing reading a pointer from PROGMEM instead of SRAM.
+186	843982cbce07	6002	5820	2011-10-20 05:03 -0200	Implemented saving the corners. Still needs testing, though.
+187	d5647a2b4243	5976	5794	2011-10-20 05:05 -0200	Some string reductions to save 20 bytes.
+188	f0b47b9a5f9c	5976	5794	2011-10-20 05:07 -0200	Fixing dumb mistake with string offsets.
+189	13c6459b275c	5976	5794	2011-10-20 05:22 -0200	Fixed comparison. Now it works!
+190	bfcf64b9486e	6066	5882	2011-10-20 08:41 -0200	Adding a mouse to the USB HID Report Descriptor.
+191	fd4e369ec51e	6068	5884	2011-10-20 09:58 -0200	Uncommenting something important
+192	42fd4b9741f7	6076	5892	2011-10-20 10:03 -0200	Keyboard modifiers must come BEFORE the other keys.
+193	e824a5424a5b	6104	5916	2011-10-20 10:39 -0200	Experiment sending mouse clicks. It works!
+194	19e04d44b32a	6104	5916	2011-10-21 01:04 -0200	Started writing Report structs
+195	da57f4ac5574	6110	5922	2011-10-21 01:14 -0200	Updating the Report Descriptor according to the struct
+196	1a8c1d7ffd5f	6074	5908	2011-10-21 01:52 -0200	Using 2 Report IDs, one for the keyboard, and another for the mouse.
+197	017a5dd0ddef	6078	5912	2011-10-21 01:58 -0200	Of course that I need to uncomment those REPORT_ID lines before it works.
+198	7f65a630af16	6174	5996	2011-10-21 03:02 -0200	Even more debugging, and it still doesn't work as expected.
+199	bb29687920dd	6094	5926	2011-10-21 03:14 -0200	Fixing a silly mistake, but it still doesn't work correctly.
+200	d89fa76f8182	6094	5926	2011-10-21 03:50 -0200	More tests, still not working
+201	35f9d22c212e	6092	5924	2011-10-21 04:00 -0200	Trying to move the button description inside the Physical collection.
+202	85dd3e81e474	6098	5930	2011-10-21 04:01 -0200	Trying buttons before axes.
+203	02fca97f3f4f	6120	5952	2011-10-21 04:14 -0200	Adding USBRQ_HID_GET_PROTOCOL and USBRQ_HID_SET_PROTOCOL.
+204	fb9538864d69	5644	5466	2011-10-21 04:24 -0200	Pure Keyboard seems to work...
+205	5761d6e5cf97	5662	5484	2011-10-21 04:27 -0200	Okay, just mouse does not work. So I'm getting closer to the issue.
+206	788e99560aea	5382	5236	2011-10-21 05:05 -0200	Using UsbWiiGamePad/UsbWiiComboDev HID descriptor works inside Windows. Why my descriptor doesn't?
+207	33a7ba7ee60b	5298	5152	2011-10-21 05:16 -0200	Okay, the issue is with my axes definition...
+208	7edad0e597f5	5296	5150	2011-10-21 05:18 -0200	Okay, I don't need Wheel...
+209	c798d4b064a4	5302	5156	2011-10-21 05:25 -0200	Found the bug.
+210	d825afe0c62f	6156	5988	2011-10-21 05:46 -0200	Restored code after 4 hours of debugging.
+211	732edfab2608	6148	5980	2011-10-21 06:11 -0200	Cleaning up the Report Descriptor and the comment.
+212	a7de65be8866	6158	5990	2011-10-21 06:12 -0200	Sending mouse clicks only when needed.
+213	c87e0da04443	6258	6080	2011-10-21 06:48 -0200	Added a keyboard-test menu item.
+214	802a57540a96	6258	6080	2011-10-21 08:06 -0200	Added a comment about VID/PID numbers.
+215	8d698e31b2fb	6258	6080	2011-10-21 08:09 -0200	Deleting unused hello_world string.
+216	9316bf264834	6258	6080	2011-10-21 08:27 -0200	Improving code readability by better using a macro.
+217	3eb7aeb9d14e	6244	6066	2011-10-21 09:04 -0200	Reducing some strings, saving 14 bytes.
+218	08a3334ec756	6210	6036	2011-10-21 09:13 -0200	Made XYZ printing menu code more difficult to understand. Saved 34 bytes.
+219	8641cd55a26c	6186	6036	2011-10-21 09:31 -0200	Setting ui_push_state() and ui_pop_state() as static saved 24 bytes.
+220	de806b9c03bd	6186	6036	2011-10-21 09:35 -0200	Two more static functions, but no space saved.
+221	5a24a904a5f0	6186	6036	2011-10-21 09:59 -0200	More tips about reducing the firmware size.
+222	9f67394c3c6c	6174	6150	2011-10-22 03:06 -0200	Adding #if and #endif for selectively enabling mouse and keyboard.
+223	4c1567d5248a	6172	6024	2011-10-22 03:27 -0200	Just reordering some if statements saved 126 bytes. Wow!
+224	b8c751154628	6172	6024	2011-10-22 04:03 -0200	Updated README and a few comments.
+225	de75826fc2bb	6172	6024	2011-10-22 04:24 -0200	Adding -lm to the Makefile
+226	b0cabdd22c63	6248	6086	2011-10-22 06:04 -0200	Moving code to mouseemu.c
+227	539424ea0a2a	6284	6114	2011-10-22 08:11 -0200	This version is just for testing OS handling of out-of-range values.
+228	662baa542e07	6278	6108	2011-10-22 09:14 -0200	Removing PHYSICAL_MINIMUM and PHYSICAL_MAXIMUM
+229	1946d751945d	6278	6108	2011-10-22 09:48 -0200	Added the description of the Linux USB HID bug I found.
+230	493d47dfa307	6242	6080	2011-10-22 09:56 -0200	Adding Linux workaround for out-of-range values. Removed debugging code.
+231	240d0521af91	6242	6080	2011-10-22 22:33 -0200	WebGL experiment. It draws a red canvas.
+232	e5d9ab522660	6242	6080	2011-10-22 23:52 -0200	Some cleanup. Also, the WebGL is now green instead of red.
+233	b7f7b1e75115	6242	6080	2011-10-23 01:32 -0200	Colors directly from the GPU!
+234	116336c94f9e	6242	6080	2011-10-23 01:57 -0200	Green circle following the mouse.
+235	46908767b6a1	6242	6080	2011-10-23 02:11 -0200	Detecting mouse clicks
+236	40350fa65b34	6242	6080	2011-10-23 03:20 -0200	Got something "working" with WebGL.
+237	ec3bbd7fadbe	6242	6080	2011-10-23 03:33 -0200	Refactoring shader params.
+238	2ede142fe115	6242	6080	2011-10-23 05:10 -0200	WebGl experiment finished.
+239	9414d817551b	6242	6080	2011-10-23 05:16 -0200	Renaming the WebGL experiment.
+240	dcc2784509d6	5284	5190	2011-10-23 07:06 -0200	Implemented coordinates conversion using linear equation system. Still doesn't work. Debugging is required.
+241	40310adce81b	5284	5190	2011-10-24 06:02 -0200	Added URL for the LKML archive of my e-mail.
+242	54d7c85d52c4	5284	5190	2011-10-24 06:08 -0200	Started debugging the linear equation code.
+243	a997745f3f4a	5284	5190	2011-10-24 06:25 -0200	Seems to work. Dumb mistake.
+244	80e6f0f81d20	5284	5190	2011-10-24 06:33 -0200	Using double didn't improve the precision.
+245	ee229ca5132a	5284	5190	2011-10-24 06:40 -0200	Fixing those indexes.
+246	19ea591d163b	5294	5200	2011-10-24 07:52 -0200	Found the second bug!
+247	3cbdde568c1d	5382	5288	2011-10-24 08:02 -0200	Detecting (and throwing away) out-of-bounds values.
+248	5f97461c3167	5382	5288	2011-10-24 09:48 -0200	Cleanup.
+249	3396677e86da	5532	5438	2011-10-24 09:55 -0200	Adding "round". Also added a comment.
+250	7a1f43528ea5	5532	5438	2011-10-24 09:57 -0200	Renamed "projecoes" directory to "projection"
+251	2e2110f6ecd9	5532	5438	2011-10-24 10:17 -0200	Added comment about each button usage.
+252	31027323fa0b	5554	5458	2011-10-25 02:02 -0200	Modifying the firmware for testing purposes.
+253	1ee86d2fb67a	5532	5438	2011-10-25 02:04 -0200	Rolling back the previous change (that was only for testing).
+254	0f45984142b3	5532	5438	2011-10-25 06:28 -0200	Getting the USB HID Report Descriptor under Linux
+255	5561925bbf95	5532	5438	2011-10-25 07:06 -0200	The basic LaTeX tools, configuration and boilerplate.
+256	52058b0befde	5532	5438	2011-10-25 08:42 -0200	Workaround for pdfTeX warning.
+257	c45f77ed6c54	5532	5438	2011-10-26 14:06 -0200	Comentários, e tentativa de lista de símbolos.
+258	420b3ca36e3d	5532	5438	2011-10-26 14:25 -0200	Removing "nomencl" package. Maybe someday I add it back.
+259	8eb9258abe28	5532	5438	2011-10-26 15:01 -0200	Adicionada folha de aprovação
+260	122c04744903	5532	5438	2011-10-26 15:19 -0200	Using \ABNTtitulodata and \ABNTautordata
+261	1c836ca08284	5532	5438	2011-10-27 02:26 -0200	Esqueleto inicial da monografia.
+262	fc6076bc9f6b	5532	5438	2011-10-27 04:18 -0200	Adicionados vários itens à bibliografia.
+263	448a3acf70fd	5532	5438	2011-10-27 04:43 -0200	Adicionada uma lista de siglas, e o princípio de um texto.
+264	f5344a1855d6	5532	5438	2011-10-27 06:36 -0200	E a tabela de siglas do abntex deixa de funcionar.
+265	27edce8aeea1	5532	5438	2011-10-27 06:54 -0200	Goodbye, "tabela-simbolos". Hello, "acronym".
+266	3f70b2f5bebf	5532	5438	2011-10-27 10:46 -0200	Boa parte da descrição do USB foi escrita.
+267	8f33cbbace94	5532	5438	2011-10-27 12:50 -0200	Finalizada a seção 2.1: USB
+268	c5da964c4ea4	5532	5438	2011-10-27 21:34 -0200	Alteração dos comentários no preâmbulo.
+269	e4a7849d8e74	5532	5438	2011-10-27 21:35 -0200	Pequenas correções && adicionado footnote sobre resistores de pull-up.
+270	9d0027f87915	5532	5438	2011-10-28 05:04 -0200	Reordenados itens no .bib; escritas as seções USB HID, I2C e ATmega8
+271	d64f87075038	5532	5438	2011-10-28 06:44 -0200	Capítulo 2 concluído. Pode ainda sofrer revisões futuras.
+272	b852871b4223	5532	5438	2011-10-28 09:39 -0200	Escrita a primeira parte da descrição do hardware.
+273	48ebe64a0912	5532	5438	2011-10-29 00:30 -0200	Descrita a interface de hardware com a porta USB
+274	f03e0f8340f8	5532	5438	2011-10-29 04:25 -0200	Adicionando anexos (usando o pacote "pdfpages")
+275	b96d5cb329c0	5532	5438	2011-10-29 06:26 -0200	Filtrando alguns warnings, trocando o label de lugar, escrita mais uma sub-seção.
+276	665f29feaab8	5532	5438	2011-10-29 06:59 -0200	Better pdflatex output filtering.
+277	641a2564a872	5532	5438	2011-10-29 09:14 -0200	Bugfix in checksize script.
+278	1e554afad9c1	5532	5438	2011-10-29 10:18 -0200	Início da descrição do software, descrição do bootloader.
+279	0200759d9487	5532	5438	2011-10-29 13:05 -0200	Fixed non-ASCII characters in comments.
+280	3ce300e7bef6	5532	5438	2011-10-29 13:29 -0200	Descrição do driver de comunicação I2C. Configurado o pacote listings
+281	587164217c9c	5532	5438	2011-10-30 03:31 -0200	Endpoints, sensor, driver V-USB...
+282	7c15b012ee59	5532	5438	2011-10-30 05:20 -0200	usbconfig
+283	cf1bfcfc1e92	5510	5416	2011-10-30 05:51 -0200	Removing "protocol" support from the firmware.
+284	8ac5bb349f29	5510	5416	2011-10-30 09:11 -0200	Mais texto na monografia. Acho que já passou da metade.
+285	46f199423685	5510	5416	2011-10-30 13:52 -0200	Diagrama do circuito adicionado.
+286	565bef8272a7	5510	5416	2011-10-31 03:11 -0200	I2C Level-Shifting
+287	98aa53593527	5510	5416	2011-10-31 05:10 -0200	Adicionadas algumas citações no início dos capítulos
+288	e3922cdee685	5662	5568	2011-10-31 05:20 -0200	Implemented a simple mouse-smoothing algorithm.
+289	212427c3d121	5662	5568	2011-10-31 05:38 -0200	Added ENABLE_FULL_MENU option, to allow further reduction of firmware size.
+290	c756026cff08	5662	5568	2011-10-31 06:07 -0200	Added documentation about all ENABLE_* compile-time options.
+291	477f62609136	5662	5568	2011-10-31 06:26 -0200	Filtering yet another line from LaTeX output.
+292	1b8e93536b95	5662	5568	2011-10-31 08:53 -0200	Initial version of matplotlib_3d_plot.py
+293	1d795b3971b4	5662	5568	2011-10-31 10:05 -0200	Improved matplotlib_3d_plot.py
+294	b4b6f7197a63	5662	5568	2011-10-31 11:34 -0200	Várias coisas na monografia.
+295	bae5b074cca6	5662	5568	2011-10-31 12:01 -0200	Adding a comment about mouse-smoothing values
+296	d6f21b70a035	5662	5568	2011-10-31 12:46 -0200	Reducing the graph margins.
+297	ba6129281fba	5662	5568	2011-10-31 18:28 -0200	Added another projection algorithm: using the distance between the vectors.
+298	0d6d6a7f05d2	5662	5568	2011-10-31 18:28 -0200	Mais textos e figuras para a monografia.
+299	9f1c2ff591e4	5662	5568	2011-10-31 20:54 -0200	Added "exact" algorithm. Still buggy.
+300	a9b66f3010ad	5662	5568	2011-10-31 21:21 -0200	Fixing a6/a12 "exact" algorithm.
+301	3204d582f93b	5662	5568	2011-11-01 06:45 -0200	Even better filter_pdflatex_output.sed
+302	6ab7f58c1d88	5662	5568	2011-11-01 06:47 -0200	Using upper-case X,Y for vectors.
+303	8ee09ebf9d3c	5662	5568	2011-11-01 06:47 -0200	Quase concluindo a seção de transformação de coordenadas.
+304	ba57b6186710	5662	5568	2011-11-01 12:11 -0200	Seção Transf. de coords. concluída!
+305	1c7fa70bac51	5662	5568	2011-11-01 12:43 -0200	Colocada uma "quote", e adicionada explicação sobre como achar o ângulo.
+306	5ebd6d4e5f79	5662	5568	2011-11-01 12:59 -0200	Adicionados alguns códigos-fonte como apêndices.
+307	8214a03b2b8e	5662	5568	2011-11-01 17:17 -0200	Adicionadas imagens de calibração do zero.
+308	871233300c6d	5662	5568	2011-11-02 07:15 -0200	Mais seções escritas. Falta pouco!
+309	a13540b0c33f	5644	5540	2011-11-02 07:21 -0200	Implemented "Toggle mouse smoothing" in the menu.
+310	b8e51f2558bc	5644	5540	2011-11-02 08:27 -0200	Updated the size table comment at the Makefile.
+311	8da0b943f505	5644	5540	2011-11-02 10:01 -0200	Atualizadas algumas imagens, entre outras coisas.
+312	6c8a3255720e	8180	8172	2011-11-02 10:18 -0200	Disabling the bootloader, and enabling mouse+keyboard at the Makefile.
+313	5f34f4ceb060	8180	8172	2011-11-02 14:44 -0200	Introdução feita.
+314	b27945ec4c22	8180	8172	2011-11-02 15:29 -0200	Descrevendo melhor o cálculo exato de alpha
+315	6e48e38f9695	8180	8172	2011-11-02 18:26 -0200	Terminou...?
+316	5382000506aa	8180	8172	2011-11-02 18:57 -0200	Adicionada ref. para Gauss-Jordan
+317	c78c86434b79	8186	8178	2011-11-03 12:26 -0200	Improving the usage when near the edge of the screen.
+318	06ce5f7f7b7d	0	8188	2011-11-03 12:53 -0200	Removing "Toggle mouse smoothing" option.
+319	94de6ace1eff	0	8188	2011-11-03 14:03 -0200	Slightly changing the mouse smoothing constants.
+320	91bfc2d34c20	0	8188	2011-11-03 14:04 -0200	Mudando o título da monografia de "Mouse" para "Dispositivo apontador"
+321	cd521ab4aff3	0	8188	2011-11-09 05:56 -0200	Primeira rodada de revisões.
+322	af93cac14466	0	8188	2011-11-09 07:12 -0200	Agradecimentos
+323	48820a7687ba	0	8188	2011-11-09 17:27 -0200	Algumas revisões, adicionado o princípio de "Visão geral do software"
+324	fb3be4a34501	0	8188	2011-11-09 18:10 -0200	Movendo "Transf. de coords" para um capítulo separado.
+325	685939b3d993	0	8188	2011-11-09 18:36 -0200	Capítulo de Transf. de Coords.
+326	0874e00d48f7	0	8188	2011-11-09 18:40 -0200	Vim "gq" nos parágrafos
+327	d2035c7a3b51	0	8188	2011-11-09 18:54 -0200	Escrevi os números por extenso.
+328	7440cfc3e58c	0	8188	2011-11-09 19:12 -0200	"Visão geral do software"
+329	45b4fd022e99	0	8188	2011-11-09 19:37 -0200	Adicionei todos os arquivos-fonte como apêndices.
+330	24ffdb624c5d	0	8188	2011-11-10 08:42 -0200	Adicionado Makefile como apêndice.
+331	bad97d6a8c42	0	8188	2011-11-10 10:01 -0200	Adicionada "régua" nas fotos dos sensores (usando o Inkscape)
+332	f95bdf58426e	0	8188	2011-11-12 19:05 -0200	Updated the default calibration vectors to "better" values.
+333	9d15fa831c43	0	8188	2011-11-12 20:09 -0200	Revisão do primeiro parágrafo.
+334	d052b7a48c5c	8152	8060	2011-11-12 20:09 -0200	Some compiler options to save a few more bytes.
+335	ab86791e8964	8122	7996	2011-11-12 21:51 -0200	Applying "exponential smoothing" twice, in order to reduce the noise.
+336	738cde456542	8130	8004	2011-11-12 22:30 -0200	Added a submenu indicator " >>"
+337	d4932e42f33d	8162	8040	2011-11-12 23:10 -0200	Mouse movement is now frozen for 44ms after a button event.
+338	f13a4122cbda	8162	8040	2011-11-13 08:38 -0200	Fixing draw_points.py to ignore "NaN".
+339	01e12a37e40a	8162	8040	2011-11-13 08:54 -0200	Copiando o código-fonte para a monografia.
+340	db5779972975	8162	8040	2011-11-13 09:08 -0200	Desfazendo a suavização dupla e aplicando uma suavização simples.
+341	0f20fd44d8e0	8162	8040	2011-11-13 09:16 -0200	Adicionadas imagens da seção de "resultados".
+342	527e9e97c4e2	8162	8040	2011-11-13 09:44 -0200	Monografia agora usa versões "congeladas" do código-fonte e das imagens de resultados.
+343	ca6b1d413b2e	8162	8040	2011-11-13 10:38 -0200	Small changes in order to save a few pages while printing.
+344	240b658cd0f2	8162	8040	2011-11-13 10:45 -0200	Added tag youtube_nZLTwfAJmrE for changeset 3cbdde568c1d
+345	7d81f301701b	8162	8040	2011-11-13 10:49 -0200	Added tag monografia_para_banca for changeset bad97d6a8c42
+346	7999e866878e	8168	8044	2011-11-13 13:39 -0200	Bugfix about timer0.
+347	d78dbdc22183	8168	8044	2011-11-13 16:38 -0200	Deleting a few lines in main.c in order to save one printed page.
+348	547815038f75	8168	8044	2011-11-13 16:40 -0200	Fine-tuning the freeze-movement-after-click value.
+349	0acd22a1f77c	8168	8044	2011-11-13 18:08 -0200	Added tag youtube_lBZV_GAg8yw for changeset 547815038f75
+350	acdb0df6bc85	8168	8044	2011-11-14 14:33 -0200	Added tag youtube_1nuw9zsZtk4 for changeset 547815038f75
+351	a3456de5856e	8168	8044	2011-11-14 22:25 -0200	Freezing the pointer position only on key presses, but not on releases.
+352	5334252b0c55	8168	8044	2011-11-15 01:39 -0200	Updated the README
+353	76d8d24de6b2	8168	8044	2011-11-15 01:48 -0200	Fixed links in README.
+354	1a4ca8dfcd14	8168	8044	2011-11-15 03:07 -0200	Added "Possible improvements" to the README
+355	82c2e17f22b2	8168	8044	2011-11-15 10:58 -0200	Added a note about the (inappropriate) VID/PID usage.
