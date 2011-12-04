@@ -1,4 +1,4 @@
-\documentclass[brazil,pagestart=firstchapter,draft]{abnt}
+\documentclass[brazil,pagestart=firstchapter]{abnt}
 
 % This does not accept all Unicode chars (for instance: I²C gives an error)
 %\usepackage[utf8]{inputenc}
@@ -460,7 +460,8 @@ can't be done is generally interrupted by someone doing it.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo são apresentados a motivação e os objetivos deste projeto, uma
+lista de trabalhos relacionados e a estrutura da monografia.
 \newpage
 
 
@@ -607,6 +608,25 @@ AVR e implementam um dispositivo \acs{USB} \acs{HID} através do
 \textit{driver} V-USB.
 
 
+\section{Estrutura da monografia}
+\label{sec:estrutura_da_monografia}
+
+O capítulo \ref{cap:componentes_e_protocolos} descreve os componentes e
+protocolos usados para a realização deste trabalho.
+
+O capítulo \ref{cap:hardware} descreve o \textit{hardware} do dispositivo.
+
+O capítulo \ref{cap:software} descreve o \textit{firmware}
+(\textit{software}) do dispositivo.
+
+O capítulo \ref{cap:coordenadas} descreve o problema de transformação de
+coordenadas, apresentando as abordagens experimentadas e seus resultados.
+
+O capítulo \ref{cap:conclusoes} apresenta as conclusões deste
+trabalho, com os resultados alcançados e as limitações encontradas, assim
+como sugestões para trabalhos futuros.
+
+
 %\subsection{\textit{Eye-tracking}}
 %\label{sub:eyetracking}
 
@@ -626,8 +646,8 @@ AVR e implementam um dispositivo \acs{USB} \acs{HID} através do
 % http://www.inference.phy.cam.ac.uk/dasher/Headmouse.html
 
 
-\chapter{Protocolos e componentes}
-\label{cap:protocolos_e_componentes}
+\chapter{Componentes e protocolos}
+\label{cap:componentes_e_protocolos}
 
 
 \vfill{}
@@ -641,8 +661,102 @@ five minutes, the sound was so poor.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo são apresentados o microcontrolador ATmega8 e o sensor
+HMC5883L, assim como os protocolos \acs{USB} e \acs{USB} \acs{HID}, usados
+na comunicação do microcontrolador com o computador, e o protocolo
+\acs{I2C}, usado na comunicação do microcontrolador com o sensor.
 \newpage
+
+
+\section{Microcontrolador ATmega8}
+\label{sec:atmega8}
+
+ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela
+\textit{Atmel Corporation}. Suas características principais são
+\cite{ATmega8}:
+
+\begin{itemize}
+\item Arquitetura Harvard, com espaços de endereçamento distintos para
+instruções e para variáveis.
+\item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
+\item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de
+configuração do programa.
+\item \num{1024} bytes de memória \ac{SRAM} volátil para as variáveis.
+\item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
+\item Clock máximo de \SI{16}{\mega\hertz} usando um cristal externo.
+\item Interface de comunicação serial I²C/TWI.
+\item Disponível no encapsulamento PDIP\footnote{
+	O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP}, é o
+	ideal para se trabalhar numa protoboard, pois o circuito integrado pode
+	ser diretamente encaixado nela.}
+de 28 pinos, assim como QFP e QFN\footnote{
+	Para o produto final, em ambiente de produção industrial, o ideal é usar
+	um encapsulamento mais compacto, como \ac{QFP} ou \ac{QFN}}
+de 32 pinos.
+\end{itemize}
+
+A arquitetura dos processadores AVR foi projetada em conjunto com os
+desenvolvedores do compilador de C da \textit{IAR Systems}. Como
+consequência, o conjunto de instruções do AVR foi pensado de modo a
+minimizar o \textit{overhead} durante a execução de programas que tenham
+sido escritos em linguagens de alto nível \cite{avr_iar_design}.
+
+Além disso, as instruções são executadas num pipeline de dois estágios,
+permitindo um desempenho máximo de uma instrução por ciclo de
+\textit{clock}. Nem sempre esse desempenho é
+alcançado, pois algumas instruções (como as que acessam a memória \ac{SRAM}
+e os desvios) demoram pelo menos dois ciclos \cite{ATmega8}.
+
+Todas as instruções da arquitetura AVR ocupam 16 ou 32 bits (2 ou 4 bytes).
+Por esse motivo, a memória \textit{Flash} é endereçada por \textit{words} de
+16 bits. Podemos dizer que o ATmega8 possui \num{8192} bytes de memória
+\textit{Flash}, ou de maneira equivalente, \num{4096} \textit{words}.
+A memória \ac{SRAM} e a memória \ac{EEPROM} são
+endereçadas por bytes \cite{ATmega8}.
+
+O microcontrolador ATmega8 inclui um módulo de comunicação serial \ac{I2C},
+porém, para evitar problemas de patentes e licenças, a \textit{Atmel
+Corporation} usa o nome \ac{TWI} para sua implementação dessa interface
+\cite{avrlibctwi}.
+
+Embora existam alguns modelos de microcontrolador AVR com controlador
+\acs{USB} embutido \cite{atmel_avr_product_list}, o microcontrolador ATmega8
+usado neste projeto não possui nenhum tipo de \textit{hardware} dedicado
+para essa função. Para tal, foi usado um \textit{driver} que implementa o
+protocolo \acs{USB} via software, diretamente no \textit{firmware} do
+microcontrolador. Essa solução será descrita em mais detalhes na seção
+\ref{sec:vusb}.
+
+
+\section{Sensor HMC5883L}
+\label{sec:sensor}
+
+HMC5883L é um magnetômetro fabricado pela \textit{Honeywell}. Um
+magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
+eletrônica''.
+
+Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
+intensidade do campo magnético usando o efeito magnetorresistivo em três
+eixos perpendiculares (X, Y, Z) e converte essas medidas para um formato
+digital através de um \ac{ADC} de 12 bits, chegando a uma precisão de
+\SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}
+\cite{HMC5883L}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{img/sensor_front.pdf}
+\includegraphics[width=0.45\textwidth]{img/sensor_back.jpg}
+\caption{Fotos da PCB contendo o sensor}
+\label{fig:sensor_photos}
+\end{figure}
+
+O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
+\SI[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho. É
+impossível trabalhar manualmente com algo tão minúsculo, por isso foi
+adquirida uma \ac{PCB} já contendo o sensor e alguns capacitores
+\cite{ebay_HMC5883L}. Essa placa possui quatro contatos, sendo metade deles
+para alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C}
+(SDA e SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
 
 
 \section{USB}
@@ -660,7 +774,7 @@ five minutes, the sound was so poor.}''\\
 A partir do ano de 1994, as empresas \textit{Compaq},
 \textit{Hewlett-Packard}, \textit{Intel}, \textit{Lucent},
 \textit{Microsoft}, \textit{NEC} e \textit{Philips} desenvolveram um
-protocolo chamado \ac{USB}. Essa iniciativa foi motivada pela inexistência
+protocolo chamado \acf{USB}. Essa iniciativa foi motivada pela inexistência
 de um barramento bidirecional de baixo custo para periféricos de baixa e
 média velocidade. Além disso, a falta de flexibilidade dos barramentos até
 então existentes não permitia reutilizá-los para outros periféricos, pois
@@ -834,7 +948,7 @@ os sistemas operacionais modernos já incluem suporte nativo a dispositivos
 dessa classe.
 
 Dispositivos de interface com seres humanos fazem parte da classe
-\textit{USB \ac{HID}} e abrangem principalmente teclados, \textit{mouses} e
+\textit{USB \acf{HID}} e abrangem principalmente teclados, \textit{mouses} e
 \textit{joysticks}. No entanto, essa classe foi projetada de forma genérica
 e inclui outros tipos de dispositivos com necessidades similares, tais como
 medidores de temperatura, controles de um painel (botões, alavancas,
@@ -874,11 +988,11 @@ chama dispositivos \textit{full speed} de \textit{high-speed}
 \section{I²C}
 \label{sec:i2c}
 
-\ac{I2C} é um protocolo serial bidirecional desenvolvido em 1982 pela
-\textit{Philips Semiconductors} (atual \textit{NXP Semiconductors}). Foi
-projetado como um protocolo simples e eficiente para comunicação entre
-circuitos integrados. Utiliza apenas duas vias: \ac{SCL} e \ac{SDA}
-\cite{UM10204}.
+\acf{I2C} é um protocolo de comunicação serial bidirecional desenvolvido em
+1982 pela \textit{Philips Semiconductors} (atual \textit{NXP
+Semiconductors}). Foi projetado como um protocolo simples e eficiente para
+comunicação entre circuitos integrados. Utiliza apenas duas vias: \ac{SCL} e
+\ac{SDA} \cite{UM10204}.
 
 A arquitetura do \ac{I2C} é baseada no modelo \textit{master/slave}, sendo
 que qualquer um dos dispositivos do barramento pode assumir o papel de
@@ -925,97 +1039,6 @@ escolha do \textit{master}, e o \textit{slave} não tem como saber
 inicialmente quantos bytes serão requisitados.
 
 
-\section{Microcontrolador ATmega8}
-\label{sec:atmega8}
-
-ATmega8 é um microcontrolador de 8 bits da família AVR, fabricado pela
-\textit{Atmel Corporation}. Suas características principais são
-\cite{ATmega8}:
-
-\begin{itemize}
-\item Arquitetura Harvard, com espaços de endereçamento distintos para
-instruções e para variáveis.
-\item \num{8192} bytes de memória \textit{Flash} para guardar o programa.
-\item \num{512} bytes de memória \ac{EEPROM} para guardar parâmetros de
-configuração do programa.
-\item \num{1024} bytes de memória \ac{SRAM} volátil para as variáveis.
-\item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
-\item Clock máximo de \SI{16}{\mega\hertz} usando um cristal externo.
-\item Interface de comunicação serial I²C/TWI.
-\item Disponível no encapsulamento PDIP\footnote{
-	O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP}, é o
-	ideal para se trabalhar numa protoboard, pois o circuito integrado pode
-	ser diretamente encaixado nela.}
-de 28 pinos, assim como QFP e QFN\footnote{
-	Para o produto final, em ambiente de produção industrial, o ideal é usar
-	um encapsulamento mais compacto, como \ac{QFP} ou \ac{QFN}}
-de 32 pinos.
-\end{itemize}
-
-A arquitetura dos processadores AVR foi projetada em conjunto com os
-desenvolvedores do compilador de C da \textit{IAR Systems}. Como
-consequência, o conjunto de instruções do AVR foi pensado de modo a
-minimizar o \textit{overhead} durante a execução de programas que tenham
-sido escritos em linguagens de alto nível \cite{avr_iar_design}.
-
-Além disso, as instruções são executadas num pipeline de dois estágios,
-permitindo um desempenho máximo de uma instrução por ciclo de
-\textit{clock}. Nem sempre esse desempenho é
-alcançado, pois algumas instruções (como as que acessam a memória \ac{SRAM}
-e os desvios) demoram pelo menos dois ciclos \cite{ATmega8}.
-
-Todas as instruções da arquitetura AVR ocupam 16 ou 32 bits (2 ou 4 bytes).
-Por esse motivo, a memória \textit{Flash} é endereçada por \textit{words} de
-16 bits. Podemos dizer que o ATmega8 possui \num{8192} bytes de memória
-\textit{Flash}, ou de maneira equivalente, \num{4096} \textit{words}.
-A memória \ac{SRAM} e a memória \ac{EEPROM} são
-endereçadas por bytes \cite{ATmega8}.
-
-O microcontrolador ATmega8 inclui um módulo de comunicação serial \ac{I2C},
-porém, para evitar problemas de patentes e licenças, a \textit{Atmel
-Corporation} usa o nome \ac{TWI} para sua implementação dessa interface
-\cite{avrlibctwi}.
-
-Embora existam alguns modelos de microcontrolador AVR com controlador
-\ac{USB} embutido \cite{atmel_avr_product_list}, o microcontrolador ATmega8
-usado neste projeto não possui nenhum tipo de \textit{hardware} dedicado
-para essa função. Para tal, foi usado um \textit{driver} que implementa o
-protocolo \ac{USB} via software, diretamente no \textit{firmware} do
-microcontrolador. Essa solução será descrita em mais detalhes na seção
-\ref{sec:vusb}.
-
-
-\section{Sensor HMC5883L}
-\label{sec:sensor}
-
-HMC5883L é um magnetômetro fabricado pela \textit{Honeywell}. Um
-magnetômetro é também conhecido como ``bússola digital'' ou ``bússola
-eletrônica''.
-
-Esse sensor trabalha de \SIrange{2.16}{3.6}{\volt} e é capaz de medir a
-intensidade do campo magnético usando o efeito magnetorresistivo em três
-eixos perpendiculares (X, Y, Z) e converte essas medidas para um formato
-digital através de um \ac{ADC} de 12 bits, chegando a uma precisão de
-\SIrange{1}{2}{\degree}. Sua interface de comunicação é \ac{I2C}
-\cite{HMC5883L}.
-
-O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
-\SI[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho. É
-impossível trabalhar manualmente com algo tão minúsculo, por isso foi
-adquirida uma \ac{PCB} já contendo o sensor e alguns capacitores
-\cite{ebay_HMC5883L}. Essa placa possui quatro contatos, sendo metade deles
-para alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C}
-(SDA e SCL). Essa \ac{PCB} pode ser vista na figura \ref{fig:sensor_photos}.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.45\textwidth]{img/sensor_front.pdf}
-\includegraphics[width=0.45\textwidth]{img/sensor_back.jpg}
-\caption{Fotos da PCB contendo o sensor}
-\label{fig:sensor_photos}
-\end{figure}
-
-
 \chapter{Descrição do \textit{hardware}}
 \label{cap:hardware}
 
@@ -1029,7 +1052,8 @@ fast machine slow.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo são detalhados todos os componentes eletrônicos usados neste
+projeto.
 \newpage
 
 
@@ -1040,6 +1064,22 @@ O núcleo do circuito é o microcontrolador ATmega8, o qual é responsável por
 ler os dados do sensor, fazer cálculos para converter os valores lidos, e
 enviar as coordenadas via \ac{USB}.
 
+A seção \ref{sec:hardware_microcontrolador} descreve como todos os
+componentes são ligados ao microcontrolador.
+
+A seção \ref{sec:hardware_usb} detalha a interface entre o microcontrolador
+e a porta \ac{USB}.
+
+A seção \ref{sec:hardware_sensor} detalha a interface entre o
+microcontrolador e o sensor.
+
+Um diagrama do circuito completo pode ser visto na figura
+\ref{fig:circuito_completo}.
+
+
+\section{Componentes ligados ao microcontrolador}
+\label{sec:hardware_microcontrolador}
+
 Um cristal de \SI{12}{\mega\hertz}, ligado aos pinos 9 e 10, define o
 \textit{clock} do microcontrolador. O \textit{driver} usado para a
 implementação do protocolo \ac{USB}, descrito na seção \ref{sec:vusb},
@@ -1049,7 +1089,7 @@ arbitrária.
 
 O pino 1 (\textoverline{RESET}) possui um resistor de \textit{pull-up}
 (ligado ao \VCC) e um botão ligado ao \GND. Quando o botão é pressionado, o
-nível lógico do pino cai para zero e o microcontrolador é reiniciado. Este
+nível lógico do pino cai para zero e o microcontrolador é reiniciado. Esse
 botão de \textit{reset} se mostrou bastante útil durante o desenvolvimento,
 mas não é necessário para o funcionamento deste projeto.
 
@@ -1061,8 +1101,8 @@ projeto.
 Há três botões ligados aos pinos 23, 24 e 25 (PORTC0, PORTC1, PORTC2), e
 ainda uma chave ligada ao pino 26 (PORTC3). Quando pressionados, o nível
 lógico de cada pino cai para zero. Cada pino possui internamente um resistor
-de \textit{pull-up}, o qual foi habilitado pelo programa, dispensando o uso
-de resistores externos.
+de \textit{pull-up}, o qual foi habilitado pelo \textit{firmware},
+dispensando o uso de resistores externos.
 
 Os pinos 17, 18 e 19 (MOSI, MISO, SCK), juntamente com o pino 1
 (\textoverline{RESET}) são usados para \ac{ISP}. Por simplicidade e por
@@ -1072,9 +1112,6 @@ Por fim, os pinos 2 e 4 (PD0 e PD2) estão ligados às vias USB~D- e USB~D+, e
 serão detalhados na seção \ref{sec:hardware_usb}; e os pinos 27 e 28 (SDA e
 SCL) estão ligados ao sensor através de um barramento \ac{I2C}, e serão
 detalhados na seção \ref{sub:hardware_sensor_i2c}.
-
-Um diagrama do circuito completo pode ser visto na figura
-\ref{fig:circuito_completo}.
 
 \begin{figure}[h]
 \centering
@@ -1226,7 +1263,8 @@ estados: \cite{AN97055} \cite{AN10441}
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo é detalhado o \textit{firmware} deste projeto, assim como o
+ambiente de desenvolvimento e algumas das dificuldades encontradas.
 \newpage
 
 
@@ -1575,7 +1613,7 @@ para fins acadêmicos, o custo e a burocracia para se adquirir tal número não
 }
 Portanto, para este projeto foi usado um par de
 \textit{vendor-id}:\textit{product-id} compartilhado pela \textit{Objective
-Development Software GmbH.}.\footnote{
+Development Software GmbH.}\footnote{
 	Este projeto se identifica como um dispositivo híbrido, funcionando ao
 	mesmo tempo como \textit{mouse} e teclado. Não há nenhum par
 	compartilhado de \textit{vendor-id}:\textit{product-id} que seja
@@ -1583,7 +1621,7 @@ Development Software GmbH.}.\footnote{
 	uma breve troca de e-mails com a \textit{Objective Development Software
 	GmbH.}, e sabendo que o uso era para fins acadêmicos, foi sugerido usar
 	valores quaisquer, aleatórios para esses campos.
-}
+}.
 
 Uma vez configurados os parâmetros necessários nos cabeçalhos do
 \textit{driver}, usar sua \ac{API} na linguagem C foi bastante simples. É
@@ -1663,10 +1701,10 @@ no próprio site do \ac{USB-IF}.
 
 O \textit{report} usado por este teclado possui três bytes. O primeiro deles
 é o \textit{Report ID} e tem valor 1, identificando que este \textit{report}
-corresponde ao \textit{report descriptor} do teclado.\footnote{
+corresponde ao \textit{report descriptor} do teclado\footnote{
 	Na seção \ref{sec:mouse}, o \textit{Report ID} do \textit{mouse} é
 	definido com o valor 2.
-} No segundo byte, cada um dos 8 bits corresponde a uma tecla modificadora,
+}. No segundo byte, cada um dos 8 bits corresponde a uma tecla modificadora,
 embora o \textit{firmware} utilize apenas a tecla \textit{left shift}. O
 terceiro byte é a tecla sendo pressionada.
 
@@ -1700,6 +1738,10 @@ converter números inteiros em \textit{strings}, seja na base decimal ou na
 base hexadecimal. Algumas dessas rotinas utilizam outras funções já
 implementadas na AVR-Libc.
 
+As rotinas do teclado \ac{USB} foram usadas para fins de depuração e também
+como base para o menu de configuração do dispositivo, descrito na seção
+\ref{sec:menu}.
+
 
 \section{Menu de configuração}
 \label{sec:menu}
@@ -1712,8 +1754,8 @@ ou mesmo usar as já existentes. Foi sentida a necessidade de uma interface
 melhor, mais prática e mais intuitiva para o uso do \textit{firmware}.
 
 Essa foi a motivação para implementar um sistema de menus interativos. Esse
-sistema combina o teclado virtual previamente implementado (descrito na
-seção \ref{sec:keyboard}) com os três botões presentes na
+sistema combina o teclado virtual \ac{USB} previamente implementado
+(descrito na seção \ref{sec:keyboard}) com os três botões presentes na
 \textit{protoboard} (descritos na seção \ref{sec:hardware_visao_geral}).
 
 Um dos botões foi escolhido para funcionar como ``confirma'', enquanto os
@@ -1744,11 +1786,11 @@ convencional, no entanto, detecta apenas movimentos e obtém coordenadas
 relativas $(\Delta x, \Delta y)$, indicando a nova posição em relação à
 posição atual do ponteiro. Devido a essa diferença, o dispositivo
 implementado neste projeto é na verdade considerado um \textit{absolute
-pointing device}. \footnote{
+pointing device}\footnote{
 	Apesar de na verdade ser um \textit{absolute pointing device}, o nome
 	\textit{mouse}, por ser mais simples, mais curto e mais fácil de
 	entender, é usado em todo o projeto.
-}
+}.
 
 A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
 \textit{mouses} que implementem o protocolo \textit{boot}
@@ -1794,10 +1836,10 @@ A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
 O \textit{report} usado por este \textit{mouse} possui seis bytes. O
 primeiro deles é o \textit{Report ID} e tem valor 2, identificando que este
 \textit{report} corresponde ao \textit{report descriptor} do
-\textit{mouse}.\footnote{
+\textit{mouse}\footnote{
 	Na seção \ref{sec:keyboard}, o \textit{Report ID} do teclado é definido
 	com o valor 1.
-} Os quatro bytes seguintes correspondem à posição $(x, y)$, onde cada uma
+}. Os quatro bytes seguintes correspondem à posição $(x, y)$, onde cada uma
 das duas coordenadas é representada por um número inteiro de 16 bits dentro
 do intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
 considerados \textit{null values} e devem ser ignorados pelo \textit{host}
@@ -1809,7 +1851,11 @@ O algoritmo de transformação de coordenadas implementado no microcontrolador
 foi a abordagem usando um sistema de três equações lineares (seção
 \ref{sec:coord_lineq}). Essa solução foi escolhida por ser a mais simples e
 portanto ocupar pouco espaço na memória bastante limitada do
-microcontrolador. Os cálculos utilizam variáveis \texttt{float} de 32 bits
+microcontrolador\footnote{
+	Outras abordagens mais complexas podem ser implementadas caso
+	microcontrolador ATmega8 seja substituído por outro com mais memória
+	\textit{Flash}.
+}. Os cálculos utilizam variáveis \texttt{float} de 32 bits
 \cite{avrlibcfaq}, e a resolução do sistema linear utiliza o método de
 \textit{Gauss-Jordan} \cite{GaussJordanInPython}.
 
@@ -1911,12 +1957,12 @@ para cada botão. A cada leitura, o valor do byte é deslocado um bit para a
 esquerda e a leitura atual é guardada no bit menos significativo. Caso o
 valor do byte seja igual a \texttt{0x00}, considera-se que o botão não está
 pressionado. Caso o valor seja igual a \texttt{0xFF}, considera-se que o
-botão está pressionado.\footnote{
+botão está pressionado\footnote{
 	No \textit{hardware}, o nível lógico 0 representa um botão pressionado.
 	Como é mais intuitivo pensar que 1 representa o botão pressionado e 0
 	botão solto, o valor lido pelo \textit{hardware} é invertido pela rotina
 	de leitura dos botões.
-} Qualquer outro valor é ignorado, e o botão mantém o estado anterior.
+}. Qualquer outro valor é ignorado, e o botão mantém o estado anterior.
 
 
 \subsection{Gravar configurações na EEPROM}
@@ -2010,8 +2056,8 @@ figura \ref{fig:zerocal}.
 %\label{sub:firmware_size}
 %
 %Um desafio constante durante o projeto foi manter o tamanho do
-%\textit{firmware} abaixo de 8192 bytes (tamanho da memória Flash do
-%microcontrolador, conforme descrito na seção \ref{sec:atmega8}), e,
+%\textit{firmware} abaixo de 8192 bytes (tamanho da memória \textit{Flash}
+%do microcontrolador, conforme descrito na seção \ref{sec:atmega8}), e,
 %adicionalmente, abaixo de 6144 bytes (espaço total disponível após o uso do
 %\textit{boot loader}, conforme seção \ref{sec:bootloader}).
 %
@@ -2032,7 +2078,8 @@ toe.}''\\
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo é apresentado o problema de transformação de coordenadas, as
+abordagens experimentadas e os resultados observados em cada abordagem.
 \newpage
 
 
@@ -2131,10 +2178,10 @@ listagem \ref{lst:convert_coordinates}.
 \end{figure}
 
 Essas três ferramentas podem ser usadas separadamente ou encadeadas através
-de um \textit{pipeline}.\footnote{
+de um \textit{pipeline}\footnote{
 	\textit{Pipeline} significa ligar a saída padrão de um programa à
 	entrada padrão do programa seguinte.
-}
+}.
 
 
 \section{Transformação usando geometria}
@@ -2486,7 +2533,8 @@ pequenas quando a região da esfera é suficientemente reduzida.
 \end{flushright}{\small \par}
 \vfill{}
 
-% Neste capítulo são apresentadas blah blah
+Neste capítulo são apresentados os resultados alcançados, as limitações
+encontradas e sugestões para trabalhos futuros.
 \newpage
 
 
