@@ -25,7 +25,3 @@ usbasp_top_hi.jpg
 
 firmware_size_graph.pdf
 	Generated at revision 355:82c2e17f22b2
-
-6steps.png
-	http://promo.aaas.org/b2s/2009/images/closeup.gif
-	http://promo.aaas.org/b2s/2009/LandingB2S.html
