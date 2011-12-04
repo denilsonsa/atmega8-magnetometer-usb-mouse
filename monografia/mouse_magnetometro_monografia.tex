@@ -393,12 +393,23 @@ profissional que me proporcionaram.
 \begin{resumo}
 Este projeto tem como objetivo implementar um dispositivo apontador
 compatível com um \textit{mouse} USB utilizando um microcontrolador AVR
-ATmega8 de 8 bits e um magnetômetro.
+ATmega8 de 8 bits e um magnetômetro. O dispositivo fruto deste projeto
+permite o usuário controlar o ponteiro do mouse movendo um sensor no ar,
+simplesmente apontando-o para a posição desejada na tela. É uma forma
+bastante intuitiva de controlar o ponteiro em situações onde um
+\textit{mouse} não é adequado. Pode também ser usado para fins de
+acessibilidade, controlando o ponteiro através de movimentos da cabeça ou de
+qualquer outra parte do corpo.
 \end{resumo}
 
 \begin{abstract}
 This project implements a USB HID absolute pointing device using an ATmega8
-AVR 8-bit microcontroller and a magnetometer.
+AVR 8-bit microcontroller and a magnetometer. This device allows the user to
+control the mouse pointer by just moving a sensor in the air, pointing it to
+the desired screen position. It is a very intuitive way to control the
+pointer whenever it is not appropriate to use a mouse. It can also be used
+for accessibility, controlling the pointer by head movements, or movements
+of any other part of the body.
 \end{abstract}
 
 
@@ -1463,7 +1474,7 @@ ISR(TWI_vect)
 \label{sec:software_sensor}
 
 O sensor HMC5883L possui treze registradores de 8 bits que podem ser
-acessados pela comunicação serial, e ainda mais um registrador interno
+acessados pela comunicação serial, mais um registrador interno
 chamado de \textit{address pointer}, o qual aponta para algum dos outros
 registradores e cujo valor não pode ser lido \cite{HMC5883L}.
 
@@ -1490,14 +1501,14 @@ registrador apontado pelo \textit{address pointer} e incrementando-o. Desta
 forma, é possível ler o conteúdo de vários registradores adjacentes de
 maneira bem eficiente, com \textit{overhead} de comunicação mínimo.
 
-No entanto, a implementação do sensor não é perfeita, e em certos casos ao
+No entanto, a implementação do sensor não é perfeita, e em certos casos o
 auto-incremento do \textit{address pointer} não funciona como esperado. Por
 exemplo, uma tentativa de ler todos os registradores (usando o
 auto-incremento para iterar automaticamente por todos eles) retorna valores
 diferentes (e inválidos) daqueles retornados por leituras individuais. De
-maneira geral, o auto-incremento funciona corretamente apenas para leitura
-dos seis registradores de dados e para a leitura dos três registradores de
-identificação do sensor.
+maneira geral, o auto-incremento funciona corretamente apenas para a leitura
+dos três registradores de identificação do sensor e para a leitura dos seis
+registradores de dados, não atrapalhando o uso normal do sensor.
 
 Para ler os valores X, Y, Z do sensor, o microcontrolador começa realizando
 uma escrita no sensor, enviando o valor \texttt{0x03} como endereço do
@@ -1513,29 +1524,29 @@ registradores de configuração do sensor são escritos.
 
 O sensor foi configurado para atualizar os registradores de dados 75 vezes
 por segundo, sendo que cada valor é a média de oito amostras. O ganho do
-sensor foi configurado para ±\SI{1.3}{\gauss}\footnote{
+sensor foi configurado para ±\SI{1.3}{\gauss}, o que corresponde a
+\num{1090} bits por gauss\footnote{
 	O símbolo \si{\gauss} corresponde à unidade de densidade de fluxo
 	magnético ``gauss'' \cite{SI}. O \textit{datasheet} do sensor,
 	no entanto, utiliza Ga como símbolo para essa unidade.
-}, o que corresponde a \num{1090} bits por gauss, ou \SI{0.92}{\milli\gauss}
-por bit. Este ganho foi escolhido por permitir a maior precisão possível das
-medidas sem causar \textit{overflow} no sensor.
+}, ou \SI{0.92}{\milli\gauss} por bit. Este ganho foi escolhido por permitir
+a maior precisão possível das medidas sem causar \textit{overflow} no
+sensor.
 
 O sensor foi configurado para o modo de medição contínua, \ie, está
 continuamente medindo o campo magnético e atualizando os registradores de
 dados (75 vezes por segundo), mesmo que o microcontrolador não faça a
-leitura dessas medidas. Essa abordagem foi escolhida por simplificar a
-implementação.
+leitura dessas medidas.
 
-Por limitação do sensor, esse modo permite obter medições a uma taxa máxima
-de \SI{75}{\hertz}. Apesar disso, o sensor permite medições a até
-\SI{160}{\hertz} se for configurado para realizar medições individuais e o
-pino DRDY for monitorado \cite{HMC5883L}. Este pino normalmente fica
-no nível lógico 1, porém cai para 0 por \SI{250}{\micro\second} assim que
-uma nova medida é colocada nos registradores de dados \cite{HMC5883L}.
-Portanto, seria possível ligar esse pino DRDY a algum dos pinos de
-interrupção do microcontrolador e escrever uma rotina que leia os dados e
-inicie a próxima medição.
+Por limitação do sensor, o modo de medição contínua permite obter medições a
+uma taxa máxima de \SI{75}{\hertz}. Apesar disso, é possível obter medições
+a até \SI{160}{\hertz} se for configurado para o modo de medições
+individuais e o pino DRDY for monitorado \cite{HMC5883L}. Este pino
+normalmente fica no nível lógico 1, porém cai para 0 por
+\SI{250}{\micro\second} assim que uma nova medida é colocada nos
+registradores de dados \cite{HMC5883L}.  Portanto, seria possível ligar esse
+pino DRDY a algum dos pinos de interrupção do microcontrolador e escrever
+uma rotina que leia os dados e inicie a próxima medição.
 
 Todavia, a \ac{PCB} usada neste projeto (figura \ref{fig:sensor_photos}) não
 possui um contato para o pino DRDY, e portanto não foi possível se
@@ -1872,29 +1883,34 @@ disponível para uso do algoritmo.
 \subsection{Suavização do movimento}
 \label{sub:mouse_smoothing}
 
-O resultado do primeiro teste após o a implementação do \textit{mouse}
+O resultado do primeiro teste após a implementação do \textit{mouse}
 \ac{USB} e da transformação de coordenadas foi insatisfatório. Embora o
-algoritmo funcionasse e o ponteiro acompanhasse os movimentos do sensor, a
-posição do ponteiro não era estável. Mesmo com o sensor parado, o ponteiro
-oscilava significativamente na tela, indicando um ruído nas medições.
+algoritmo funcionasse corretamente e o ponteiro acompanhasse os movimentos
+do sensor, a posição do ponteiro não era estável. Mesmo com o sensor parado,
+o ponteiro oscilava significativamente na tela, indicando um ruído nas
+medições.
 
 Esse ruído pode ser consequência da interferência magnética de aparelhos
 elétricos e eletrônicos, ou apenas uma limitação da precisão do sensor (que,
 conforme descrito na seção \ref{sec:sensor}, possui um \ac{ADC} de 12 bits).
 As razões exatas para tal ruído não são conhecidas.
 
-Foi então implementado um filtro de suavização após a transformação de
-coordenadas, mas antes de preencher o \textit{report}. O valor final das
-coordenadas na tela é uma média ponderada calculada desta forma:
+Foi então implementado um filtro de suavização de segunda ordem. O filtro é
+aplicado após a transformação de coordenadas, mas antes de preencher o
+\textit{report}. O valor final das coordenadas na tela é uma média ponderada
+calculada desta forma:
 
 \begin{align*}
 %\label{eq:filtro_media_ponderada}
-x_t & = 0.875 x_{t-1} + 0.125 x
+x' _t & = (1-\gamma) x' _{t-1} + \gamma x _t  \\
+x''_t & = (1-\gamma) x''_{t-1} + \gamma x'_t
 \end{align*}
 
-Onde $x_{t-1}$ é o valor da média anterior, $x$ é o resultado da
-transformação de coordenadas aplicada na medição do sensor, e $x_t$ é o
-valor após a suavização.
+Onde $x_t$ é o resultado da transformação de coordenadas, $x'_t$ e $x''_t$
+são o resultado dos filtros de primeira e segunda ordem, e $x'_{t-1}$ e
+$x''_{t-1}$ são os resultados dos filtros após a medição anterior. O valor
+final da coordenada $x$ do ponteiro na tela é $x''_t$. Um cálculo análogo é
+efetuado para a coordenada $y$.
 
 % O nome disso é suavização exponencial, ou amortecimento exponencial:
 % http://en.wikipedia.org/wiki/Exponential_smoothing
@@ -1905,10 +1921,10 @@ valor após a suavização.
 % Ver também:
 % http://www2.dbd.puc-rio.br/pergamum/tesesabertas/0521427_07_cap_02.pdf
 
-Os fatores $0.875$ e $0.125$ foram escolhidos experimentalmente considerando
-um balanço entre o tempo de resposta e a intensidade do filtro. Foi
-verificado que fatores $0.9375$ e $0.0625$ introduziram um tempo de resposta
-perceptível para o usuário.
+Experimentalmente foi escolhido $\gamma = 0.125$, considerando um balanço
+entre o tempo de resposta e a intensidade do filtro. Foi também observado
+que valores menores para $\gamma$, como $\gamma = 0.0625$, introduziram um
+atraso perceptível para o usuário.
 
 
 \subsection{Bug no kernel do Linux}
