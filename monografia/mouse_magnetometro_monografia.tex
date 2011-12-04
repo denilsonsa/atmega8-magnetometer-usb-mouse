@@ -692,7 +692,7 @@ figura \ref{fig:usb_connectors}), sendo duas para alimentação (\VBUS =
 \SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados são
 transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing} (um
 ``zero'' é inserido após seis bits ``um'' consecutivos).
-\cite[p.~157]{usb20} \cite[cap.~2]{usbinanutshell}
+\cite{usb20} \cite{usbinanutshell}
 
 A velocidade de um dispositivo é determinada por \textit{hardware}, de
 acordo com a posição do resistor de \textit{pull-up}\footnote{
@@ -708,7 +708,7 @@ nas vias de dados. Dispositivos
 enquanto dispositivos \textit{full speed} possuem  um resistor de
 \textit{pull-up} ligado ao D+. Se não há nenhum resistor de
 \textit{pull-up}, assume-se que não há nenhum dispositivo conectado.
-\cite[p.~141]{usb20} \cite[cap.~2]{usbinanutshell}
+\cite{usb20} \cite{usbinanutshell}
 
 Dispositivos \textit{high speed}, introduzidos no \ac{USB} 2.0, inicialmente
 se identificam como \textit{full speed} (com um resistor de \textit{pull-up}
@@ -717,7 +717,7 @@ o USB \textit{reset}, caso o \textit{host} também suporte \textit{high
 speed}. Caso contrário, o resistor será mantido e o dispositivo funcionará
 em \textit{full speed}. Essa negociação incial permite a compatibilidade
 entre dispositivos USB 2.0 \textit{high speed} e \textit{hosts} USB 1.x.
-\cite[p.~142]{usb20} \cite[cap.~2]{usbinanutshell}
+\cite{usb20} \cite{usbinanutshell}
 
 \begin{figure}[h]
 \centering
@@ -735,7 +735,7 @@ uma conexão ponto-a-ponto que liga um \textit{hub} da camada imediatamente
 acima a um dispositivo na camada imediatamente abaixo. Um dispositivo pode
 ser um outro \textit{hub} ou então uma função. Por limitações de tempo de
 propagação, o número máximo de camadas é sete, incluindo a camada que contém
-o \textit{host}.  \cite[p.~16]{usb20}
+o \textit{host}.  \cite{usb20}
 
 A especificação \ac{USB} define dois tipos de conectores (ilustrados na
 figura \ref{fig:usb_connectors}). Um cabo \ac{USB} possui uma ponta de cada
@@ -771,12 +771,12 @@ do escopo deste trabalho.
 Um \textit{endpoint} pode ser visto como um endereço lógico que pode receber
 dados do \textit{host} ou enviar dados para ele. Todo dispositivo \ac{USB}
 possui o \textit{endpoint~0}, usado pelo próprio protocolo para mensagens de
-controle e de \textit{status}. \cite[cap.~3]{usbinanutshell}
+controle e de \textit{status}. \cite{usbinanutshell}
 
 Além do \textit{endpoint~0}, um dispositivo \ac{USB} normalmente possui pelo
 menos mais um \textit{endpoint}, usado para o objetivo fim do dispositivo.
 
-Há quatro tipos de \textit{endpoints}: \cite[cap.~4]{usbinanutshell}
+Há quatro tipos de \textit{endpoints}: \cite{usbinanutshell}
 
 \begin{description}
 \item[Control] \hfill \\
@@ -840,21 +840,21 @@ e inclui outros tipos de dispositivos com necessidades similares, tais como
 medidores de temperatura, controles de um painel (botões, alavancas,
 ajustes), volantes, pedais, leitores de códigos de barra, ou ainda novos
 dispositivos que não foram previstos inicialmente na especificação.
-\cite[p.~1]{usbhid}
+\cite{usbhid}
 
 A classe \ac{USB} \ac{HID} tem como objetivos ser compacta (para reduzir o
 espaço necessário no \textit{firmware} do dispositivo), ser flexível e
 extensível, ser genérica e auto-descritiva (de modo que cada dispositivo
 descreva suas características de forma padronizada para o \textit{host}). O
 driver da classe \ac{USB} \ac{HID}, presente no sistema operacional, é capaz
-de se comunicar com qualquer dispositivo dessa classe. \cite[p.~2]{usbhid}
+de se comunicar com qualquer dispositivo dessa classe. \cite{usbhid}
 
 Eventos do dispositivo (\eg, um botão foi pressionado ou o \textit{mouse}
 foi movimentado) são enviados ao \textit{host} através de um
 \textit{interrupt-in endpoint}. Mensagens geradas pelo \textit{host} e que
 devem ser enviadas para o dispositivo (\eg, acender ou apagar um dos
 indicadores do teclado) podem utilizar um \textit{interrupt-out endpoint} ou
-o \textit{control endpoint}. \cite[p.~10]{usbhid}
+o \textit{control endpoint}. \cite{usbhid}
 
 Essas mensagens enviadas ou recebidas pelo dispositivo são chamadas de
 \textit{reports}. O formato delas é definido pelo próprio dispositivo,
@@ -884,7 +884,7 @@ A arquitetura do \ac{I2C} é baseada no modelo \textit{master/slave}, sendo
 que qualquer um dos dispositivos do barramento pode assumir o papel de
 \textit{master}, e inclusive o papel pode mudar ao longo do tempo. O
 protocolo permite também múltiplos \textit{masters} no mesmo barramento.
-\cite[p.~6]{UM10204} \cite[p.~161]{ATmega8} No entanto, para este trabalho
+\cite{UM10204} \cite{ATmega8} No entanto, para este trabalho
 foi necessário apenas ligar dois dispositivos: o microcontrolador ATmega8
 (funcionando sempre como \textit{master}) e o sensor HMC5883L (funcionando
 sempre como \textit{slave}).
@@ -893,7 +893,7 @@ Tanto a via de dados \ac{SDA} como a via de \textit{clock} \ac{SCL} são
 bidirecionais. O \textit{master} é responsável por gerar o sinal de
 \textit{clock}, mas o dispositivo \textit{slave} pode esticar o período de
 \textit{clock} em determinadas situações, indicando que ainda não está
-pronto para responder. \cite[p.~13]{UM10204}
+pronto para responder. \cite{UM10204}
 
 A comunicação no \ac{I2C} é baseada em bytes. O \textit{master} envia um
 sinal de \textit{START}, seguido de um byte de endereço. Nesse byte, sete
@@ -901,7 +901,7 @@ bits, indicam o endereço do \textit{slave} e o oitavo bit indica o tipo de
 comunicação (escrita ou leitura). Após a transmissão desse byte, o
 \textit{master} libera a linha de dados e o \textit{slave} envia um bit zero
 durante próximo pulso de \textit{clock}, sinalizando que recebeu o byte
-(\textit{acknowledge}). \cite[p.~3]{AVR315}
+(\textit{acknowledge}). \cite{AVR315}
 
 Logo após o byte de endereço, inicia-se a transmissão dos bytes de dados.
 Caso seja uma escrita, o \textit{master} envia os bytes de dados exatamente
@@ -913,12 +913,12 @@ mencionado anteriormente), e o \textit{slave} envia um bit a cada pulso do
 \textit{master} deve enviar um bit de \textit{acknowledge} para o
 \textit{slave}. Em outras palavras, cada byte transmitido numa direção é
 sempre seguido de um bit de \textit{acknowledge} transmitido na direção
-contrária. \cite[p.~3]{AVR315}
+contrária. \cite{AVR315}
 
 O \textit{master} finaliza uma transmissão enviando um sinal \textit{STOP},
 ou então enviando um novo sinal \textit{START} para iniciar uma nova
 transmissão imediatamente (condição conhecida como \textit{REPEATED START}).
-\cite[p.~158]{ATmega8}
+\cite{ATmega8}
 
 Pode-se também observar que a quantidade total de bytes transferidos é uma
 escolha do \textit{master}, e o \textit{slave} não tem como saber
@@ -960,16 +960,16 @@ sido escritos em linguagens de alto nível. \cite{avr_iar_design}
 
 Além disso, as instruções são executadas num pipeline de dois estágios,
 permitindo um desempenho máximo de uma instrução por ciclo de
-\textit{clock}. \cite[p.~9]{ATmega8} Nem sempre esse desempenho é
+\textit{clock}. Nem sempre esse desempenho é
 alcançado, pois algumas instruções (como as que acessam a memória \ac{SRAM}
-e os desvios) demoram pelo menos dois ciclos. \cite[p.~282]{ATmega8}
+e os desvios) demoram pelo menos dois ciclos. \cite{ATmega8}
 
 Todas as instruções da arquitetura AVR ocupam 16 ou 32 bits (2 ou 4 bytes).
 Por esse motivo, a memória \textit{Flash} é endereçada por \textit{words} de
 16 bits. Podemos dizer que o ATmega8 possui \num{8192} bytes de memória
 \textit{Flash}, ou de maneira equivalente, \num{4096} \textit{words}.
-\cite[p.~17]{ATmega8} A memória \ac{SRAM} e a memória \ac{EEPROM} são
-endereçadas por bytes. \cite[p.~18-19]{ATmega8}
+A memória \ac{SRAM} e a memória \ac{EEPROM} são
+endereçadas por bytes. \cite{ATmega8}
 
 O microcontrolador ATmega8 inclui um módulo de comunicação serial \ac{I2C},
 porém, para evitar problemas de patentes e licenças, a \textit{Atmel
@@ -1089,12 +1089,12 @@ Um diagrama do circuito completo pode ser visto na figura
 
 Uma porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
 limita as vias de dados D+ e D- ao intervalo de \SIrange{2.8}{3.6}{\volt}.
-\cite[p.~178,~179]{usb20}
+\cite{usb20}
 
 Uma solução seria usar um microcontrolador que possa funcionar a tensões
 mais baixas e colocar um circuito para reduzir a alimentação para dentro do
 intervalo desejado. Modelos mais recentes da linha AVR permitem o uso dessa
-solução. \cite[p.~322]{ATmega_newer_datasheets} No entanto, o
+solução. \cite{ATmega_newer_datasheets} No entanto, o
 microcontrolador ATmega8 usado neste projeto não trabalha com tensões
 inferiores a \SI{4.5}{\volt}. \cite{ATmega8}
 
@@ -1115,12 +1115,12 @@ este começa a conduzir, limitando a tensão da linha de dados. A diferença de
 $\num{5} - \num{3.6} = \SI{1.4}{\volt}$ fica no resistor, resultando numa
 corrente de $\SI{1.4}{\volt} / \SI{68}{\ohm} = \SI{20.6}{\milli\ampere}$,
 que é abaixo do limite de \SI{40}{\milli\ampere} para cada pino do
-microcontrolador. \cite[p.~235]{ATmega8}
+microcontrolador. \cite{ATmega8}
 
 Além disso, conforme mencionado na seção \ref{sec:usb}, é preciso adicionar
 um resistor de \textit{pull-up} à linha D-, indicando que este dispositivo
 é \textit{low speed}. A especificação do USB 2.0 define que esse resistor
-deve ter \SI{1.5}{\kilo\ohm}. \cite[p.~141,~180]{usb20} O projeto USBasp, no
+deve ter \SI{1.5}{\kilo\ohm}. \cite{usb20} O projeto USBasp, no
 entanto, usa um resistor de \SI{2.2}{\kilo\ohm} \cite{USBasp}, que, mesmo
 fora da especificação, também funcionou.
 
@@ -1128,7 +1128,7 @@ Por fim, para o funcionamento correto do \textit{driver} \VUSB, é necessário
 que a linha USB~D+ esteja ligada ao pino INT0 do microcontrolador. Além
 disso, é preciso que as duas vias de dados estejam ligadas a pinos que
 pertençam à mesma porta do microcontrolador.
-\cite[usbconfig-prototype.h]{VUSBdriver} Portanto, a linha D+ foi ligada ao
+\cite{VUSBdriver} Portanto, a linha D+ foi ligada ao
 pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2 (PD0).
 
 
@@ -1139,7 +1139,7 @@ pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2 (PD0).
 \label{sub:hardware_sensor_alimentacao}
 
 O sensor HMC5883L trabalha com alimentação de \SIrange{2.16}{3.6}{\volt}.
-\cite[p.~2]{HMC5883L} Como a \ac{USB} fornece \SI{5}{\volt}, é necessário
+\cite{HMC5883L} Como a \ac{USB} fornece \SI{5}{\volt}, é necessário
 adicionar um circuito para reduzir a tensão até um nível adequado.
 
 A solução aqui empregada utiliza um diodo Zener de \SI{3.3}{\volt} e um
@@ -1153,7 +1153,7 @@ drenando constantemente uma corrente de $ (\SI{5}{\volt} - \SI{3.3}{\volt})
 \SI{3.3}{\volt} em relação ao \GND entre esses dois componentes.
 
 Considerando que o sensor drena apenas \SI{0.1}{\milli\ampere} quando em
-uso \cite[p.~2]{HMC5883L}, a queda de tensão na alimentação quando em carga
+uso \cite{HMC5883L}, a queda de tensão na alimentação quando em carga
 é desprezível, e portanto essa solução é bastante adequada para este
 propósito.
 
@@ -1167,9 +1167,9 @@ dois componentes, e dois resistores de \textit{pull-up}, um em cada fio.
 Todavia, os dois componentes não trabalham na mesma tensão. A primeira
 abordagem para este problema é verificar em suas especificações elétricas se
 as tensões de cada um estão dentro da faixa aceitável para o outro.
-\cite[p.~9]{AN97055} A tensão máxima de alimentação para o sensor é de
-\SI{3.6}{\volt} \cite[p.~2]{HMC5883L}, e tensão máxima tolerada no pino de
-alimentação é de \SI{4.8}{\volt} \cite[p.~3]{HMC5883L}, que é abaixo da
+\cite{AN97055} A tensão máxima de alimentação para o sensor é de
+\SI{3.6}{\volt} \cite{HMC5883L}, e tensão máxima tolerada no pino de
+alimentação é de \SI{4.8}{\volt} \cite{HMC5883L}, que é abaixo da
 tensão de \SI{5}{\volt} do microcontrolador. Isso significa que não é
 prudente ligar os dois componentes diretamente.
 
@@ -1180,13 +1180,13 @@ funcionar nas duas direções, pois o barramento é bidirecional.
 A solução adotada utiliza dois resistores de \textit{pull-up} e um
 transistor MOSFET de canal N para cada uma das vias do barramento. É uma
 solução proposta pela própria \textit{Philips/NXP}, desenvolvedora do padrão
-\ac{I2C}. \cite[p.~10]{AN97055} \cite{AN10441} Vários modelos diferentes de
+\ac{I2C}. \cite{AN97055} \cite{AN10441} Vários modelos diferentes de
 transistor MOSFET podem ser usados para este fim. Neste projeto, foi usado o
 modelo 2N7000. Os resistores de \textit{pull-up} usados foram de
 \SI{2.2}{\kilo\ohm}.
 
 Para entender como essa solução funciona, é preciso analisá-la em três
-estados: \cite[p.~10]{AN97055} \cite[p.~4]{AN10441}
+estados: \cite{AN97055} \cite{AN10441}
 
 \begin{description}
 \item[Nenhum dos dois dispositivos está puxando o barramento para zero] \hfill \\
@@ -1304,14 +1304,14 @@ foi escolhido por ser \textit{open source} e por também usar o
 Um \textit{boot loader} é gravado nos endereços mais altos da memória
 \textit{Flash}. O microcontrolador ATmega8 tem suporte a \textit{boot
 loaders} de tamanhos \numlist{256;512;1024;2048} bytes.
-\cite[p.~213]{ATmega8} Após compilado, o USBaspLoader possui \num{2028}
+\cite{ATmega8} Após compilado, o USBaspLoader possui \num{2028}
 bytes, e portanto ocupa os \num{2048} bytes superiores da memória
 \textit{Flash}.
 
 Logo após um \textit{reset}, o ATmega8 normalmente começaria a execução do
 programa a partir do endereço mais baixo da memória. No entanto, quando se
 ativa o \textit{boot loader} (através dos \textit{fuse bits} do
-microcontrolador \cite[p.~216]{ATmega8}), a execução começa no endereço da
+microcontrolador \cite{ATmega8}), a execução começa no endereço da
 região de \textit{boot}.
 
 Portanto, ao iniciar o microcontrolador, o USBaspLoader é executado antes do
@@ -1353,7 +1353,7 @@ O microcontrolador ATmega8 possui um \textit{hardware} dedicado para
 comunicação \ac{I2C} (chamada de \ac{TWI}, conforme citado na seção
 \ref{sec:atmega8}). No entanto, seu uso é relativamente burocrático, tendo
 que implementar uma máquina de estados para gerenciar os registradores do
-módulo de \ac{TWI} e a transmissão de dados. \cite[p.~168]{ATmega8} O
+módulo de \ac{TWI} e a transmissão de dados. \cite{ATmega8} O
 exemplo de código disponível na página 170 do \textit{datasheet} do ATmega8
 utiliza a técnica de \textit{busy-wait} e não é adequado para o firmware
 deste projeto.
@@ -1381,7 +1381,7 @@ Para este projeto, foi usado o \textit{driver} disponível na
 Seu funcionamento é baseado em interrupções, e portanto pode realizar a
 transmissão de vários bytes de maneira assíncrona (não-bloqueante), uma
 característica altamente desejável. A rotina de tratamento da interrupção
-basicamente implementa uma máquina de estados. \cite[p.~13]{AVR315}
+basicamente implementa uma máquina de estados. \cite{AVR315}
 
 O \textit{driver} possui um \textit{buffer} interno para armazenar os dados
 a serem enviados ou os dados sendo recebidos. O tamanho desse
@@ -1427,7 +1427,7 @@ ISR(TWI_vect)
 O sensor HMC5883L possui treze registradores de 8 bits que podem ser
 acessados pela comunicação serial, e ainda mais um registrador interno
 chamado de \textit{address pointer}, o qual aponta para algum dos outros
-registradores e cujo valor não pode ser lido. \cite[p.~11]{HMC5883L}
+registradores e cujo valor não pode ser lido. \cite{HMC5883L}
 
 Quando o \textit{master} inicia uma escrita, o primeiro byte recebido pelo
 sensor é considerado o endereço de um registrador, e esse endereço é salvo
@@ -1477,7 +1477,7 @@ O sensor foi configurado para atualizar os registradores de dados 75 vezes
 por segundo, sendo que cada valor é a média de oito amostras. O ganho do
 sensor foi configurado para ±\SI{1.3}{\gauss}\footnote{
 	O símbolo \si{\gauss} corresponde à unidade de densidade de fluxo
-	magnético ``gauss'' \cite[p.~128]{SI}. O \textit{datasheet} do sensor,
+	magnético ``gauss'' \cite{SI}. O \textit{datasheet} do sensor,
 	no entanto, utiliza Ga como símbolo para essa unidade.
 }, o que corresponde a \num{1090} bits por gauss, ou \SI{0.92}{\milli\gauss}
 por bit. Este ganho foi escolhido por permitir a maior precisão possível das
@@ -1492,9 +1492,9 @@ implementação.
 Por limitação do sensor, esse modo permite obter medições a uma taxa máxima
 de \SI{75}{\hertz}. Apesar disso, o sensor permite medições a até
 \SI{160}{\hertz} se for configurado para realizar medições individuais e o
-pino DRDY for monitorado. \cite[p.~12]{HMC5883L} Este pino normalmente fica
+pino DRDY for monitorado. \cite{HMC5883L} Este pino normalmente fica
 no nível lógico 1, porém cai para 0 por \SI{250}{\micro\second} assim que
-uma nova medida é colocada nos registradores de dados. \cite[p.~3]{HMC5883L}
+uma nova medida é colocada nos registradores de dados. \cite{HMC5883L}
 Portanto, seria possível ligar esse pino DRDY a algum dos pinos de
 interrupção do microcontrolador e escrever uma rotina que leia os dados e
 inicie a próxima medição.
@@ -1532,9 +1532,9 @@ pinos do microcontrolador não atendem estritamente a especificação \ac{USB}.
 
 A especificação \ac{USB} também define que os dispositivos devem implementar
 um modo \textit{suspend}, no qual não devem consumir mais que
-\SI{500}{\micro\ampere}. \cite[cap.~2]{usbinanutshell} O \textit{driver} não
+\SI{500}{\micro\ampere}. \cite{usbinanutshell} O \textit{driver} não
 implementa esse modo, mas explica em linhas gerais como seria possível
-implementá-lo. \cite[usbdrv.h]{VUSBdriver} Para este projeto, não foi
+implementá-lo. \cite{VUSBdriver} Para este projeto, não foi
 implementado o suporte ao modo \textit{suspend}, pois não é uma tarefa
 trivial e está fora do escopo deste trabalho.
 
@@ -1579,7 +1579,7 @@ Development Software GmbH.}.\footnote{
 	Este projeto se identifica como um dispositivo híbrido, funcionando ao
 	mesmo tempo como \textit{mouse} e teclado. Não há nenhum par
 	compartilhado de \textit{vendor-id}:\textit{product-id} que seja
-	adequado a este projeto.  \cite[USB-IDs-for-free.txt]{VUSBdriver} Após
+	adequado a este projeto.  \cite{VUSBdriver} Após
 	uma breve troca de e-mails com a \textit{Objective Development Software
 	GmbH.}, e sabendo que o uso era para fins acadêmicos, foi sugerido usar
 	valores quaisquer, aleatórios para esses campos.
@@ -1617,13 +1617,13 @@ dispositivos de \textit{boot}. Tais dispositivos possuem um \textit{report
 descriptor} predeterminado, definido no padrão \ac{USB} \ac{HID}. Isso foi
 criado para permitir o uso de teclados e \textit{mouses} mesmo nos estágios
 iniciais do \textit{boot} do computador, quando pode ser inviável ter uma
-implementação completa da especificação \ac{HID}. \cite[p.~59]{usbhid}
+implementação completa da especificação \ac{HID}. \cite{usbhid}
 
 O protocolo \textit{boot} obriga que o dispositivo se identifique ou como um
-teclado ou como um \textit{mouse}, mas não como os dois. \cite[p.~9]{usbhid}
+teclado ou como um \textit{mouse}, mas não como os dois. \cite{usbhid}
 Além disso, ele define um \textit{report descriptor} que suporta até seis
 teclas pressionadas simultaneamente, além das teclas modificadoras
-\cite[p.~60]{usbhid}, o que é desnecessário para um teclado que vai apenas
+\cite{usbhid}, o que é desnecessário para um teclado que vai apenas
 escrever \textit{strings}. Por todos esses motivos, foi decidido implementar
 um teclado que não suporta o protocolo \textit{boot}.
 
@@ -1689,7 +1689,7 @@ para a mesma tecla (\eg, letras repetidas), e neste caso é enviado um
 A especificação \ac{USB} \ac{HID} Usage Tables define que o código de uma
 tecla mantém-se o mesmo, independente do que estiver impresso na tecla. Isto
 significa que a tecla ``Z'' de um teclado QWERTZ envia o mesmo código que a
-tecla ``Y'' de um teclado QWERTY. \cite[p.~53]{usbhut} Em outras palavras, a
+tecla ``Y'' de um teclado QWERTY. \cite{usbhut} Em outras palavras, a
 interpretação do código da tecla é de inteira responsabilidade do sistema
 operacional, através da configuração do \textit{layout} do teclado.  O
 teclado implementado neste projeto supõe estar configurado com
@@ -1752,7 +1752,7 @@ pointing device}. \footnote{
 
 A especificação \ac{USB} \ac{HID} define um \textit{report descriptor} para
 \textit{mouses} que implementem o protocolo \textit{boot}.
-\cite[p.~61]{usbhid} Assim como a implementação do teclado (seção
+\cite{usbhid} Assim como a implementação do teclado (seção
 \ref{sec:keyboard}), este dispositivo não tem suporte ao protocolo
 \textit{boot} e utiliza o \textit{report descriptor} mostrado na listagem
 \ref{lst:report_mouse}.
@@ -1801,7 +1801,7 @@ primeiro deles é o \textit{Report ID} e tem valor 2, identificando que este
 das duas coordenadas é representada por um número inteiro de 16 bits dentro
 do intervalo de \numrange{0}{32767}. Valores fora desse intervalo são
 considerados \textit{null values} e devem ser ignorados pelo \textit{host}.
-\cite[p.~20]{usbhid} O último byte representa os botões do \textit{mouse},
+\cite{usbhid} O último byte representa os botões do \textit{mouse},
 sendo que os três bits menos significativos correspondem aos três botões, e
 os cinco bits restantes são ignorados.
 
@@ -1873,7 +1873,7 @@ implementação do suporte a \ac{USB} \ac{HID} no kernel do Linux.
 
 A especificação \ac{USB} \ac{HID} define que valores fora dos limites
 lógicos para um campo de um \textit{report} devem ser ignorados.
-\cite[p.~20]{usbhid} Neste projeto, conforme descrito na seção
+\cite{usbhid} Neste projeto, conforme descrito na seção
 \ref{sec:mouse}, cada coordenada é representada por um inteiro de 16 bits
 dentro do intervalo de \numrange{0}{32767}. Valores fora desse intervalo,
 porém ainda representáveis em 16 bits, deveriam ser ignorados pelo sistema
@@ -1934,7 +1934,7 @@ quatro ou cinco ciclos de \textit{clock}\footnote{
 	demora apenas um ciclo, mas também que a CPU fica parada por quatro
 	ciclos antes que a instrução seguinte seja executada.
 }, enquanto a escrita de cada byte demora aproximadamente
-\SI{8.5}{\milli\second}. \cite[p.~21]{ATmega8} Portanto, a leitura é rápida
+\SI{8.5}{\milli\second}. \cite{ATmega8} Portanto, a leitura é rápida
 o suficiente para não causar nenhum tipo de problema, mas a escrita
 é bastante demorada, e realizar escritas através da técnica de
 \textit{busy-wait} não é adequado pelos mesmos motivos já citados na seção
@@ -1947,7 +1947,7 @@ Writes''. \cite{AVR104} Sua implementação é bastante completa e inclui um
 \textit{buffer} de escritas bastante poderoso, permitindo que múltiplas
 escritas para endereços arbitrários na \ac{EEPROM} sejam empilhadas
 simultaneamente. Além disso, também tem suporte aos diferentes \textit{sleep
-modes} do microcontrolador. \cite[p.~33]{ATmega8}
+modes} do microcontrolador. \cite{ATmega8}
 
 Embora seja uma excelente solução para o caso geral, essa implementação
 é grande demais para as necessidades deste projeto.
@@ -1975,7 +1975,7 @@ Não se sabe se esse efeito é uma característica intrínseca do sensor, ou se
 recomendações sobre o projeto da \ac{PCB} na qual o sensor será montado. Em
 especial, recomenda afastar componentes que contenham materiais ferrosos,
 assim como evitar trilhas condutoras embaixo ou próximo do sensor.
-\cite[p.~5]{HMC5883L} Não foi possível descobrir se o fabricante da \ac{PCB}
+\cite{HMC5883L} Não foi possível descobrir se o fabricante da \ac{PCB}
 adquirida (figura \ref{fig:sensor_photos} na seção
 \ref{sec:sensor}) tomou tais precauções.
 
