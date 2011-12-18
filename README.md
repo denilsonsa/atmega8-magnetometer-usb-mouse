@@ -36,12 +36,12 @@ tweaking might be needed in order to compile it).
 
 * [Photos at Picasa][picasa].
 * Video: [USB Absolute Pointing Device implemented in ATmega8 using
-  Magnetometer][ytprototype] (last work-in-progress video)
+  Magnetometer][ytprototype] (work-in-progress video)
 * Video: [Dispositivo apontador com interface USB usando magnetômetro][ytusing]
   (final version, English subtitles available)
 * Video: [Moving the mouse pointer using head movements][ythead] (final version)
 * Video playlist: [Playlist with all videos from this project][ytplaylist]
-  (includes work-in-progress footage)
+  (includes many work-in-progress videos)
 
 [picasa]: https://picasaweb.google.com/denilsonsa/Atmega8MagnetometerUsbMouse
 [ytprototype]: http://www.youtube.com/watch?v=nZLTwfAJmrE
