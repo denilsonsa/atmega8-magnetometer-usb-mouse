@@ -9,11 +9,12 @@ the desired position, somewhat similar to the [Wiimote controller][wiimote]
 [atmega8]: http://www.atmel.com/dyn/products/product_card.asp?part_id=2004
 [wiimote]: http://en.wikipedia.org/wiki/Wii_Remote
 
-It was developed by *Denilson Figueiredo de Sá* in the year 2011 as the final
-graduating project in order to obtain Bachelor's degree in Computer Science
-at [DCC/UFRJ][dcc].
+It was developed by *Denilson Figueiredo de Sá* (see [blog post][blogpost]) in
+the year 2011 as the final graduating project in order to obtain Bachelor's
+degree in Computer Science at [DCC/UFRJ][dcc].
 
 [dcc]: http://www.dcc.ufrj.br/
+[blogpost]: http://my.opera.com/CrazyTerabyte/blog/2011/12/18/usb-hid-absolute-pointing-device-using-atmega8-and-a-magnetometer
 
 This project is mirrored at:
 
@@ -33,20 +34,16 @@ tweaking might be needed in order to compile it).
 
 ## Photos and videos ##
 
-Photos of the finished project are available at [a Picasa album][picasa].
+* [Photos at Picasa][picasa].
+* Video: [USB Absolute Pointing Device implemented in ATmega8 using
+  Magnetometer][ytprototype] (last work-in-progress video)
+* Video: [Dispositivo apontador com interface USB usando magnetômetro][ytusing]
+  (final version, English subtitles available)
+* Video: [Moving the mouse pointer using head movements][ythead] (final version)
+* Video playlist: [Playlist with all videos from this project][ytplaylist]
+  (includes work-in-progress footage)
 
 [picasa]: https://picasaweb.google.com/denilsonsa/Atmega8MagnetometerUsbMouse
-
-You can see this project in action at YouTube:
-
-* [USB Absolute Pointing Device implemented in ATmega8 using
-  Magnetometer][ytprototype]
-* [Dispositivo apontador com interface USB usando magnetômetro][ytusing]
-  (English subtitles available)
-* [Moving the mouse pointer using head movements][ythead]
-* [Playlist with all videos from this project][ytplaylist] (including
-  work-in-progress footage)
-
 [ytprototype]: http://www.youtube.com/watch?v=nZLTwfAJmrE
 [ytusing]: http://www.youtube.com/watch?v=lBZV_GAg8yw
 [ythead]: http://www.youtube.com/watch?v=1nuw9zsZtk4
@@ -54,7 +51,6 @@ You can see this project in action at YouTube:
 
 The schematic diagram of the circuit is available at the `monografia/img/`
 subdirectory of this repository.
-
 
 ## How it works ##
 
@@ -344,9 +340,13 @@ After you edit the firmware, you only need to redo these two steps.
   Master Implementation][avr315].
 * Authors and contributors of all open-source and free software used during
   this project.
+* *Marcin Wichary* demonstration at [Google I/O 2011: The Secrets of Google
+  Pac-Man: A Game Show][googleio], which gave me the main idea for this
+  project.
 
 [vusb]: http://www.obdev.at/products/vusb/index.html
 [avr315]: http://www.atmel.com/dyn/products/documents.asp?category_id=163&family_id=607&subfamily_id=760
+[googleio]: http://www.youtube.com/watch?v=ttavBa4giPc#t=2m46s
 
 
  vi:expandtab:filetype=markdown
