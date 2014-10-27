@@ -14,7 +14,7 @@ the year 2011 as the final graduating project in order to obtain Bachelor's
 degree in Computer Science at [DCC/UFRJ][dcc].
 
 [dcc]: http://www.dcc.ufrj.br/
-[blogpost]: http://my.opera.com/CrazyTerabyte/blog/2011/12/18/usb-hid-absolute-pointing-device-using-atmega8-and-a-magnetometer
+[blogpost]: http://denilson.sa.nom.br/blog/2011-12-18/usb-hid-absolute-pointing-device-using-atmega8-and-a-magnetometer/
 
 This project is mirrored at:
 
