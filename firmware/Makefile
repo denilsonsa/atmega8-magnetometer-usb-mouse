@@ -145,11 +145,11 @@ endif
 # CHECKSIZE is the path to the checksize script
 ifdef BUILDING_BOOTLOADER
 PROGNAME  = bootloader
-VUSBDIR   = ../vusb-20100715/usbdrv
+VUSBDIR   = ./vusb-20121206/usbdrv
 CHECKSIZE = ../checksize
 else
 PROGNAME  = main
-VUSBDIR   = ./vusb-20100715/usbdrv
+VUSBDIR   = ./vusb-20121206/usbdrv
 CHECKSIZE = ./checksize
 endif
 
