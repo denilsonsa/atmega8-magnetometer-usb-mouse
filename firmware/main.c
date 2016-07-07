@@ -127,7 +127,7 @@
 
 // If this HID report descriptor is changed, remember to update
 // USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH from usbconfig.h
-PROGMEM char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
+PROGMEM const char usbHidReportDescriptor[USB_CFG_HID_REPORT_DESCRIPTOR_LENGTH]
 __attribute__((externally_visible))
 = {
 	// Keyboard

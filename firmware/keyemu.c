@@ -114,7 +114,7 @@ typedef struct KeyAndModifier {
 // Warning: '/?' key is ';:' in BR-ABNT2 layout
 // Other characters not in this lookup table:
 //   \t \n A-Z a-z [\] ^_` {|} ~
-static KeyAndModifier char_to_key[] PROGMEM = {  // {{{
+static const KeyAndModifier char_to_key[] PROGMEM = {  // {{{
 	{KEY_SPACE    , 0             }, // SPACE
 	{KEY_1        , MOD_SHIFT_LEFT}, // !
 	{0            , 0             }, // "

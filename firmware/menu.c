@@ -161,7 +161,7 @@ static const MenuItem corners_menu_items[] PROGMEM = {
 
 // Corner names:
 // Slightly hacked from the menu strings. Saves about 40 bytes this way.
-static const PGM_P corners_names[4] PROGMEM = {
+static const PGM_P const corners_names[4] PROGMEM = {
 	// +offset = number of characters in "2.x. Set "
 	corners_menu_2 + 9,
 	corners_menu_3 + 9,
