@@ -4,14 +4,32 @@ all: $(BASENAME).pdf
 
 .PHONY: all clean pvc
 
-$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
-	latexmk -pdf $< | ./join_lines.awk | ./filter_pdflatex_output.sed
+doc2486.pdf:
+	wget 'http://www.atmel.com/dyn/resources/prod_documents/doc2486.pdf' -O doc2486.pdf
+
+doc2564.pdf:
+	wget 'http://www.atmel.com/dyn/resources/prod_documents/doc2564.pdf' -O doc2564.pdf
+
+HMC5883L.pdf:
+	wget 'http://c48754.r54.cf3.rackcdn.com/HMC5883L.pdf' -O HMC5883L.pdf
+
+en026368.pdf:
+	wget 'http://www.microchip.com/stellent/groups/techpub_sg/documents/devicedoc/en026368.pdf' -O en026368.pdf
+
+AN97055.pdf:
+	wget 'http://www.kip.uni-heidelberg.de/lhcb/Publications/external/AN97055.pdf' -O AN97055.pdf
+
+AN10441.pdf:
+	wget 'http://www.nxp.com/documents/application_note/AN10441.pdf' -O AN10441.pdf
+
+$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib doc2486.pdf HMC5883L.pdf en026368.pdf AN97055.pdf AN10441.pdf
+	latexmk -pdf -file-line-error -halt-on-error $< | ./join_lines.awk | ./filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo
 #	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
 
 pvc:
-	latexmk -pdf -pvc $(BASENAME) | ./join_lines.awk | ./filter_pdflatex_output.sed
+	latexmk -pdf -file-line-error -halt-on-error -pvc $(BASENAME) | ./join_lines.awk | ./filter_pdflatex_output.sed
 
 clean:
 	latexmk -C $(BASENAME)
