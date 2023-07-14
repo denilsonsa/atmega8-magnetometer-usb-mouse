@@ -1,0 +1,35 @@
+*.o
+*.lo
+*.la
+\#*#
+.*.rej
+*.rej
+.*~
+*~
+.#*
+.DS_Store
+*.bak
+.*.swp
+.swp
+.swo
+*.pyc
+*.pyo
+# LaTeX temporary files:
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+# Output PDF:
+*.pdf
