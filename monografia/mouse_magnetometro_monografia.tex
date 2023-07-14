@@ -693,7 +693,7 @@ instruções e para variáveis.
 configuração do programa.
 \item \num{1024} bytes de memória \ac{SRAM} volátil para as variáveis.
 \item Voltagem de operação de \SIrange{4.5}{5.5}{\volt}.
-\item Clock máximo de \SI{16}{\mega\hertz} usando um cristal externo.
+\item Clock máximo de \qty{16}{\mega\hertz} usando um cristal externo.
 \item Interface de comunicação serial I²C/TWI.
 \item Disponível no encapsulamento PDIP\footnote{
 	O encapsulamento do tipo \ac{PDIP}, também chamado de \ac{DIP}, é o
@@ -761,8 +761,8 @@ digital através de um \ac{ADC} de 12 bits, chegando a uma precisão de
 \end{figure}
 
 O circuito integrado possui encapsulamento \ac{LCC} e tem apenas
-\SI[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho. É
-impossível trabalhar manualmente com algo tão minúsculo, por isso foi
+\qtyproduct[product-units=single]{3.0 x 3.0 x 0.9}{\milli\metre} de tamanho.
+É impossível trabalhar manualmente com algo tão minúsculo, por isso foi
 adquirida uma \ac{PCB} já contendo o sensor e alguns capacitores
 \cite{ebay_HMC5883L}. Essa placa possui quatro contatos, sendo metade deles
 para alimentação (\GND e \VDD) e a outra metade para comunicação \ac{I2C}
@@ -792,14 +792,14 @@ eram projetados para usos bastante específicos \cite{usb20}.
 
 A primeira versão do \ac{USB}, conhecida como ``USB 1.0'', foi oficialmente
 lançada em janeiro de 1996 e definiu duas velocidades: \textit{low speed}
-(\SI{1.5}{\mega\bit\per\second}) e \textit{full speed}
-(\SI{12}{\mega\bit\per\second}). Alguns anos depois, em setembro de 1998, foi
+(\qty{1.5}{\mega\bit\per\second}) e \textit{full speed}
+(\qty{12}{\mega\bit\per\second}). Alguns anos depois, em setembro de 1998, foi
 lançada sua primeira revisão, ``USB 1.1'', que resolveu alguns problemas da
 versão anterior mas não introduziu nenhuma mudança significativa.
 
 A primeira grande revisão do protocolo foi lançada em abril de 2000, com o
 nome de ``USB 2.0''. Esta versão introduziu uma terceira velocidade --
-\textit{high speed} (\SI{480}{\mega\bit\per\second}) -- mas manteve total
+\textit{high speed} (\qty{480}{\mega\bit\per\second}) -- mas manteve total
 compatibilidade com a revisão anterior do protocolo: dispositivos USB 1.x
 funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
 \textit{hosts} USB 1.x (porém limitados a \textit{full speed}).
@@ -813,7 +813,7 @@ funcionam em \textit{hosts} USB 2.0, e dispositivos USB 2.0 funcionam em
 
 Uma conexão \ac{USB} é formada por quatro vias (conforme pode ser visto na
 figura \ref{fig:usb_connectors}), sendo duas para alimentação (\VBUS =
-\SI{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados são
+\qty{+5}{\volt} e \GND) e duas para comunicação (D+ e D-). Os dados são
 transmitidos usando a codificação \ac{NRZI} com \textit{bit stuffing} (um
 ``zero'' é inserido após seis bits ``um'' consecutivos)
 \cite{usb20} \cite{usbinanutshell}.
@@ -877,7 +877,7 @@ centralizada no \textit{host}, simplificando bastante a implementação de
 dispositivos que se conectam ao barramento \ac{USB} \cite{usbinanutshell}.
 
 Em novembro de 2008, foi lançada a especificação do USB 3.0, que introduziu
-uma quarta velocidade: \textit{super speed} (\SI{5}{\giga\bit\per\second}).
+uma quarta velocidade: \textit{super speed} (\qty{5}{\giga\bit\per\second}).
 A quantidade de mudanças para suportar essa nova velocidade é grande e foge
 do escopo deste trabalho.
 
@@ -1090,11 +1090,11 @@ Um diagrama do circuito completo pode ser visto na figura
 \section{Componentes ligados ao microcontrolador}
 \label{sec:hardware_microcontrolador}
 
-Um cristal de \SI{12}{\mega\hertz}, ligado aos pinos 9 e 10, define o
+Um cristal de \qty{12}{\mega\hertz}, ligado aos pinos 9 e 10, define o
 \textit{clock} do microcontrolador. O \textit{driver} usado para a
 implementação do protocolo \ac{USB}, descrito na seção \ref{sec:vusb},
 permite o uso de cristais de \SIlist[list-final-separator={ ou }]{12; 15;
-16; 20}{\mega\hertz}. A escolha pelo cristal de \SI{12}{\mega\hertz} foi
+16; 20}{\mega\hertz}. A escolha pelo cristal de \qty{12}{\mega\hertz} foi
 arbitrária.
 
 O pino 1 (\textoverline{RESET}) possui um resistor de \textit{pull-up}
@@ -1134,7 +1134,7 @@ detalhados na seção \ref{sub:hardware_sensor_i2c}.
 \section{Interface USB}
 \label{sec:hardware_usb}
 
-Uma porta \ac{USB} fornece \SI{5}{\volt} na via \VBUS, porém a especificação
+Uma porta \ac{USB} fornece \qty{5}{\volt} na via \VBUS, porém a especificação
 limita as vias de dados D+ e D- ao intervalo de \SIrange{2.8}{3.6}{\volt}
 \cite{usb20}.
 
@@ -1143,32 +1143,32 @@ mais baixas e colocar um circuito para reduzir a alimentação para dentro do
 intervalo desejado. Modelos mais recentes da linha AVR permitem o uso dessa
 solução \cite{ATmega_newer_datasheets}. No entanto, o
 microcontrolador ATmega8 usado neste projeto não trabalha com tensões
-inferiores a \SI{4.5}{\volt} \cite{ATmega8}.
+inferiores a \qty{4.5}{\volt} \cite{ATmega8}.
 
-Uma outra solução é manter o microcontrolador alimentado com \SI{5}{\volt} e
+Uma outra solução é manter o microcontrolador alimentado com \qty{5}{\volt} e
 adicionar um circuito para reduzir a saída dos pinos do AVR para a tensão
 desejada. Esta foi a solução empregada neste projeto.
 
 O circuito usado para reduzir a tensão nas linhas de dados segue o mesmo
 esquema usado no projeto USBasp \cite{USBasp}, também disponível no arquivo
 \texttt{circuits/with-zener.png} do \textit{driver} \VUSB \cite{VUSBdriver}.
-É composto de um diodo Zener de \SI{3.6}{\volt} ligando a linha de dados ao
-\GND e um resistor de \SI{68}{\ohm} entre o microcontrolador e o diodo
+É composto de um diodo Zener de \qty{3.6}{\volt} ligando a linha de dados ao
+\GND e um resistor de \qty{68}{\ohm} entre o microcontrolador e o diodo
 Zener.
 
 Quando o microcontrolador escreve o nível lógico 1, seu pino sobe para
-\SI{5}{\volt}. Como essa tensão é maior que a tensão de ruptura do Zener,
+\qty{5}{\volt}. Como essa tensão é maior que a tensão de ruptura do Zener,
 este começa a conduzir, limitando a tensão da linha de dados. A diferença de
-$\num{5} - \num{3.6} = \SI{1.4}{\volt}$ fica no resistor, resultando numa
-corrente de $\SI{1.4}{\volt} / \SI{68}{\ohm} = \SI{20.6}{\milli\ampere}$,
-que é abaixo do limite de \SI{40}{\milli\ampere} para cada pino do
+$\num{5} - \num{3.6} = \qty{1.4}{\volt}$ fica no resistor, resultando numa
+corrente de $\qty{1.4}{\volt} / \qty{68}{\ohm} = \qty{20.6}{\milli\ampere}$,
+que é abaixo do limite de \qty{40}{\milli\ampere} para cada pino do
 microcontrolador \cite{ATmega8}.
 
 Além disso, conforme mencionado na seção \ref{sec:usb}, é preciso adicionar
 um resistor de \textit{pull-up} à linha D-, indicando que este dispositivo
 é \textit{low speed}. A especificação do USB 2.0 define que esse resistor
-deve ter \SI{1.5}{\kilo\ohm} \cite{usb20}. O projeto USBasp, no
-entanto, usa um resistor de \SI{2.2}{\kilo\ohm} \cite{USBasp}, que, mesmo
+deve ter \qty{1.5}{\kilo\ohm} \cite{usb20}. O projeto USBasp, no
+entanto, usa um resistor de \qty{2.2}{\kilo\ohm} \cite{USBasp}, que, mesmo
 fora da especificação, também funcionou.
 
 Por fim, para o funcionamento correto do \textit{driver} \VUSB, é necessário
@@ -1186,20 +1186,20 @@ pino 4 (PD2/INT0), e a linha D- foi ligada ao pino 2 (PD0).
 \label{sub:hardware_sensor_alimentacao}
 
 O sensor HMC5883L trabalha com alimentação de \SIrange{2.16}{3.6}{\volt}
-\cite{HMC5883L}. Como a \ac{USB} fornece \SI{5}{\volt}, é necessário
+\cite{HMC5883L}. Como a \ac{USB} fornece \qty{5}{\volt}, é necessário
 adicionar um circuito para reduzir a tensão até um nível adequado.
 
-A solução aqui empregada utiliza um diodo Zener de \SI{3.3}{\volt} e um
-resistor de \SI{470}{\ohm} \cite{3vtipsandtricks}. É bastante similar àquela
+A solução aqui empregada utiliza um diodo Zener de \qty{3.3}{\volt} e um
+resistor de \qty{470}{\ohm} \cite{3vtipsandtricks}. É bastante similar àquela
 descrita na seção \ref{sec:hardware_usb}, mudando apenas os valores dos
 componentes.
 
 O diodo Zener e o resistor estão ligados em série entre \VCC e \GND,
-drenando constantemente uma corrente de $ (\SI{5}{\volt} - \SI{3.3}{\volt})
-/ \SI{470}{\ohm} = \SI{3.6}{\milli\ampere} $ e mantendo a tensão de
-\SI{3.3}{\volt} em relação ao \GND entre esses dois componentes.
+drenando constantemente uma corrente de $ (\qty{5}{\volt} - \qty{3.3}{\volt})
+/ \qty{470}{\ohm} = \qty{3.6}{\milli\ampere} $ e mantendo a tensão de
+\qty{3.3}{\volt} em relação ao \GND entre esses dois componentes.
 
-Considerando que o sensor drena apenas \SI{0.1}{\milli\ampere} quando em
+Considerando que o sensor drena apenas \qty{0.1}{\milli\ampere} quando em
 uso \cite{HMC5883L}, a queda de tensão na alimentação quando em carga
 é desprezível, e portanto essa solução é bastante adequada para este
 propósito.
@@ -1215,13 +1215,13 @@ Todavia, os dois componentes não trabalham na mesma tensão. A primeira
 abordagem para este problema é verificar em suas especificações elétricas se
 as tensões de cada um estão dentro da faixa aceitável para o outro
 \cite{AN97055}. A tensão máxima de alimentação para o sensor é de
-\SI{3.6}{\volt} \cite{HMC5883L}, e tensão máxima tolerada no pino de
-alimentação é de \SI{4.8}{\volt} \cite{HMC5883L}, que é abaixo da
-tensão de \SI{5}{\volt} do microcontrolador. Isso significa que não é
+\qty{3.6}{\volt} \cite{HMC5883L}, e tensão máxima tolerada no pino de
+alimentação é de \qty{4.8}{\volt} \cite{HMC5883L}, que é abaixo da
+tensão de \qty{5}{\volt} do microcontrolador. Isso significa que não é
 prudente ligar os dois componentes diretamente.
 
 Neste caso, faz-se necessário adicionar um circuito para converter o nível
-lógico 1 entre \SI{5}{\volt} e \SI{3.3}{\volt}. Essa conversão precisa
+lógico 1 entre \qty{5}{\volt} e \qty{3.3}{\volt}. Essa conversão precisa
 funcionar nas duas direções, pois o barramento é bidirecional.
 
 A solução adotada utiliza dois resistores de \textit{pull-up} e um
@@ -1230,24 +1230,24 @@ solução proposta pela própria \textit{Philips/NXP}, desenvolvedora do padrão
 \ac{I2C} \cite{AN97055} \cite{AN10441}. Vários modelos diferentes de
 transistor MOSFET podem ser usados para este fim. Neste projeto, foi usado o
 modelo 2N7000. Os resistores de \textit{pull-up} usados foram de
-\SI{2.2}{\kilo\ohm}.
+\qty{2.2}{\kilo\ohm}.
 
 Para entender como essa solução funciona, é preciso analisá-la em três
 estados: \cite{AN97055} \cite{AN10441}
 
 \begin{description}
 \item[Nenhum dos dois dispositivos está puxando o barramento para zero] \hfill \\
-	O lado de baixa tensão está em \SI{3.3}{\volt} devido ao resistor de
+	O lado de baixa tensão está em \qty{3.3}{\volt} devido ao resistor de
 	\textit{pull-up}. A diferença de potencial entre os terminais
 	\textit{gate} e \textit{source} do transistor é zero, e portanto ele não
 	está conduzindo. Desta forma, o lado de tensão mais alta está em
-	\SI{5}{\volt} devido ao resistor de \textit{pull-up}. Neste estado, os
+	\qty{5}{\volt} devido ao resistor de \textit{pull-up}. Neste estado, os
 	dois lados do barramento estão no nível lógico 1, apesar das tensões
 	diferentes.
 
 \item[O dispositivo de menor tensão está puxando o barramento para zero] \hfill \\
 	A diferença de potencial entre os terminais \textit{gate} e
-	\textit{source} é \SI{3.3}{\volt}, e o transistor entra em condução. O
+	\textit{source} é \qty{3.3}{\volt}, e o transistor entra em condução. O
 	lado de tensão mais alta é também puxado para zero, através do
 	transistor em condução.
 
@@ -1412,7 +1412,7 @@ indeterminado, durante o qual nenhum tipo de trabalho útil pode ser
 realizado. Uma das possíveis consequências é causar um \textit{watchdog
 reset}, reiniciando a execução do código do \textit{firmware}. Além disso,
 a espera ocupada não garantiria que a função \texttt{usbPoll()} fosse
-chamada em intervalos menores que \SI{50}{\milli\second}, conforme descrito
+chamada em intervalos menores que \qty{50}{\milli\second}, conforme descrito
 na seção \ref{sub:vusb_config}.
 
 Reconhecendo a dificuldade de usar esse módulo de maneira eficiente, a
@@ -1523,12 +1523,12 @@ registradores de configuração do sensor são escritos.
 
 O sensor foi configurado para atualizar os registradores de dados 75 vezes
 por segundo, sendo que cada valor é a média de oito amostras. O ganho do
-sensor foi configurado para ±\SI{1.3}{\gauss}, o que corresponde a
+sensor foi configurado para ±\qty{1.3}{\gauss}, o que corresponde a
 \num{1090} bits por gauss\footnote{
 	O símbolo \si{\gauss} corresponde à unidade de densidade de fluxo
 	magnético ``gauss'' \cite{SI}. O \textit{datasheet} do sensor,
 	no entanto, utiliza Ga como símbolo para essa unidade.
-}, ou \SI{0.92}{\milli\gauss} por bit. Este ganho foi escolhido por permitir
+}, ou \qty{0.92}{\milli\gauss} por bit. Este ganho foi escolhido por permitir
 a maior precisão possível das medidas sem causar \textit{overflow} no
 sensor.
 
@@ -1538,11 +1538,11 @@ dados (75 vezes por segundo), mesmo que o microcontrolador não faça a
 leitura dessas medidas.
 
 Por limitação do sensor, o modo de medição contínua permite obter medições a
-uma taxa máxima de \SI{75}{\hertz}. Apesar disso, é possível obter medições
-a até \SI{160}{\hertz} se for configurado para o modo de medições
+uma taxa máxima de \qty{75}{\hertz}. Apesar disso, é possível obter medições
+a até \qty{160}{\hertz} se for configurado para o modo de medições
 individuais e o pino DRDY for monitorado \cite{HMC5883L}. Este pino
 normalmente fica no nível lógico 1, porém cai para 0 por
-\SI{250}{\micro\second} assim que uma nova medida é colocada nos
+\qty{250}{\micro\second} assim que uma nova medida é colocada nos
 registradores de dados \cite{HMC5883L}.  Portanto, seria possível ligar esse
 pino DRDY a algum dos pinos de interrupção do microcontrolador e escrever
 uma rotina que leia os dados e inicie a próxima medição.
@@ -1580,7 +1580,7 @@ pinos do microcontrolador não atendem estritamente a especificação \ac{USB}
 
 A especificação \ac{USB} também define que os dispositivos devem implementar
 um modo \textit{suspend}, no qual não devem consumir mais que
-\SI{500}{\micro\ampere} \cite{usbinanutshell}. O \textit{driver} não
+\qty{500}{\micro\ampere} \cite{usbinanutshell}. O \textit{driver} não
 implementa esse modo, mas explica em linhas gerais como seria possível
 implementá-lo \cite{VUSBdriver}. Para este projeto, não foi
 implementado o suporte ao modo \textit{suspend}, pois não é uma tarefa
@@ -1606,7 +1606,7 @@ e D+), enquanto as configurações específicas foram mantidas no arquivo
 \texttt{usbconfig.h}.
 
 Para o \textit{firmware} principal, foi habilitado um \textit{interrupt-in
-endpoint} com intervalo \textit{polling} de \SI{10}{\milli\second} (o menor
+endpoint} com intervalo \textit{polling} de \qty{10}{\milli\second} (o menor
 valor possível para dispositivos \textit{low speed}). Também foram definidos
 outros parâmetros, como o nome do dispositivo, o nome do fabricante, o
 \textit{vendor-id} e o \textit{product-id}.
@@ -1639,7 +1639,7 @@ necessário chamar a função \texttt{usbInit()} na inicialização do
 \textit{firmware}, antes de habilitar as interrupções do microcontrolador, e
 é preciso chamar a função \texttt{usbPoll()} dentro do \textit{loop}
 principal do \textit{firmware}. É importante chamar essa função em
-intervalos menores que \SI{50}{\milli\second} para que o \textit{driver}
+intervalos menores que \qty{50}{\milli\second} para que o \textit{driver}
 funcione corretamente. Por fim, também foi necessário implementar a função
 \texttt{usbFunctionSetup()}, responsável por responder a algumas das
 mensagens recebidas no \textit{control endpoint 0} (as outras mensagens são
@@ -1995,7 +1995,7 @@ quatro ou cinco ciclos de \textit{clock}\footnote{
 	demora apenas um ciclo, mas também que a CPU fica parada por quatro
 	ciclos antes que a instrução seguinte seja executada.
 }, enquanto a escrita de cada byte demora aproximadamente
-\SI{8.5}{\milli\second} \cite{ATmega8}. Portanto, a leitura é rápida
+\qty{8.5}{\milli\second} \cite{ATmega8}. Portanto, a leitura é rápida
 o suficiente para não causar nenhum tipo de problema, mas a escrita
 é bastante demorada, e realizar escritas através da técnica de
 \textit{busy-wait} não é adequado pelos mesmos motivos já citados na seção
@@ -2143,8 +2143,8 @@ bottomleft
 A figura \ref{fig:half_sphere} mostra um gráfico dos vetores 3D
 impressos por esta ferramenta. Esse gráfico corresponde à região de
 \SIrange{-90}{90}{\degree} de longitude e \SIrange{-45}{45}{\degree} de
-latitude. Há um espaçamento de \SI{1}{\degree} de longitude e
-\SI{2}{\degree} de latitude entre os vetores.
+latitude. Há um espaçamento de \qty{1}{\degree} de longitude e
+\qty{2}{\degree} de latitude entre os vetores.
 
 \begin{figure}[h]
 \centering
@@ -2432,7 +2432,7 @@ o resultado de cada abordagem sendo testada com cada uma das cinco aberturas
 citadas. Foram produzidas encadeando as três ferramentas auxiliares
 descritas na seção \ref{sec:ferramentas} e mostram as deformações
 introduzidas por cada abordagem, lembrando que o espaço entre os pontos é de
-\SI{1}{\degree} horizontalmente e \SI{2}{\degree} verticalmente.
+\qty{1}{\degree} horizontalmente e \qty{2}{\degree} verticalmente.
 
 \begin{figure}[h]
 \centering
@@ -2494,9 +2494,9 @@ introduzidas por cada abordagem, lembrando que o espaço entre os pontos é de
 
 É possível observar que, com exceção da razão entre cossenos
 (\ref{fig:resultado_cos}), todas as abordagens tiveram um bom resultado para
-aberturas pequenas, de até \SI{30}{\degree} ou \SI{45}{\degree}. As
+aberturas pequenas, de até \qty{30}{\degree} ou \qty{45}{\degree}. As
 distorções somente são acentuadas para aberturas maiores, a partir de
-\SI{30}{\degree} ou \SI{60}{\degree}.
+\qty{30}{\degree} ou \qty{60}{\degree}.
 
 A razão entre ângulos (\ref{fig:resultado_angulo}) e a razão entre
 distâncias (\ref{fig:resultado_dist}) apresentaram comportamentos muito
@@ -2516,7 +2516,7 @@ foi a abordagem com menor distorção nas bordas.
 A razão entre tangentes (\ref{fig:resultado_tan}) só obteve bons resultados
 para aberturas pequenas. Para aberturas maiores, as distorções são
 extremamente acentuadas. Isso não é surpresa, visto que a função tangente
-tende para o infinito quando a abertura tende para \SI{90}{\degree}.
+tende para o infinito quando a abertura tende para \qty{90}{\degree}.
 
 O cálculo exato do escalar $\alpha$ obteve o melhor resultado geral,
 apresentando muito pouca deformação na região central assim como uma área de
