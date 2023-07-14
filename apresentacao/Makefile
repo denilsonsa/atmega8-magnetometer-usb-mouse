@@ -8,13 +8,13 @@ all: $(BASENAME).pdf
 
 $(BASENAME).pdf: $(BASENAME).tex
 #$(BASENAME).pdf: $(BASENAME).tex $(BASENAME).bib
-	latexmk -pdf $< | ../monografia/join_lines.awk | ../monografia/filter_pdflatex_output.sed
+	latexmk -pdf -file-line-error -halt-on-error $< | ../monografia/join_lines.awk | ../monografia/filter_pdflatex_output.sed
 
 #$(BASENAME).nls: $(BASENAME).nlo
 #	makeindex $(BASENAME).nlo -s nomencl.ist -o $(BASENAME).nls
 
 pvc:
-	latexmk -pdf -pvc $(BASENAME) | ../monografia/join_lines.awk | ../monografia/filter_pdflatex_output.sed
+	latexmk -pdf -file-line-error -halt-on-error -pvc $(BASENAME) | ../monografia/join_lines.awk | ../monografia/filter_pdflatex_output.sed
 
 clean:
 	latexmk -C $(BASENAME)
