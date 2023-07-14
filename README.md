@@ -18,19 +18,16 @@ degree in Computer Science at [DCC/UFRJ][dcc].
 
 This project is mirrored at:
 
-* [https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse][bbmirror]
 * [https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse][ghmirror]
 
-[bbmirror]: https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse
 [ghmirror]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse
 
 The full text of my thesis (written in Portuguese) is available as PDF in
-the download section of [GitHub][ghdownload] and [BitBucket][bbdownload].
+the download section of [GitHub][ghdownload].
 The LaTeX source is available in the `monografia/` directory (some minor
 tweaking might be needed in order to compile it).
 
-[ghdownload]: https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
-[bbdownload]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
+[ghdownload]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
 
 ## Photos and videos ##
 
