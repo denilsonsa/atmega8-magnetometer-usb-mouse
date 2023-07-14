@@ -23,11 +23,11 @@ This project is mirrored at:
 [ghmirror]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse
 
 The full text of my thesis (written in Portuguese) is available as PDF in
-the download section of [GitHub][ghdownload].
+the Releases section of [GitHub][ghreleases].
 The LaTeX source is available in the `monografia/` directory (some minor
 tweaking might be needed in order to compile it).
 
-[ghdownload]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse/downloads
+[ghreleases]: https://github.com/denilsonsa/atmega8-magnetometer-usb-mouse/releases
 
 ## Photos and videos ##
 
